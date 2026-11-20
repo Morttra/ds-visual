@@ -4,13 +4,13 @@ const TOY_NAMES = { Age_08_04: 'Alder (mnd)', KM: 'Kilometer', HP: 'Hestekrefter
 const fcoef = b => Math.abs(b) < 1 ? fx(b, 4) : fx(b, 2);
 
 topic({
-  id: 'lineaer-regresjon', short: 'Lineær regresjon', lecture: 'F5', tags: ['Prediksjon', 'Numerisk Y'],
+  id: 'lineaer-regresjon', data: [['toyota']], short: 'Lineær regresjon', lecture: 'F5', tags: ['Prediksjon', 'Numerisk Y'],
   title: 'Multippel lineær regresjon',
   path: ['Veiledet læring', 'Prediksjon'],
   lead: 'Lineær regresjon modellerer Y som et konstantledd pluss en vektet sum av forklaringsvariablene. Vektene (koeffisientene) velges slik at summen av kvadrerte residualer blir minst mulig.',
   figs: [{
     title: 'Minste kvadraters metode, bokstavelig talt',
-    sub: '30 Toyota Corolla fra treningsdataene: alder mot pris. Hver rute er en kvadrert residual. Minste kvadraters linje er linjen som gjør det samlede arealet av rutene minst mulig.',
+    sub: '30 bruktbiler fra treningsdataene: alder i måneder mot pris i euro. Hver rute er en kvadrert residual. Minste kvadraters linje er linjen som gjør det samlede arealet av rutene minst mulig.',
     build(el) {
       const L = DATA.toyotaLSQ, xs = L.map(r => r[0]), ys = L.map(r => r[1]);
       const xm = mean(xs), ym = mean(ys);
@@ -87,7 +87,7 @@ topic({
 <h2>Tolkning av koeffisientene</h2>
 <ul>
 <li>b<sub>j</sub> er endringen i predikert Y når <i>x</i><sub>j</sub> øker med én enhet <b>og alle andre variabler holdes fast</b>.</li>
-<li>For en dummy er b<sub>j</sub> forskjellen fra referansekategorien. I Toyota-modellen er CNG referanse, så b for diesel er forskjellen mellom en dieselbil og en ellers lik CNG-bil.</li>
+<li>For en dummy er b<sub>j</sub> forskjellen fra referansekategorien. I bruktbilmodellen er CNG (naturgass) referanse, så b for diesel er forskjellen mellom en dieselbil og en ellers lik CNG-bil.</li>
 <li>Størrelsen på b avhenger av enheten. Vil du sammenligne viktighet, standardiser variablene først.</li>
 </ul>
 <h2>Forklaring eller prediksjon?</h2>
@@ -115,12 +115,12 @@ regressionSummary(y_true=valid_y, y_pred=car_lm.predict(valid_X))</code></pre>`
 });
 
 topic({
-  id: 'variabelseleksjon', short: 'Variabelvalg og regularisering', lecture: 'F5', tags: ['Prediksjon', 'Subset selection', 'Ridge', 'Lasso'],
+  id: 'variabelseleksjon', data: [['toyota']], short: 'Variabelvalg og regularisering', lecture: 'F5', tags: ['Prediksjon', 'Subset selection', 'Ridge', 'Lasso'],
   title: 'Variabelvalg, ridge og lasso',
   path: ['Veiledet læring', 'Prediksjon'],
   lead: 'Flere forklaringsvariabler er ikke alltid bedre. Vi kan velge ut et delsett av variablene, eller beholde alle og krympe koeffisientene mot null med ridge eller lasso.',
   figs: [{
-    title: 'Uttømmende søk på Toyota Corolla',
+    title: 'Uttømmende søk på bruktbildataene',
     sub: 'Alle 2 047 modeller med 1–11 av variablene er tilpasset på treningsdataene. For hver modellstørrelse vises den beste. Justert R² skal være høy, AIC skal være lav.',
     build(el) {
       const E = DATA.toyotaExhaustive; let k = 9;
@@ -177,7 +177,7 @@ topic({
     }
   }, {
     title: 'Ridge og lasso krymper koeffisientene',
-    sub: 'Koeffisientene for de 11 standardiserte variablene i Toyota-modellen når straffen λ øker (i scikit-learn heter den alpha). Lasso setter koeffisienter til nøyaktig null. Ridge krymper alle, men ingen blir null.',
+    sub: 'Koeffisientene for de 11 standardiserte variablene i bruktbilmodellen når straffen λ øker (i scikit-learn heter den alpha). Lasso setter koeffisienter til nøyaktig null. Ridge krymper alle, men ingen blir null.',
     build(el) {
       const P = { lasso: DATA.lassoPath, ridge: DATA.ridgePath }, names = DATA.toyotaCols, ols = DATA.olsStdCoef;
       const top = ols.map((v, i) => [Math.abs(v), i]).sort((a, b) => b[0] - a[0]).slice(0, 5).map(t => t[1]);
@@ -264,13 +264,13 @@ print('beste alpha:', lasso_cv.alpha_)</code></pre>`
 });
 
 topic({
-  id: 'logistisk-regresjon', short: 'Logistisk regresjon', lecture: 'F5', tags: ['Klassifikasjon', 'Kategorisk Y'],
+  id: 'logistisk-regresjon', data: [['ub', ['Personal Loan', 'Income']]], short: 'Logistisk regresjon', lecture: 'F5', tags: ['Klassifikasjon', 'Kategorisk Y'],
   title: 'Logistisk regresjon',
   path: ['Veiledet læring', 'Klassifikasjon'],
   lead: 'Logistisk regresjon modellerer logit, altså logaritmen av oddsen, som en lineær funksjon av forklaringsvariablene. Logit gjøres om til en sannsynlighet mellom 0 og 1, og en terskel gjør sannsynligheten om til en klasse.',
   figs: [{
     title: 'Fra rett linje til S-kurve',
-    sub: 'Alle 5 000 kundene i Universal Bank: inntekt mot om de takket ja til personlån. Punktene er andelen ja i hvert inntektsintervall på 10 000 $. Store punkter har mange kunder.',
+    sub: 'Alle 5 000 bankkundene: årsinntekt mot om de takket ja til lånetilbudet. Punktene er andelen ja i hvert inntektsintervall på 10 000 $. Store punkter har mange kunder.',
     build(el) {
       const U = DATA.ubIncome, bins = {};
       U.forEach(([x, n, y]) => { const k = Math.floor(x / 10) * 10 + 5; bins[k] = bins[k] || [0, 0]; bins[k][0] += n; bins[k][1] += y; });
@@ -361,7 +361,8 @@ topic({
 <div class="pit"><b>Eksamensfelle: odds er ikke sannsynlighet</b>Odds = 3 betyr p = 0,75, ikke 3 %. Og e<sup>b</sup> = 1,5 betyr at <i>oddsen</i> øker med 50 %, ikke sannsynligheten.</div>
 <div class="pit"><b>Eksamensfelle: regn baklengs</b>Får du en logit, regn odds = e<sup>logit</sup> og så p = odds / (1 + odds). Logit = 0 gir alltid p = 0,5.</div>
 <h2>Python</h2>
-<pre><code>from sklearn.linear_model import LogisticRegression
+<pre><code># train_X, train_y: bankkundedataene (Universal Bank), Y = Personal Loan
+from sklearn.linear_model import LogisticRegression
 
 logit_reg = LogisticRegression(penalty='l2', C=1e42, solver='liblinear')   # nesten ingen straff
 logit_reg.fit(train_X, train_y)

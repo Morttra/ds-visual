@@ -31,7 +31,8 @@ function renderHome(main) {
   main.append(
     H('section', { class: 'hero' },
       H('h1', {}, 'Pensum i Data Science, som et tre du kan klikke i'),
-      H('p', {}, 'Treet starter med ett spørsmål: har vi en fasit å lære fra? Svaret leder deg til riktig familie av metoder. Trykk på en metode for å se den i aksjon. Hver side har figurer du kan dra i, og en skriftlig forklaring under.')),
+      H('p', {}, 'Treet starter med ett spørsmål: har vi en fasit å lære fra? Svaret leder deg til riktig familie av metoder. Trykk på en metode for å se den i aksjon. Hver side har figurer du kan dra i, og en skriftlig forklaring under.'),
+      H('p', { class: 'mini', style: 'margin-top:8px' }, 'Du trenger verken forelesningene eller datasettene. Hver side forklarer dataene den bruker, og ', H('a', { href: '#datasett' }, 'alle datasettene'), ' er samlet på én side.')),
     H('div', { class: 'tree', role: 'navigation', 'aria-label': 'Metodetreet' },
       H('ul', {}, H('li', {},
         H('div', { class: 'q' }, 'Har vi en fasit (Y) å lære fra?'),
@@ -49,7 +50,10 @@ function renderHome(main) {
       H('section', { class: 'band' }, H('h2', {}, 'Grunnmuren under alle metodene'),
         H('p', {}, 'Ikke modeller, men stegene som avgjør om en modell er god. Dette går igjen på hver eksamen.'),
         H('div', { class: 'chips' }, chip('dataforberedelse', 'Dataforberedelse og skalering'), chip('bias-varians', 'Partisjonering og bias–varians'),
-          chip('evaluering-prediksjon', 'Evaluering av prediksjon'), chip('evaluering-klassifikasjon', 'Evaluering av klassifikasjon')))),
+          chip('evaluering-prediksjon', 'Evaluering av prediksjon'), chip('evaluering-klassifikasjon', 'Evaluering av klassifikasjon'))),
+      H('section', { class: 'band' }, H('h2', {}, 'Datasettene i eksemplene'),
+        H('p', {}, 'Hva hvert datasett inneholder, hva en rad er, og hva vi prøver å forutsi.'),
+        H('div', { class: 'chips' }, Object.entries(DATASETS).map(([id, D]) => H('a', { class: 'chip', href: '#datasett-' + id }, D.name))))),
     H('div', { class: 'howto' },
       H('div', {}, H('b', {}, 'Les treet ovenfra'), 'Har vi en fasit Y, og hva slags Y er det? Svarene forteller hvilken familie en metode hører til.'),
       H('div', {}, H('b', {}, 'Lek med figurene'), 'Dra i glidebrytere og punkter. Under hver figur står det hva du kan prøve og se etter.'),
@@ -62,6 +66,8 @@ function renderTopic(main, t) {
   main.append(H('nav', { class: 'crumbs', 'aria-label': 'Du er her' }, H('a', { href: '#' }, 'Metodetreet'), ' › ', t.path.join(' › ')));
   main.append(H('header', { class: 'thead' }, H('h1', {}, t.title), H('p', { class: 'lead' }, t.lead),
     H('div', { class: 'pills' }, H('span', { class: 'pill f' }, 'Forelesning ' + t.lecture), (t.tags || []).map(x => H('span', { class: 'pill' }, x)))));
+  for (const [id, vars] of t.data || []) main.append(dataCard(id, { vars }));
+  if (t.dataNote) main.append(H('p', { class: 'dnote', html: t.dataNote }));
   for (const f of t.figs || []) {
     const fig = H('figure', { class: 'viz', style: 'margin-inline:0' });
     fig.append(H('h2', {}, f.title));
@@ -83,6 +89,6 @@ function route() {
   const main = clear(document.getElementById('main'));
   const id = decodeURIComponent(location.hash.slice(1));
   const t = TOPICS[id];
-  if (t) renderTopic(main, t); else renderHome(main);
+  if (t) renderTopic(main, t); else if (id === 'datasett' || id.startsWith('datasett-')) renderDatasets(main, id.slice(9)); else renderHome(main);
   window.scrollTo(0, 0);
 }

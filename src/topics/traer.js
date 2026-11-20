@@ -66,13 +66,13 @@ function synth2D(seed, n, flip) {
 }
 
 topic({
-  id: 'beslutningstraer', short: 'Beslutningstrær', lecture: 'F7', tags: ['Klassifikasjon', 'Prediksjon', 'Gini og entropi'],
+  id: 'beslutningstraer', data: [['mowers']], short: 'Beslutningstrær', lecture: 'F7', tags: ['Klassifikasjon', 'Prediksjon', 'Gini og entropi'],
   title: 'Beslutningstrær',
   path: ['Veiledet læring', 'Klassifikasjon og prediksjon'],
   lead: 'Et beslutningstre deler dataene i rektangler med enkle ja/nei-regler, én variabel om gangen. Hver splitt velges slik at gruppene blir så rene som mulig. Resultatet er regler som er lette å lese.',
   figs: [{
     title: 'Finn den beste første splitten',
-    sub: 'Riding Mowers: 24 husholdninger, 12 eiere og 12 ikke-eiere. Velg variabel og flytt splitten. Rent betyr at en gruppe bare har én klasse.',
+    sub: 'Sitteklipperdataene: 24 husholdninger, 12 eiere og 12 ikke-eiere. Velg variabel og flytt splitten. Rent betyr at en gruppe bare har én klasse.',
     build(el) {
       const R = DATA.mowers, X = R.map(r => [r[0], r[1]]), y = R.map(r => r[2]);
       const nm = ['Income', 'Lot_Size'], dom = [[25, 120], [13, 25]];
@@ -87,7 +87,7 @@ topic({
       Btn(ctl, 'Finn beste splitt (Gini)', () => { let best = null; for (const f2 of [0, 1]) for (const c of cand(f2)) { const s = stats(f2, c); if (!best || s.gw < best[0] - 1e-12) best = [s.gw, f2, c]; } sv.set(best[1], false); f = best[1]; st.input.min = dom[f][0]; st.input.max = dom[f][1]; st.set(best[2], false); t = best[2]; draw(); }, 'primary');
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const a = H('div'), b = H('div'); cols.append(a, b);
-      const plot = new Plot(a, { w: 540, h: 400, x: dom[0], y: dom[1], xlab: 'Income (1000 $)', ylab: 'Lot_Size (1000 ft²)', label: 'Riding Mowers med splittlinje' });
+      const plot = new Plot(a, { w: 540, h: 400, x: dom[0], y: dom[1], xlab: 'Income (1000 $)', ylab: 'Lot_Size (1000 ft²)', label: 'Sitteklipperdataene med splittlinje' });
       const gS = plot.layer(), gP = plot.layer();
       R.forEach(r => S('circle', { cx: plot.x(r[0]), cy: plot.y(r[1]), r: 6, class: (r[2] ? 'f-c1' : 'f-c0') + ' s-surf', 'stroke-width': 1.5 }, gP));
       const tw = H('div', { class: 'tblwrap' }); b.append(tw);
@@ -110,7 +110,7 @@ topic({
       }
       draw();
     },
-    tryit: ['Startverdien Income ≤ 59,7 er splitten fra forelesningen. Sjekk tallene: Gini 0,219 til venstre, 0,430 til høyre og 0,359 vektet.',
+    tryit: ['Startverdien Income ≤ 59,7 er den første splitten et tre velger på disse dataene (den samme som i F7). Sjekk tallene: Gini 0,219 til venstre, 0,430 til høyre og 0,359 vektet.',
       'Trykk «Finn beste splitt». Income ≤ 59,7 og Income ≤ 78,0 gir nøyaktig samme vektede Gini. Algoritmen velger den første den finner.',
       'Vektet Gini er et snitt der hver gruppe teller etter antall punkter: (8 · 0,219 + 16 · 0,430) / 24.']
   }, {
@@ -211,7 +211,8 @@ topic({
 </div>
 <div class="pit"><b>Eksamensfelle: urenhet for hånd</b>Gruppe med 1 eier og 7 ikke-eiere: Gini = 1 − (1/8)² − (7/8)² = 0,219. Entropi = −(1/8 · log₂(1/8) + 7/8 · log₂(7/8)) = 0,544. Husk log med grunntall 2.</div>
 <h2>Python</h2>
-<pre><code>from sklearn.tree import DecisionTreeClassifier
+<pre><code># train_X, train_y: bankkundedataene (Universal Bank), Y = Personal Loan
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV
 from mlba import plotDecisionTree, classificationSummary
 
@@ -230,13 +231,13 @@ classificationSummary(y_true=valid_y, y_pred=best_tree.predict(valid_X))</code><
 });
 
 topic({
-  id: 'ensembler', short: 'Ensembler', lecture: 'F7', tags: ['Klassifikasjon', 'Prediksjon', 'Random forest', 'Boosting'],
+  id: 'ensembler', dataNote: 'Figurene bruker <b>simulerte data</b>: to halvmåneformede grupper med støy. Tallene i avsnittet «Resultater på bankkundedataene» lenger ned kommer fra <a href="#datasett-ub">Universal Bank-dataene</a>.', short: 'Ensembler', lecture: 'F7', tags: ['Klassifikasjon', 'Prediksjon', 'Random forest', 'Boosting'],
   title: 'Ensembler: bagging, random forest og boosting',
   path: ['Veiledet læring', 'Klassifikasjon og prediksjon'],
   lead: 'Ett tre er ustabilt. Mange trær som stemmer sammen, er stabile og treffer bedre. Bagging og random forest gjennomsnittet mange uavhengige trær. Boosting bygger trærne etter hverandre, og hvert nytt tre konsentrerer seg om feilene til de forrige.',
   figs: [{
     title: 'Bagging og random forest: mange trær stemmer',
-    sub: 'Hvert tre trenes på et bootstrap-utvalg (trukket med tilbakelegging) av 200 punkter. I random forest får hver splitt bare se én tilfeldig valgt variabel av de to.',
+    sub: 'Simulerte data. Hvert tre trenes på et bootstrap-utvalg (trukket med tilbakelegging) av 200 punkter. I random forest får hver splitt bare se én tilfeldig valgt variabel av de to.',
     build(el) {
       const all = fit01(moons(RNG(5), 600, 0.28)), tr = all.slice(0, 200), va = all.slice(200), Xt = tr.map(p => [p[0], p[1]]), yt = tr.map(p => p[2]);
       const forests = {};
@@ -285,7 +286,7 @@ topic({
       'Bytt til random forest. Trærne blir enda mer ulike hverandre, og det er nettopp det som gjør gjennomsnittet bedre.']
   }, {
     title: 'Boosting: neste tre retter opp feilene',
-    sub: 'AdaBoost med stubber (trær med én splitt) på 80 punkter. Punktstørrelsen viser vekten. Punkter som forrige modell bommet på, får større vekt og blir viktigere for neste stubbe.',
+    sub: 'Simulerte data. AdaBoost med stubber (trær med én splitt) på 80 punkter. Punktstørrelsen viser vekten. Punkter som forrige modell bommet på, får større vekt og blir viktigere for neste stubbe.',
     build(el) {
       const P = fit01(moons(RNG(9), 80, 0.22)), ys = P.map(p => p[2] ? 1 : -1);
       const M = 40, stumps = [], W = []; let w = P.map(() => 1 / P.length);
@@ -347,8 +348,8 @@ topic({
 <li>Kombiner trærne med vektet avstemning, der trær med lav feil teller mest.</li>
 </ol>
 <p><b>Gradient boosting</b> (<code>GradientBoostingClassifier</code>) bruker samme idé, men hvert nye tre tilpasses restfeilene til modellen så langt. Boosting reduserer først og fremst bias, og kan overtilpasse hvis det kjører for mange runder.</p>
-<h2>Resultater på Universal Bank</h2>
-<p>Når koden fra forelesningen kjøres på Universal Bank-dataene, gir de tre modellene omtrent denne treffsikkerheten på valideringsdataene: beste enkelttre fra grid search 98,15 %, random forest med 500 trær 98,20 % og gradient boosting 98,35 %. Forskjellene er små her fordi ett tre allerede gjør det svært bra, men ensemblene er sjelden dårligere.</p>
+<h2>Resultater på bankkundedataene</h2>
+<p><a href="#datasett-ub">Universal Bank-dataene</a> har 5 000 bankkunder, og målet er å forutsi hvem som takker ja til et lånetilbud (9,6 % gjorde det). Med alle de 11 forklaringsvariablene og 60/40-oppdeling gir de tre modellene omtrent denne treffsikkerheten på valideringsdataene: beste enkelttre fra grid search 98,15 %, random forest med 500 trær 98,20 % og gradient boosting 98,35 %. Forskjellene er små her fordi ett tre allerede gjør det svært bra, men ensemblene er sjelden dårligere.</p>
 <div class="pros">
 <div><h3>Styrker</h3><ul><li>Blant de beste metodene på tabelldata</li><li>Robuste mot støy og uteliggere</li><li>Random forest er vanskelig å overtilpasse ved å legge til flere trær</li></ul></div>
 <div><h3>Svakheter</h3><ul><li>Ingen enkle regler å lese, så de blir «svarte bokser» (se <a href="#shap">SHAP</a>)</li><li>Tregere å trene og bruke enn ett tre</li><li>Boosting har flere hyperparametre (læringsrate, antall runder)</li></ul></div>

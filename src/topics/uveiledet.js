@@ -36,13 +36,13 @@ function zUtilities() {
 }
 
 topic({
-  id: 'hierarkisk-klynging', short: 'Hierarkisk klynging', lecture: 'F10', tags: ['Ikke-veiledet', 'Avstandsmatrise', 'Dendrogram'],
+  id: 'hierarkisk-klynging', data: [['utilities']], short: 'Hierarkisk klynging', lecture: 'F10', tags: ['Ikke-veiledet', 'Avstandsmatrise', 'Dendrogram'],
   title: 'Hierarkisk klynging',
   path: ['Ikke-veiledet læring', 'Klynger og PCA'],
   lead: 'Hierarkisk klynging starter med hvert punkt som sin egen klynge, og slår sammen de to nærmeste klyngene igjen og igjen. Resultatet er et dendrogram som viser hele historien. Hvordan vi måler avstand mellom klynger (linkage), kan gi helt ulike svar.',
   figs: [{
     title: 'Steg for steg med avstandsmatrise',
-    sub: 'Sju energiselskaper fra Utilities-dataene, med Sales og Fuel_Cost normalisert (z-score over alle 22 selskapene). Den laveste avstanden i matrisen (markert) slås sammen i neste steg.',
+    sub: 'Sju av de 22 kraftselskapene, beskrevet med årlig strømsalg (Sales) og brenselkostnad (Fuel_Cost), begge normalisert som z-score over alle 22 selskapene. Den laveste avstanden i matrisen (markert) slås sammen i neste steg.',
     build(el) {
       const all = zUtilities(), pick = ['Nevada', 'Puget', 'Idaho', 'NY', 'San Diego', 'New England', 'Madison'], U = pick.map(n => all.find(u => u.name === n)), P = U.map(u => u.p), names = U.map(u => u.name);
       let link = 'single', step = 0, merges = hclust(P, link);
@@ -120,7 +120,7 @@ topic({
 <ul>
 <li><b>Euklidsk:</b> √Σ(x<sub>j</sub> − u<sub>j</sub>)². Den vanlige, «rett linje».</li>
 <li><b>Manhattan:</b> Σ|x<sub>j</sub> − u<sub>j</sub>|. Summen av avstandene langs hver akse, mindre følsom for én stor forskjell.</li>
-<li><b>Normaliser først</b> (z-score). Ellers bestemmer variabelen med størst tall alt. I Utilities er Sales i tusener og Fuel_Cost rundt 1.</li>
+<li><b>Normaliser først</b> (z-score). Ellers bestemmer variabelen med størst tall alt. I kraftselskapdataene er Sales tall i tusener, mens Fuel_Cost ligger rundt 1.</li>
 <li><b>Binære variabler:</b> matching-koeffisient (a + d) / p eller Jaccard a / (a + b + c), der a = begge 1, d = begge 0 og b + c = ulike.</li>
 </ul>
 <h2>Avstand mellom klynger (linkage)</h2>
@@ -157,13 +157,13 @@ memb = fcluster(Z, 6, criterion='maxclust')             # 6 klynger</code></pre>
 });
 
 topic({
-  id: 'k-means', short: 'k-means', lecture: 'F10', tags: ['Ikke-veiledet', 'Klynging'],
+  id: 'k-means', dataNote: 'Figuren bruker <b>simulerte data</b>: 180 punkter trukket rundt fire sentre. Python-koden nederst bruker <a href="#datasett-utilities">kraftselskapdataene</a>, som i læreboka.', short: 'k-means', lecture: 'F10', tags: ['Ikke-veiledet', 'Klynging'],
   title: 'k-means',
   path: ['Ikke-veiledet læring', 'Klynger og PCA'],
   lead: 'k-means deler dataene i k klynger ved å veksle mellom to steg: tildel hvert punkt til nærmeste sentroide, og flytt hver sentroide til gjennomsnittet av punktene sine. Det gjentas til ingenting endrer seg.',
   figs: [{
     title: 'k-means steg for steg',
-    sub: '180 punkter fra fire grupper. Sentroidene starter i tilfeldige datapunkter. Trykk «Ett steg» for å se tildeling og oppdatering hver for seg.',
+    sub: '180 simulerte punkter fra fire grupper. Sentroidene starter i tilfeldige datapunkter. Trykk «Ett steg» for å se tildeling og oppdatering hver for seg.',
     build(el) {
       const D = blobs(RNG(8), [[0.25, 0.72], [0.72, 0.78], [0.3, 0.25], [0.76, 0.3]], 45, 0.085).map(p => [clamp(p[0], 0.02, 0.98), clamp(p[1], 0.02, 0.98)]);
       let k = 4, seed = 1, C, asg, phase, it, trail, done;
@@ -226,7 +226,8 @@ topic({
 </div>
 <div class="pit"><b>Eksamensfelle</b>Normaliser variablene før k-means, akkurat som i k-NN og hierarkisk klynging. Og husk at k-means ikke er k-NN: k-means er ikke-veiledet klynging, k-NN er veiledet klassifikasjon.</div>
 <h2>Python</h2>
-<pre><code>from sklearn.cluster import KMeans
+<pre><code># utilities_df_norm: kraftselskapdataene, normalisert som z-score
+from sklearn.cluster import KMeans
 
 kmeans = KMeans(n_clusters=6, random_state=0, n_init=10).fit(utilities_df_norm)
 memb = pd.Series(kmeans.labels_, index=utilities_df_norm.index)
@@ -238,7 +239,7 @@ plt.plot(range(1, 10), inertia, marker='o')           # albueplott</code></pre>`
 });
 
 topic({
-  id: 'pca', short: 'PCA', lecture: 'F3', tags: ['Ikke-veiledet', 'Dimensjonsreduksjon'],
+  id: 'pca', data: [['cereals']], short: 'PCA', lecture: 'F3', tags: ['Ikke-veiledet', 'Dimensjonsreduksjon'],
   title: 'Prinsipalkomponentanalyse (PCA)',
   path: ['Ikke-veiledet læring', 'Klynger og PCA'],
   lead: 'PCA lager nye variabler, prinsipalkomponenter, som er vektede summer av de opprinnelige. Første komponent fanger mest mulig av variansen, den neste mest av resten, og alle er ukorrelerte. Med noen få komponenter kan vi ofte beholde det meste av informasjonen.',
@@ -283,7 +284,7 @@ topic({
     tryit: ['Trykk «Finn PC1» på rådata. Vektene blir omtrent (−0,85, 0,53) for (calories, rating), som i læreboka, og retningen fanger 86 % av variansen. Fortegnet kan like gjerne være snudd.', 'Drei linja 90° fra PC1. Da får du PC2, som fanger resten (14 %).', 'Bytt til standardisert. Med to standardiserte variabler blir vektene alltid ±0,707: begge teller like mye, og bare korrelasjonen avgjør hvor mye PC1 fanger.']
   }, {
     title: 'Hvor mange komponenter trenger vi?',
-    sub: 'PCA på alle 13 numeriske variabler i Cereals (standardisert, 74 rader uten manglende verdier). Søylene er andelen varians hver komponent forklarer (PVE). Linja er kumulativ andel.',
+    sub: 'PCA på alle 13 tallvariablene i frokostblandingsdataene (standardisert, 74 rader uten manglende verdier). Søylene er andelen varians hver komponent forklarer (PVE). Linja er kumulativ andel.',
     build(el) {
       const pve = DATA.cerealPVE; let m = 3;
       const ctl = Controls(el);

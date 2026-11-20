@@ -135,6 +135,16 @@ for _ in range(50):
     b = b + np.linalg.solve(Xm.T @ (Xm * W[:, None]), Xm.T @ (yv - p))
 out['ubMLE'] = [r(b[0], 5), r(b[1], 6)]
 
+# 7. Eksempelrader til «Om dataene»-kortene
+def sample(df, idx, rnd=2):
+    d = df.iloc[idx].copy()
+    for col in d.columns:
+        if d[col].dtype.kind == 'f': d[col] = d[col].round(rnd)
+    return json.loads(d.to_json(orient='split', index=False))
+out['ubSample'] = sample(ub.drop(columns=['ID', 'ZIP Code']), [0, 9, 16, 42])
+out['cerealSample'] = sample(c.drop(columns=['mfr', 'type']), [0, 2, 10, 43], 2)
+out['utilSample'] = sample(mlba.load_data('Utilities.csv'), [0, 1, 13, 17], 3)
+
 js = 'const DATA = ' + json.dumps(out, ensure_ascii=False, separators=(',', ':')) + ';\n'
 open('src/data.js', 'w').write(js)
 print('bytes', len(js))

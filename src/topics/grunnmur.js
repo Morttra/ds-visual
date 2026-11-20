@@ -1,13 +1,13 @@
 /* Grunnmur: dataforberedelse, bias–varians, evaluering av prediksjon og klassifikasjon */
 
 topic({
-  id: 'dataforberedelse', short: 'Dataforberedelse', lecture: 'F2–F3', tags: ['Grunnmur', 'Brukes før alle modeller'],
+  id: 'dataforberedelse', data: [['mowers'], ['toyota', ['Price', 'Fuel_Type']]], short: 'Dataforberedelse', lecture: 'F2–F3', tags: ['Grunnmur', 'Brukes før alle modeller'],
   title: 'Dataforberedelse og skalering',
   path: ['Grunnmur'],
   lead: 'Før vi modellerer, må dataene i riktig form. Kategorier blir til dummyvariabler, manglende verdier og uteliggere må håndteres, og variabler på ulik skala gjøres sammenlignbare.',
   figs: [{
     title: 'Skalering endrer hvem som er nærmest',
-    sub: 'De 24 husholdningene i Riding Mowers og en ny husholdning (stjerna) med inntekt 60 og tomt 20. Ringen markerer alt som ligger like nær som den k-te naboen. Dra stjerna for å flytte den.',
+    sub: 'De 24 husholdningene i sitteklipperdataene og en ny husholdning (stjerna) med inntekt 60 og tomt 20. Ringen markerer alt som ligger like nær som den k-te naboen. Med k = 3 bestemmer de tre nærmeste naboene om den nye husholdningen klassifiseres som eier. Dra stjerna for å flytte den.',
     build(el) {
       const raw = DATA.mowers, I = raw.map(r => r[0]), L = raw.map(r => r[1]);
       const mI = mean(I), sI = sd(I), mL = mean(L), sL = sd(L);
@@ -60,7 +60,7 @@ topic({
       'Sammenlign z-score og min–maks. De gir nesten samme naboer, men min–maks er følsom for ett ekstremt punkt.']
   }, {
     title: 'Uteliggere med 1,5 · IQR-regelen',
-    sub: 'Kjørelengde for 20 bruktbiler. Boksen går fra Q1 til Q3, og grensene ligger 1,5 · IQR utenfor boksen. Flytt den siste bilen og se når den blir en uteligger.',
+    sub: 'Kjørelengde for 20 tenkte bruktbiler (oppdiktede tall). Boksen går fra Q1 til Q3, og grensene ligger 1,5 · IQR utenfor boksen. Flytt den siste bilen og se når den blir en uteligger.',
     build(el) {
       const base = [18, 25, 31, 36, 40, 44, 47, 51, 55, 58, 62, 66, 71, 75, 80, 86, 93, 101, 112];
       let extra = 190;
@@ -91,7 +91,7 @@ topic({
       'Finn verdien der bilen akkurat blir en uteligger. Sjekk at den er lik Q3 + 1,5 · IQR.']
   }, {
     title: 'Kategorier blir til dummyvariabler',
-    sub: 'Drivstofftypen i Toyota Corolla-dataene har tre kategorier. <code>pd.get_dummies</code> lager én 0/1-kolonne per kategori. Med <code>drop_first=True</code> forsvinner den første (CNG), som da blir referansekategori.',
+    sub: 'Drivstofftypen i bruktbildataene har tre kategorier: Petrol (bensin), Diesel og CNG (naturgass). <code>pd.get_dummies</code> lager én 0/1-kolonne per kategori. Med <code>drop_first=True</code> forsvinner den første (CNG), som da blir referansekategori.',
     build(el) {
       const cars = ['Petrol', 'Diesel', 'Petrol', 'CNG', 'Petrol', 'Diesel'];
       let drop = true;
@@ -103,7 +103,7 @@ topic({
         const cats = ['CNG', 'Diesel', 'Petrol'].filter((c, i) => !(drop && i === 0));
         clear(tw).append(H('table', { class: 'tbl' }, H('tr', {}, H('th', { class: 'l' }, 'Fuel_Type'), cats.map(c => H('th', {}, 'Fuel_Type_' + c))),
           cars.map(v => H('tr', {}, H('td', { class: 'l' }, v), cats.map(c => H('td', { class: v === c ? 'hit' : '' }, v === c ? 1 : 0))))));
-        code.textContent = "X = pd.get_dummies(car_df[['Fuel_Type']],\n                   drop_first=" + (drop ? 'True' : 'False') + ")";
+        code.textContent = "# car_df = bruktbildataene (Toyota Corolla)\nX = pd.get_dummies(car_df[['Fuel_Type']],\n                   drop_first=" + (drop ? 'True' : 'False') + ")";
         code.nextSibling.textContent = drop
           ? 'To kolonner holder: en CNG-bil har 0 i begge. Dette er riktig i lineær og logistisk regresjon.'
           : 'Tre kolonner summerer alltid til 1 i hver rad. I regresjon med konstantledd blir de da perfekt kollineære (dummyfella).';
@@ -156,13 +156,13 @@ uteliggere = df[(df['KM'] &lt; q1 - 1.5*iqr) | (df['KM'] &gt; q3 + 1.5*iqr)]</co
 });
 
 topic({
-  id: 'bias-varians', short: 'Bias–varians', lecture: 'F4', tags: ['Grunnmur', 'Partisjonering', 'Kryssvalidering'],
+  id: 'bias-varians', dataNote: 'Figurene på denne siden bruker <b>simulerte data</b>. Vi har laget dataene selv fra en kjent kurve pluss tilfeldig støy, så vi vet hva den sanne sammenhengen er.', short: 'Bias–varians', lecture: 'F4', tags: ['Grunnmur', 'Partisjonering', 'Kryssvalidering'],
   title: 'Partisjonering og bias–varians',
   path: ['Grunnmur'],
   lead: 'En modell skal fungere på nye data, ikke bare på dataene den er trent på. Derfor holder vi data utenfor treningen og finner kompleksiteten som gir lavest feil på disse dataene.',
   figs: [{
     title: 'Fra undertilpasset til overtilpasset',
-    sub: 'Et polynom tilpasses de 20 treningspunktene (fylte). Valideringspunktene (hule) er med bare for å måle feil. Den stiplede kurven er sannheten vi ikke kjenner.',
+    sub: 'Simulerte data: et polynom tilpasses de 20 treningspunktene (fylte). Valideringspunktene (hule) er med bare for å måle feil. Den stiplede kurven er sannheten vi ikke kjenner.',
     build(el) {
       const f = x => 0.9 * Math.sin(2 * Math.PI * x) + 0.4 * x;
       const sample = s => { const r = RNG(s); const mk = () => range(20, () => { const x = r(); return [x, f(x) + 0.33 * r.n()]; }); return { tr: mk(), va: mk() }; };
@@ -289,13 +289,13 @@ for train_idx, valid_idx in tscv.split(X):
 });
 
 topic({
-  id: 'evaluering-prediksjon', short: 'Prediksjonsmål', lecture: 'F4', tags: ['Grunnmur', 'Numerisk Y'],
+  id: 'evaluering-prediksjon', dataNote: 'Figuren bruker <b>tenkte tall</b>: tolv oppdiktede bruktbiler med faktisk og predikert pris.', short: 'Prediksjonsmål', lecture: 'F4', tags: ['Grunnmur', 'Numerisk Y'],
   title: 'Evaluering av prediksjon',
   path: ['Grunnmur'],
   lead: 'Når Y er et tall, måler vi hvor langt prediksjonene bommer. Ulike mål straffer ulike typer bom, og fortegnet forteller om modellen bommer systematisk.',
   figs: [{
     title: 'Hva straffer hvilket mål?',
-    sub: 'Tolv bruktbiler med faktisk pris (fylt) og predikert pris (hul). Feilen er e = y − ŷ, faktisk minus predikert, som i læreboka.',
+    sub: 'Tolv tenkte bruktbiler med faktisk pris (fylt) og predikert pris (hul). Feilen er e = y − ŷ, faktisk minus predikert, som i læreboka.',
     build(el) {
       const r = RNG(11), ys = range(12, () => Math.round(7000 + 15000 * r())), base = ys.map(y => y + Math.round(1100 * r.n()));
       let bias = 0, big = false;
@@ -357,13 +357,13 @@ regressionSummary(y_true=valid_y, y_pred=np.full(len(valid_y), train_y.mean()))<
 });
 
 topic({
-  id: 'evaluering-klassifikasjon', short: 'Klassifikasjonsmål', lecture: 'F4', tags: ['Grunnmur', 'Kategorisk Y'],
+  id: 'evaluering-klassifikasjon', data: [['owner']], short: 'Klassifikasjonsmål', lecture: 'F4', tags: ['Grunnmur', 'Kategorisk Y'],
   title: 'Evaluering av klassifikasjon',
   path: ['Grunnmur'],
   lead: 'En klassifikasjonsmodell gir en sannsynlighet (propensitet). Terskelen gjør den om til en klasse. Forvirringsmatrisen, ROC-kurven og lift-kurven viser hva vi tjener og taper på valget.',
   figs: [{
     title: 'Terskel, forvirringsmatrise, ROC og lift',
-    sub: 'De 24 datapunktene fra terskeleksemplet, sortert etter propensitet. Alt med p &gt; terskel klassifiseres som eier.',
+    sub: 'De 24 husholdningene med ferdig utregnede propensiteter, sortert fra høyest til lavest. Alt med p &gt; terskel klassifiseres som eier. Tenk deg at vi bare kontakter dem modellen kaller eiere.',
     build(el) {
       const D = DATA.owner, P = 12, N = 12, TPk = [0], FPk = [0];
       D.forEach((d, i) => { TPk.push(TPk[i] + d[1]); FPk.push(FPk[i] + 1 - d[1]); });
@@ -382,7 +382,7 @@ topic({
       const cmBox = H('div'), tBox = H('div'); cols.append(cmBox, tBox);
       const cm = ConfMat(cmBox, ['ikke-eier', 'eier']);
       const tiles = Tiles(tBox, [['acc', 'Nøyaktighet'], ['sens', 'Sensitivitet'], ['spec', 'Spesifisitet'], ['prec', 'Presisjon'], ['f1', 'F1'], ['prof', 'Netto profitt']]);
-      tBox.append(H('p', { class: 'note', html: 'Profitt med kost/nytte fra F4: +100 per eier vi kontakter, −200 per ikke-eier vi kontakter.' }));
+      tBox.append(H('p', { class: 'note', html: 'Profitten bygger på tenkte tall: hver eier vi kontakter gir 100 kr i fortjeneste, og hver ikke-eier vi kontakter koster 200 kr.' }));
       const ch = H('div', { class: 'cols even', style: 'margin-top:8px' }); el.append(ch);
       const a = H('div'), b = H('div'); ch.append(a, b);
       const roc = new Plot(a, { w: 360, h: 300, x: [0, 1], y: [0, 1], xlab: '1 − spesifisitet', ylab: 'Sensitivitet', label: 'ROC-kurve', nx: 4, ny: 4 });
@@ -410,7 +410,7 @@ topic({
       }
       draw();
     },
-    tryit: ['Trykk 0.25, 0.50 og 0.75 (tersklene fra forelesningen). Nøyaktigheten blir 0.792, 0.875 og 0.750.',
+    tryit: ['Trykk 0.25, 0.50 og 0.75 og sammenlign tre vanlige terskler. Nøyaktigheten blir 0.792, 0.875 og 0.750.',
       'Følg punktene på ROC- og lift-kurven mens du drar. Begge kurvene er alle mulige terskler tegnet etter hverandre.',
       'Trykk «Høyest profitt». Nøyaktigheten er den samme som ved 0.5, men profitten stiger fra 700 til 800: én dyr falsk positiv byttes mot én billigere falsk negativ.']
   }, {

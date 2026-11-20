@@ -1,7 +1,7 @@
 /* Legges oppå en trent modell: SHAP og konform prediksjon */
 
 topic({
-  id: 'shap', short: 'SHAP', lecture: 'F8', tags: ['Forklarbar KI', 'Modellagnostisk', 'Shapley-verdier'],
+  id: 'shap', data: [['toyota']], short: 'SHAP', lecture: 'F8', tags: ['Forklarbar KI', 'Modellagnostisk', 'Shapley-verdier'],
   title: 'Forklarbar KI med SHAP',
   path: ['Legges oppå en trent modell'],
   lead: 'SHAP forklarer én enkelt prediksjon ved å fordele avstanden mellom prediksjonen og gjennomsnittsprediksjonen på forklaringsvariablene. Fordelingen bygger på Shapley-verdier fra spillteori: hver variabels gjennomsnittlige marginale bidrag.',
@@ -27,10 +27,10 @@ topic({
       }
       draw();
     },
-    tryit: ['Les en rad: i rekkefølgen Bo → Ada → Cleo bidrar Ada med v(Ada + Bo) − v(Bo) = 120 − 40 = 80.', 'Shapley-verdiene summerer alltid til hva alle tre tjener sammen. Det kalles effektivitet.', 'Skriv inn tallene fra eksemplet i forelesningen og sjekk at du får samme fordeling som der.']
+    tryit: ['Les en rad: i rekkefølgen Bo → Ada → Cleo bidrar Ada med v(Ada + Bo) − v(Bo) = 120 − 40 = 80.', 'Shapley-verdiene summerer alltid til hva alle tre tjener sammen. Det kalles effektivitet.', 'Gjør Cleo verdiløs: sett v(Cleo) = 0, v(Ada + Cleo) = 60, v(Bo + Cleo) = 40 og v(Ada + Bo + Cleo) = 120. Da får Cleo 0. En spiller som aldri bidrar, får ingenting.']
   }, {
     title: 'Waterfall: hvorfor fikk denne bilen denne prisen?',
-    sub: 'Den lineære Toyota-modellen fra regresjonssiden, brukt på biler fra valideringsdataene. For en lineær modell er SHAP-verdien φ = b · (x − gjennomsnitt av x).',
+    sub: 'En lineær regresjonsmodell for bruktbilpris, trent på 600 biler og brukt på biler fra valideringsdataene som den ikke har sett. For en lineær modell er SHAP-verdien φ = b · (x − gjennomsnitt av x).',
     build(el) {
       const s = DATA.shapLinear; let ci = 0;
       const ctl = Controls(el);
@@ -89,20 +89,20 @@ shap_values = explainer(X_valid)
 
 shap.plots.waterfall(shap_values[0])                       # lokal forklaring, én observasjon
 shap.plots.beeswarm(shap_values)                           # global oversikt
-shap.plots.scatter(shap_values[:, 'MedInc'])               # SHAP mot verdien til én variabel
+shap.plots.scatter(shap_values[:, 'Age_08_04'])            # SHAP mot verdien til én variabel (her bilens alder)
 
 explainer_rf = shap.TreeExplainer(rf_model)                # rask variant for trær og skoger
 shap_values_rf = explainer_rf(X_valid)</code></pre>`
 });
 
 topic({
-  id: 'konform', short: 'Konform prediksjon', lecture: 'F8', tags: ['Usikkerhet', 'Modellagnostisk', 'Prediksjonsintervall'],
+  id: 'konform', dataNote: 'Figuren bruker <b>simulerte data</b>: en kjent kurve pluss normalfordelt støy, slik at vi kan trekke så mange nye kalibrerings- og testpunkter vi vil.', short: 'Konform prediksjon', lecture: 'F8', tags: ['Usikkerhet', 'Modellagnostisk', 'Prediksjonsintervall'],
   title: 'Usikkerhet med konform prediksjon',
   path: ['Legges oppå en trent modell'],
   lead: 'En prediksjon uten usikkerhet sier ikke hvor mye vi kan stole på den. Konform prediksjon legger et kalibrert intervall rundt prediksjonene fra en hvilken som helst modell. Split conformal bruker feilene på et eget kalibreringssett til å bestemme hvor bredt intervallet må være.',
   figs: [{
     title: 'Split conformal: fra kalibreringsfeil til intervall',
-    sub: 'En modell (blå kurve) er trent på egne treningsdata. Feilene på kalibreringssettet sorteres, og q̂ er den k-te minste, der k = ⌈(n + 1)(1 − α)⌉. Intervallet ŷ ± q̂ testes på 400 nye punkter.',
+    sub: 'Simulerte data. En modell (blå kurve) er trent på egne treningsdata. Feilene på kalibreringssettet sorteres, og q̂ er den k-te minste, der k = ⌈(n + 1)(1 − α)⌉. Intervallet ŷ ± q̂ testes på 400 nye punkter.',
     build(el) {
       const f = x => 2 + 1.2 * Math.sin(1.6 * x) + 0.25 * x, noise = 0.45;
       const gen = (seed, n) => { const r = RNG(seed); return range(n, () => { const x = 6 * r(); return [x, f(x) + noise * r.n()]; }); };

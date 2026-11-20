@@ -1,7 +1,7 @@
 /* Generativ KI: språkmodeller, temperatur, embeddings, RAG og finjustering */
 
 topic({
-  id: 'sprakmodeller', short: 'Språkmodeller', lecture: 'F11', tags: ['Generativ KI', 'Tokens', 'Embeddings', 'Temperatur'],
+  id: 'sprakmodeller', dataNote: 'Figurene er <b>forenklede illustrasjoner</b> med oppdiktede tall. Ekte språkmodeller er langt større, men prinsippene er de samme.', short: 'Språkmodeller', lecture: 'F11', tags: ['Generativ KI', 'Tokens', 'Embeddings', 'Temperatur'],
   title: 'Store språkmodeller og temperatur',
   path: ['Veiledet læring', 'Generativ KI'],
   lead: 'En stor språkmodell (LLM) er trent på én oppgave: å predikere neste token gitt teksten så langt. Svaret bygges ett token om gangen. Temperaturen styrer hvor tilfeldig hvert valg er.',
@@ -142,7 +142,7 @@ print([ord[neste_token(logits, T=2.0)] for _ in range(5)])   # mer variasjon</co
 });
 
 topic({
-  id: 'rag', short: 'RAG og finjustering', lecture: 'F11', tags: ['Generativ KI', 'RAG', 'Etikk'],
+  id: 'rag', dataNote: 'Dokumentene i figuren er fra et <b>oppdiktet selskap</b>, Fjordlys AS, laget for å vise hvordan RAG virker.', short: 'RAG og finjustering', lecture: 'F11', tags: ['Generativ KI', 'RAG', 'Etikk'],
   title: 'Prompting, RAG, finjustering og etikk',
   path: ['Veiledet læring', 'Generativ KI'],
   lead: 'En generell språkmodell kan tilpasses på tre måter: bedre instruksjoner (prompting), relevante kilder hentet inn til hvert spørsmål (RAG), eller videre trening av vektene (finjustering). Uansett må mennesker kontrollere det som kommer ut.',

@@ -1,13 +1,13 @@
 /* k-NN og naiv Bayes */
 
 topic({
-  id: 'knn', short: 'k-NN', lecture: 'F6', tags: ['Klassifikasjon', 'Prediksjon', 'Avstander'],
+  id: 'knn', data: [['mowers'], ['toyota', ['Price', 'Age_08_04']]], short: 'k-NN', lecture: 'F6', tags: ['Klassifikasjon', 'Prediksjon', 'Avstander'],
   title: 'k nærmeste naboer (k-NN)',
   path: ['Veiledet læring', 'Klassifikasjon og prediksjon'],
   lead: 'k-NN finner de k treningspunktene som ligner mest på et nytt punkt og lar dem stemme. For tall tar vi gjennomsnittet av naboenes Y. Det finnes ingen modell å tilpasse; hele treningssettet er modellen.',
   figs: [{
     title: 'Naboene stemmer',
-    sub: 'Riding Mowers: 24 husholdninger, eiere og ikke-eiere. Avstandene regnes på standardiserte variabler (z-score), men aksene viser vanlige enheter. Klikk eller dra for å flytte den nye husholdningen.',
+    sub: 'Sitteklipperdataene: 24 husholdninger, 12 eiere og 12 ikke-eiere. Avstandene regnes på standardiserte variabler (z-score), men aksene viser vanlige enheter. Klikk eller dra for å flytte den nye husholdningen.',
     build(el) {
       const R = DATA.mowers, I = R.map(r => r[0]), L = R.map(r => r[1]), mI = mean(I), sI = sd(I), mL = mean(L), sL = sd(L);
       const Z = R.map(r => [(r[0] - mI) / sI, (r[1] - mL) / sL, r[2]]);
@@ -58,7 +58,7 @@ topic({
       'Andelen eiere blant naboene er k-NN sin propensitet. Den kan brukes med en annen terskel enn 0,5, akkurat som i logistisk regresjon.']
   }, {
     title: 'k-NN for tall: gjennomsnittet av naboene',
-    sub: 'De 30 Toyota-bilene igjen. Prediksjonen for en alder er gjennomsnittsprisen til de k bilene som har nærmest alder. Klikk i figuren for å velge en alder.',
+    sub: '30 bruktbiler fra treningsdataene, med alder i måneder og pris i euro. Prediksjonen for en alder er gjennomsnittsprisen til de k bilene som har nærmest alder. Klikk i figuren for å velge en alder.',
     build(el) {
       const D = DATA.toyotaLSQ; let k = 5, q = 40;
       const pred = (x, kk, skip) => mean(D.map((d, i) => [i === skip ? 1e9 : Math.abs(d[0] - x) + i * 1e-6, d[1]]).sort((a, b) => a[0] - b[0]).slice(0, kk).map(t => t[1]));
@@ -102,7 +102,7 @@ topic({
 <div><h3>Styrker</h3><ul><li>Enkel idé, ingen antakelser om formen på sammenhengen</li><li>Fanger kompliserte, lokale mønstre når det er nok data</li><li>Samme metode for klassifikasjon og prediksjon</li></ul></div>
 <div><h3>Svakheter</h3><ul><li>Treg prediksjon: avstanden til alle treningspunkter må regnes ut</li><li>Dimensjonenes forbannelse: med mange variabler blir alle punkter «langt unna»</li><li>Krever skalering, og gir ingen tolkbare koeffisienter</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle: glemt standardisering</b>Uten skalering bestemmer variabelen med størst tall avstanden. I Riding Mowers ville inntekt dominert helt. Se figuren på <a href="#dataforberedelse">dataforberedelse</a>.</div>
+<div class="pit"><b>Eksamensfelle: glemt standardisering</b>Uten skalering bestemmer variabelen med størst tall avstanden. I sitteklipperdataene ville inntekt (33–110) dominert helt over tomtestørrelse (14–24). Se figuren på <a href="#dataforberedelse">dataforberedelse</a>.</div>
 <div class="pit"><b>Eksamensfelle: regn for hånd</b>Typisk oppgave: gitt standardiserte verdier, regn avstanden til noen punkter, finn de k nærmeste og stem. Husk kvadratroten, og husk at rangeringen ikke endres om du dropper den.</div>
 <h2>Python</h2>
 <pre><code>from sklearn.neighbors import KNeighborsClassifier
@@ -127,13 +127,13 @@ distances, indices = knn.kneighbors(scaler.transform(new_household))</code></pre
 });
 
 topic({
-  id: 'naiv-bayes', short: 'Naiv Bayes', lecture: 'F6', tags: ['Klassifikasjon', 'Kategoriske X'],
+  id: 'naiv-bayes', data: [['fraud']], short: 'Naiv Bayes', lecture: 'F6', tags: ['Klassifikasjon', 'Kategoriske X'],
   title: 'Naiv Bayes',
   path: ['Veiledet læring', 'Klassifikasjon'],
   lead: 'Bayes-klassifikatoren regner ut sannsynligheten for hver klasse gitt verdiene til forklaringsvariablene. Den naive varianten antar at variablene er uavhengige innad i hver klasse, og kan derfor bruke alle dataene.',
   figs: [{
     title: 'Komplett og naiv Bayes, steg for steg',
-    sub: 'Lærebokas revisjonseksempel: 10 selskaper med tidligere anklager (ja/nei) og størrelse (liten/stor). Velg et nytt selskap og se hvilke rader hver metode bruker.',
+    sub: 'Revisjonseksempelet: 10 selskaper med tidligere anklager (ja/nei) og størrelse (liten/stor). Velg et nytt selskap og se hvilke rader hver metode bruker.',
     build(el) {
       const C = [['ja', 'liten', 'ærlig'], ['nei', 'liten', 'ærlig'], ['nei', 'stor', 'ærlig'], ['nei', 'stor', 'ærlig'], ['nei', 'liten', 'ærlig'], ['nei', 'liten', 'ærlig'], ['ja', 'liten', 'svindel'], ['ja', 'stor', 'svindel'], ['nei', 'stor', 'svindel'], ['ja', 'stor', 'svindel']];
       let a = 'ja', s = 'liten', mode = 'naiv';
@@ -212,6 +212,8 @@ topic({
 <h2>Python</h2>
 <pre><code>from sklearn.naive_bayes import MultinomialNB
 
+# Lærebokas eksempel: 2 201 flyavganger fra Washington DC-området til New York.
+# Y = 'Flight Status' (delayed eller ontime). Alle forklaringsvariablene er kategoriske.
 predictors = ['DAY_WEEK', 'CRS_DEP_TIME', 'ORIGIN', 'DEST', 'CARRIER']
 X = pd.get_dummies(delays_df[predictors])            # alle kategorier som 0/1
 y = delays_df['Flight Status']

@@ -13,7 +13,7 @@ const ACT = {
 };
 
 topic({
-  id: 'nevrale-nett', short: 'Nevrale nett', lecture: 'F9', tags: ['Klassifikasjon', 'Prediksjon', 'Dyp læring', 'CNN'],
+  id: 'nevrale-nett', dataNote: 'Figurene bruker små, oppdiktede eksempler og <b>simulerte data</b> (to halvmåner), slik at alt kan regnes ut direkte i nettleseren.', short: 'Nevrale nett', lecture: 'F9', tags: ['Klassifikasjon', 'Prediksjon', 'Dyp læring', 'CNN'],
   title: 'Nevrale nett og CNN',
   path: ['Veiledet læring', 'Klassifikasjon og prediksjon'],
   lead: 'Et nevralt nett er lag av enkle regneenheter. Hvert nevron tar en vektet sum av inputene, legger til en bias og sender resultatet gjennom en aktiveringsfunksjon. Vektene læres ved å gå nedover i kostnadsfunksjonen med gradient descent, og backpropagation regner ut retningen.',
@@ -134,7 +134,7 @@ topic({
     tryit: ['Med η = 0,1 fra w = 2,8 havner du i det lokale minimumet til høyre, ikke i det laveste punktet.', 'Prøv η = 0,01. Det går riktig vei, men svært sakte.', 'Prøv η = 0,8–1,2. Stegene blir så lange at w hopper frem og tilbake eller forsvinner ut av bildet.']
   }, {
     title: 'Tren et lite nett i nettleseren',
-    sub: 'Et nett med to input, ett skjult lag (tanh) og sigmoid ut, trent med mini-batch gradient descent på 200 punkter. Hule punkter er valideringsdata.',
+    sub: 'Simulerte data. Et nett med to input, ett skjult lag (tanh) og sigmoid ut, trent med mini-batch gradient descent på 200 punkter. Hule punkter er valideringsdata.',
     build(el) {
       const all = fit01(moons(RNG(13), 400, 0.18)), tr = all.slice(0, 200), va = all.slice(200);
       const T = p => [2 * p[0] - 1, 2 * p[1] - 1, p[2]], trT = tr.map(T), vaT = va.map(T);
@@ -281,11 +281,11 @@ topic({
 <div class="pit"><b>Eksamensfelle: tell parametre</b>3 input, ett skjult lag med 4 nevroner og 2 output: (3 · 4 + 4) + (4 · 2 + 2) = 26. Glem ikke biasene, og husk at input-laget ikke har parametre.</div>
 <div class="pit"><b>Eksamensfelle: iterasjoner</b>50 000 bilder, batch size 250 og 10 epochs gir 50 000 / 250 = 200 oppdateringer per epoch, altså 2 000 totalt.</div>
 <h2>Python</h2>
-<pre><code>from sklearn.neural_network import MLPClassifier               # lærebokas variant
+<pre><code>from sklearn.neural_network import MLPClassifier               # scikit-learn, som i læreboka
 clf = MLPClassifier(hidden_layer_sizes=(6,), activation='logistic', solver='lbfgs', random_state=1)
 clf.fit(train_X, train_y)
 
-from tensorflow import keras                                    # Keras, som i forelesningen
+from tensorflow import keras                                    # Keras (TensorFlow)
 model = keras.Sequential([
     keras.layers.Input(shape=(4,)),
     keras.layers.Dense(6, activation='relu'),

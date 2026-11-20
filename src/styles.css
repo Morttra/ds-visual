@@ -148,6 +148,19 @@ svg.plot{display:block;width:100%;height:auto;overflow:visible;font-family:var(-
 .cm .c.err{background:color-mix(in srgb,var(--bad) 16%,transparent)}
 .cm .c.err b,.cm .c.err span{color:var(--bad)}
 
+/* Om dataene */
+.dcard{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--c5);border-radius:14px;padding:14px 20px 14px;margin:22px 0}
+.dcard .eb{font-size:.8rem;color:var(--muted);font-weight:600}
+.dcard h2{font-family:var(--font-display);font-weight:600;font-size:1.22rem;margin:2px 0 6px}
+.dcard>p{margin:0;max-width:80ch;font-size:.95rem}
+.dvars{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:2px 22px;margin:10px 0 0;font-size:.88rem}
+.dvars>div{display:flex;gap:8px;align-items:baseline;border-bottom:1px dashed var(--line);padding:4px 0}
+.dvars code{font-family:var(--font-mono);font-size:.84em;white-space:nowrap;color:var(--ink);font-weight:500}
+.dvars span:last-child{color:var(--muted)}
+.ytag{font-size:.68rem;font-weight:600;border-radius:99px;padding:0 6px;background:var(--accent);color:var(--surface)}
+.dtbl{font-size:.8rem}
+.dnote{background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:8px 14px;margin:18px 0;font-size:.9rem;color:var(--muted);max-width:none}
+
 /* Løpende tekst */
 .prose{max-width:72ch;margin:34px 0 10px}
 .prose h2{font-family:var(--font-display);font-weight:600;font-size:1.42rem;margin:34px 0 8px}
