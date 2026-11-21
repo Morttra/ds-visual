@@ -3,14 +3,14 @@ const TOPICS = {};
 function topic(t) { TOPICS[t.id] = t; }
 
 const ORDER = ['dataforberedelse', 'pca', 'bias-varians', 'evaluering-prediksjon', 'evaluering-klassifikasjon',
-  'lineaer-regresjon', 'variabelseleksjon', 'logistisk-regresjon', 'knn', 'naiv-bayes', 'beslutningstraer', 'ensembler',
+  'lineaer-regresjon', 'variabelseleksjon', 'regularisering', 'logistisk-regresjon', 'knn', 'naiv-bayes', 'beslutningstraer', 'ensembler',
   'shap', 'konform', 'nevrale-nett', 'hierarkisk-klynging', 'k-means', 'sprakmodeller', 'rag'];
 
 const TREE_LEAVES = {
   klass: { title: 'Klassifikasjon', note: 'Y er kategorisk: eier eller ikke-eier, svindel eller ærlig.', color: 'var(--c1)',
     chips: [['logistisk-regresjon', 'Logistisk regresjon'], ['knn', 'k-nærmeste naboer'], ['naiv-bayes', 'Naiv Bayes'], ['beslutningstraer', 'Klassifikasjonstrær'], ['ensembler', 'Random forest og boosting'], ['nevrale-nett', 'Nevrale nett og CNN']] },
   pred: { title: 'Prediksjon', note: 'Y er et tall: pris, salg, boligverdi.', color: 'var(--c4)',
-    chips: [['lineaer-regresjon', 'Lineær regresjon'], ['variabelseleksjon', 'Variabelvalg, ridge og lasso'], ['knn', 'k-NN for tall'], ['beslutningstraer', 'Regresjonstrær'], ['ensembler', 'Ensembler'], ['nevrale-nett', 'Nevrale nett']] },
+    chips: [['lineaer-regresjon', 'Lineær regresjon'], ['variabelseleksjon', 'Variabelvalg og AIC'], ['regularisering', 'Ridge, lasso og elastic net'], ['knn', 'k-NN for tall'], ['beslutningstraer', 'Regresjonstrær'], ['ensembler', 'Ensembler'], ['nevrale-nett', 'Nevrale nett']] },
   gen: { title: 'Generativ KI', note: 'Y er neste ord eller bildebit. Modellen lager nytt innhold.', color: 'var(--c2)',
     chips: [['sprakmodeller', 'Språkmodeller og temperatur'], ['rag', 'RAG, finjustering og etikk']] },
   uvel: { title: 'Klynger og PCA', note: 'Ingen Y. Vi ser etter grupper og mønstre i X.', color: 'var(--c0)',
@@ -32,7 +32,7 @@ function renderHome(main) {
     H('section', { class: 'hero' },
       H('h1', {}, 'Pensum i Data Science, som et tre du kan klikke i'),
       H('p', {}, 'Treet starter med ett spørsmål: har vi en fasit å lære fra? Svaret leder deg til riktig familie av metoder. Trykk på en metode for å se den i aksjon. Hver side har figurer du kan dra i, og en skriftlig forklaring under.'),
-      H('p', { class: 'mini', style: 'margin-top:8px' }, 'Du trenger verken forelesningene eller datasettene. Hver side forklarer dataene den bruker, og ', H('a', { href: '#datasett' }, 'alle datasettene'), ' er samlet på én side.')),
+      H('p', { class: 'mini', style: 'margin-top:8px' }, 'Du trenger verken forelesningene eller datasettene. Hver side forklarer dataene den bruker, og ', H('a', { href: '#datasett' }, 'alle datasettene'), ' er samlet på én side. Forkortelser som AIC og RMSE er forklart i ', H('a', { href: '#ordliste' }, 'ordlisten'), '.')),
     H('div', { class: 'tree', role: 'navigation', 'aria-label': 'Metodetreet' },
       H('ul', {}, H('li', {},
         H('div', { class: 'q' }, 'Har vi en fasit (Y) å lære fra?'),
@@ -89,6 +89,9 @@ function route() {
   const main = clear(document.getElementById('main'));
   const id = decodeURIComponent(location.hash.slice(1));
   const t = TOPICS[id];
-  if (t) renderTopic(main, t); else if (id === 'datasett' || id.startsWith('datasett-')) renderDatasets(main, id.slice(9)); else renderHome(main);
+  if (t) { renderTopic(main, t); linkTerms(main, t.id); LAST_PAGE = t.id; }
+  else if (id === 'datasett' || id.startsWith('datasett-')) renderDatasets(main, id.slice(9));
+  else if (id === 'ordliste' || id.startsWith('ordliste-')) renderGlossary(main, id.slice(9));
+  else renderHome(main);
   window.scrollTo(0, 0);
 }

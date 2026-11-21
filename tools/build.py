@@ -2,8 +2,8 @@
 import pathlib, re, sys
 root = pathlib.Path(__file__).resolve().parent.parent
 src = root / 'src'
-order = ['lib.js', 'data.js', 'app.js', 'datasets.js']
-topics = ['grunnmur.js', 'regresjon.js', 'klassifikasjon.js', 'traer.js', 'nevrale.js', 'genai.js', 'uveiledet.js', 'oppaa.js']
+order = ['lib.js', 'data.js', 'app.js', 'datasets.js', 'ordliste.js']
+topics = ['grunnmur.js', 'regresjon.js', 'regularisering.js', 'klassifikasjon.js', 'traer.js', 'nevrale.js', 'genai.js', 'uveiledet.js', 'oppaa.js']
 parts = []
 for f in order + ['topics/' + t for t in topics]:
     p = src / f

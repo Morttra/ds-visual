@@ -161,6 +161,18 @@ svg.plot{display:block;width:100%;height:auto;overflow:visible;font-family:var(-
 .dtbl{font-size:.8rem}
 .dnote{background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:8px 14px;margin:18px 0;font-size:.9rem;color:var(--muted);max-width:none}
 
+/* Ordliste */
+a.term{color:inherit;text-decoration:underline dotted;text-decoration-color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1.5px;cursor:help}
+a.term:hover{color:var(--accent)}
+.glsearch{font:inherit;font-size:1rem;padding:8px 12px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:min(420px,100%)}
+.gllist{display:grid;gap:10px;margin:12px 0 30px}
+.gl{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;scroll-margin-top:90px;transition:background .6s}
+.gl h2{font-family:var(--font-display);font-size:1.12rem;margin:0 0 4px;font-weight:600}
+.glfull{display:block;font-family:var(--font-body);font-size:.85rem;font-weight:400;color:var(--muted);margin-top:1px}
+.gl p{margin:0;max-width:80ch}
+.gl .formula{margin:8px 0 4px;font-size:1rem}
+.gl.flash{background:color-mix(in srgb,var(--hl) 22%,var(--surface))}
+
 /* Løpende tekst */
 .prose{max-width:72ch;margin:34px 0 10px}
 .prose h2{font-family:var(--font-display);font-weight:600;font-size:1.42rem;margin:34px 0 8px}

@@ -115,10 +115,10 @@ regressionSummary(y_true=valid_y, y_pred=car_lm.predict(valid_X))</code></pre>`
 });
 
 topic({
-  id: 'variabelseleksjon', data: [['toyota']], short: 'Variabelvalg og regularisering', lecture: 'F5', tags: ['Prediksjon', 'Subset selection', 'Ridge', 'Lasso'],
-  title: 'Variabelvalg, ridge og lasso',
+  id: 'variabelseleksjon', data: [['toyota']], short: 'Variabelvalg', lecture: 'F5', tags: ['Prediksjon', 'Subset selection', 'AIC'],
+  title: 'Variabelvalg: uttømmende søk, forward og backward',
   path: ['Veiledet læring', 'Prediksjon'],
-  lead: 'Flere forklaringsvariabler er ikke alltid bedre. Vi kan velge ut et delsett av variablene, eller beholde alle og krympe koeffisientene mot null med ridge eller lasso.',
+  lead: 'Flere forklaringsvariabler er ikke alltid bedre. Delmengdeseleksjon prøver ut ulike utvalg av variablene og velger det beste etter et mål som straffer kompleksitet: justert R², AIC, BIC eller feilen på valideringsdata.',
   figs: [{
     title: 'Uttømmende søk på bruktbildataene',
     sub: 'Alle 2 047 modeller med 1–11 av variablene er tilpasset på treningsdataene. For hver modellstørrelse vises den beste. Justert R² skal være høy, AIC skal være lav.',
@@ -175,48 +175,6 @@ topic({
       draw();
       el.append(H('p', { class: 'note', html: '<b style="color:var(--c0)">Uttømmende søk</b> dobles for hver ny variabel. <b style="color:var(--c1)">Forward og backward</b> vokser bare kvadratisk.' }));
     }
-  }, {
-    title: 'Ridge og lasso krymper koeffisientene',
-    sub: 'Koeffisientene for de 11 standardiserte variablene i bruktbilmodellen når straffen λ øker (i scikit-learn heter den alpha). Lasso setter koeffisienter til nøyaktig null. Ridge krymper alle, men ingen blir null.',
-    build(el) {
-      const P = { lasso: DATA.lassoPath, ridge: DATA.ridgePath }, names = DATA.toyotaCols, ols = DATA.olsStdCoef;
-      const top = ols.map((v, i) => [Math.abs(v), i]).sort((a, b) => b[0] - a[0]).slice(0, 5).map(t => t[1]);
-      const colOf = i => { const j = top.indexOf(i); return j < 0 ? 'mut' : 'c' + j; };
-      let mode = 'lasso', idx = 16;
-      const ctl = Controls(el);
-      Seg(ctl, { label: 'Metode', options: [['lasso', 'Lasso'], ['ridge', 'Ridge']], value: mode, onchange: v => { mode = v; sl.setMax(P[v].length - 1); idx = Math.min(idx, P[v].length - 1); sl.set(idx, false); draw(true); } });
-      const sl = Slider(ctl, { label: 'Straff λ', min: 0, max: P[mode].length - 1, value: idx, fmt: i => fx(P[mode][Math.min(i, P[mode].length - 1)].a, P[mode][Math.min(i, P[mode].length - 1)].a < 10 ? 2 : 0), oninput: v => { idx = v; draw(); } });
-      const cols = H('div', { class: 'cols' }); el.append(cols);
-      const a = H('div'), b = H('div'); cols.append(a, b);
-      const pl = new Plot(a, { w: 540, h: 360, x: [0, 1], y: [-2500, 1300], xlab: 'log₁₀(λ)', ylab: 'Koeffisient (€ per standardavvik)', label: 'Koeffisientstier' });
-      const gP = pl.layer(), gM = pl.layer();
-      const bars = S('svg', { viewBox: '0 0 360 300', class: 'plot', role: 'img', 'aria-label': 'Koeffisienter ved valgt straff' }); b.append(bars);
-      const tiles = Tiles(b, [['nz', 'Variabler ≠ 0'], ['rm', 'RMSE validering'], ['ols', 'RMSE uten straff']]);
-      function draw(newMode) {
-        const path = P[mode], lx = path.map(d => Math.log10(d.a));
-        if (newMode || !pl._d) { pl.setDomain([Math.min(...lx), Math.max(...lx)], [-2500, 1300]); pl._d = 1; clear(gP);
-          S('line', { x1: pl.x(lx[0]), x2: pl.x(lx[lx.length - 1]), y1: pl.y(0), y2: pl.y(0), class: 's-ink', 'stroke-width': 1 }, gP);
-          names.forEach((n, j) => S('path', { d: pathOf(path.map((d, i) => [pl.x(lx[i]), pl.y(d.coef[j])])), fill: 'none', class: 's-' + colOf(j), 'stroke-width': top.includes(j) ? 2.2 : 1.2, 'stroke-opacity': top.includes(j) ? 1 : 0.6 }, gP)); }
-        clear(gM); const d = path[idx];
-        S('line', { x1: pl.x(lx[idx]), x2: pl.x(lx[idx]), y1: pl.y(-2500), y2: pl.y(1300), class: 's-ink', 'stroke-dasharray': '4 3' }, gM);
-        clear(bars); const bx = v => 273 + v * 0.0632, x0 = bx(0);
-        S('line', { x1: x0, x2: x0, y1: 4, y2: 292, class: 's-ink' }, bars);
-        names.forEach((n, j) => {
-          const y = 8 + j * 26, v = d.coef[j];
-          S('text', { x: 4, y: y + 13, text: TOY_NAMES[n] || n, style: 'font-size:11.5px', class: 'lbl' }, bars);
-          S('rect', { x: Math.min(x0, bx(v)), y: y + 2, width: Math.max(0.5, Math.abs(bx(v) - x0)), height: 15, class: 'f-' + colOf(j), 'fill-opacity': v === 0 ? 0 : 0.85, rx: 2 }, bars);
-          S('line', { x1: bx(ols[j]), x2: bx(ols[j]), y1: y, y2: y + 19, class: 's-ink', 'stroke-width': 1.5, 'stroke-opacity': 0.5 }, bars);
-          if (v === 0) S('text', { x: x0 + 6, y: y + 13, text: '0', style: 'font-size:11px' }, bars);
-        });
-        tiles.set('nz', String(d.coef.filter(v => v !== 0).length) + ' av 11', mode === 'lasso' && d.coef.some(v => v === 0) ? 'hl' : '');
-        tiles.set('rm', fint(d.rmse) + ' €', d.rmse > DATA.olsStdRMSE * 1.1 ? 'bad' : ''); tiles.set('ols', fint(DATA.olsStdRMSE) + ' €');
-      }
-      draw(true);
-      b.append(H('p', { class: 'note', html: 'Den tynne streken på hver søyle er koeffisienten uten straff (vanlig regresjon).' }));
-    },
-    tryit: ['Dra λ i lasso fra venstre mot høyre. Se hvilke variabler som blir null først. Det er de lassoen anser som minst nyttige.',
-      'Bytt til ridge og gjør det samme. Koeffisientene nærmer seg null, men ingen blir nøyaktig null.',
-      'Følg RMSE på validering. Litt straff koster nesten ingenting, men for mye straff gjør modellen for enkel (bias).']
   }],
   body: `
 <h2>Hvorfor velge bort variabler?</h2>
@@ -232,35 +190,37 @@ topic({
 <li><b>Backward elimination:</b> start med alle. Fjern den minst nyttige, til fjerning gjør modellen dårligere.</li>
 <li><b>Stepwise:</b> som forward, men en variabel som er lagt til, kan fjernes igjen senere.</li>
 </ul>
-<div class="formula">Justert R² = 1 − (1 − R²) · (<span class="v">n</span> − 1) / (<span class="v">n</span> − <span class="v">p</span> − 1)</div>
-<p>Justert R² og AIC straffer antall variabler. Vanlig R² gjør det ikke og stiger alltid med flere variabler.</p>
-<h2>Regularisering (krymping)</h2>
-<div class="formula">Ridge: minimer SSE + λ Σ β<sub>j</sub>² &nbsp;&nbsp;&nbsp;&nbsp; Lasso: minimer SSE + λ Σ |β<sub>j</sub>|</div>
+<h2>Hvordan modellene sammenlignes: justert R², AIC og BIC</h2>
+<p>Vanlig R² øker alltid når en variabel legges til, også når variabelen er ren støy. Derfor brukes mål som straffer antall variabler:</p>
+<div class="formula">Justert R² = 1 − (1 − R²) · (<span class="v">n</span> − 1) / (<span class="v">n</span> − <span class="v">p</span> − 1)<br>AIC = <span class="v">n</span> · ln(SSE / <span class="v">n</span>) + <span class="v">n</span> · (1 + ln 2π) + 2(<span class="v">p</span> + 1)<br>BIC = <span class="v">n</span> · ln(SSE / <span class="v">n</span>) + <span class="v">n</span> · (1 + ln 2π) + ln(<span class="v">n</span>) · (<span class="v">p</span> + 1)</div>
 <ul>
-<li>Straffen gjør store koeffisienter dyre. Modellen blir enklere og mindre følsom for støy: litt mer bias, mindre varians.</li>
-<li><b>Lasso</b> kan sette koeffisienter til nøyaktig null, så den gjør variabelvalg automatisk.</li>
-<li><b>Ridge</b> krymper alle koeffisienter, men beholder alle variablene. Den fungerer godt når mange variabler er korrelerte.</li>
-<li>Variablene må standardiseres først. Ellers avhenger straffen av måleenheten.</li>
-<li>λ er en hyperparameter som velges med validering eller kryssvalidering (<code>LassoCV</code>, <code>RidgeCV</code>).</li>
+<li><i>n</i> er antall observasjoner og <i>p</i> antall forklaringsvariabler. <i>p</i> + 1 teller med konstantleddet.</li>
+<li><b>AIC</b> (Akaikes informasjonskriterium) har to deler. Første ledd blir lavere jo bedre modellen passer dataene (lavere SSE). Siste ledd er en straff på 2 per parameter. <b>Lavere AIC er bedre.</b> Selve tallet betyr ingenting alene; det er forskjellen mellom modeller på de samme dataene som teller.</li>
+<li><b>BIC</b> (bayesiansk informasjonskriterium) straffer med ln(<i>n</i>) per parameter i stedet for 2. Allerede fra <i>n</i> = 8 er ln(<i>n</i>) større enn 2, så BIC foretrekker enklere modeller enn AIC.</li>
+<li>Midtleddet <i>n</i> · (1 + ln 2π) er likt for alle modeller på de samme dataene, så det påvirker ikke hvilken modell som vinner.</li>
+<li>Det tryggeste målet er fortsatt feilen på valideringsdata, for eksempel RMSE.</li>
 </ul>
-<div class="pit"><b>Eksamensfelle</b>Lasso velger variabler fordi straffen bruker absoluttverdi. Kvadratstraffen i ridge gjør aldri en koeffisient nøyaktig null. Husk også at konstantleddet ikke straffes.</div>
+<div class="pit"><b>Eksamensfelle: R² på treningsdata</b>R² stiger alltid med flere variabler. Sammenlign modeller med justert R², AIC, BIC eller RMSE på valideringsdata.</div>
+<h2>Alternativet: krymp i stedet for å velge</h2>
+<p>I stedet for å slå variabler helt av eller på kan vi beholde alle og straffe store koeffisienter. Det kalles regularisering, og de vanligste variantene er ridge, lasso og elastic net. Lasso gjør i tillegg variabelvalg automatisk ved å sette noen koeffisienter til null. Se <a href="#regularisering">siden om regularisering</a>.</p>
 <h2>Python</h2>
-<pre><code>from mlba import exhaustive_search, forward_selection, backward_elimination, AIC_score
-from sklearn.linear_model import LinearRegression, Lasso, Ridge, LassoCV
+<pre><code>from mlba import forward_selection, backward_elimination, AIC_score
+from sklearn.linear_model import LinearRegression
 
+# train_X, train_y: bruktbildataene (Toyota Corolla), Y = Price
 def train_model(variables):
+    if len(variables) == 0:
+        return None
     return LinearRegression().fit(train_X[variables], train_y)
 
 def score_model(model, variables):
+    if len(variables) == 0:
+        return AIC_score(y_true=train_y, y_pred=[train_y.mean()] * len(train_y), model=model, df=1)
     return AIC_score(y_true=train_y, y_pred=model.predict(train_X[variables]), model=model)
 
-best_model, best_variables = forward_selection(train_X.columns, train_model, score_model)
-
-scaler = StandardScaler().fit(train_X)
-lasso = Lasso(alpha=100).fit(scaler.transform(train_X), train_y)
-print(lasso.coef_)                                      # noen blir 0
-lasso_cv = LassoCV(cv=5).fit(scaler.transform(train_X), train_y)
-print('beste alpha:', lasso_cv.alpha_)</code></pre>`
+best_model, best_variables = forward_selection(train_X.columns, train_model, score_model, verbose=True)
+print(best_variables)
+best_model, best_variables = backward_elimination(train_X.columns, train_model, score_model, verbose=True)</code></pre>`
 });
 
 topic({
@@ -361,6 +321,7 @@ topic({
 <div class="pit"><b>Eksamensfelle: odds er ikke sannsynlighet</b>Odds = 3 betyr p = 0,75, ikke 3 %. Og e<sup>b</sup> = 1,5 betyr at <i>oddsen</i> øker med 50 %, ikke sannsynligheten.</div>
 <div class="pit"><b>Eksamensfelle: regn baklengs</b>Får du en logit, regn odds = e<sup>logit</sup> og så p = odds / (1 + odds). Logit = 0 gir alltid p = 0,5.</div>
 <h2>Python</h2>
+<p>Hvorfor står det <code>C=1e42</code>? scikit-learn legger på en ridge-straff som standard, og C er det omvendte av straffen (C = 1/λ). En enorm C skrur derfor straffen av, slik at vi får vanlig logistisk regresjon. Se <a href="#regularisering">regularisering</a>.</p>
 <pre><code># train_X, train_y: bankkundedataene (Universal Bank), Y = Personal Loan
 from sklearn.linear_model import LogisticRegression
 

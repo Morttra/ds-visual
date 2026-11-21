@@ -145,6 +145,39 @@ out['ubSample'] = sample(ub.drop(columns=['ID', 'ZIP Code']), [0, 9, 16, 42])
 out['cerealSample'] = sample(c.drop(columns=['mfr', 'type']), [0, 2, 10, 43], 2)
 out['utilSample'] = sample(mlba.load_data('Utilities.csv'), [0, 1, 13, 17], 3)
 
+# 8. Regularisering: kryssvalidering (5-fold) og elastic net-sti på Toyota, L1/L2-logistisk på Universal Bank
+from sklearn.pipeline import make_pipeline
+from sklearn.model_selection import KFold, cross_val_score
+from sklearn.linear_model import ElasticNet, LogisticRegression
+kf = KFold(5, shuffle=True, random_state=1)
+def add_cv(path, make):
+    for d in path:
+        sc = -cross_val_score(make_pipeline(StandardScaler(), make(d['a'])), Xtr, ytr, cv=kf, scoring='neg_root_mean_squared_error')
+        d['cv'] = r(sc.mean(), 1); d['se'] = r(sc.std(ddof=1) / np.sqrt(len(sc)), 1)
+add_cv(out['lassoPath'], lambda a: Lasso(alpha=a, max_iter=200000))
+add_cv(out['ridgePath'], lambda a: Ridge(alpha=a))
+ea = np.logspace(-3, 3.9, 47)
+enet = []
+for a in ea:
+    mdl = ElasticNet(alpha=a, l1_ratio=0.5, max_iter=200000).fit(Ztr, ytr)
+    enet.append(dict(a=r(a, 3), coef=[r(v, 1) for v in mdl.coef_], rmse=r(np.sqrt(((yva - mdl.predict(Zva))**2).mean()), 1)))
+add_cv(enet, lambda a: ElasticNet(alpha=a, l1_ratio=0.5, max_iter=200000))
+out['enetPath'] = enet
+ubX = ub.drop(columns=['ID', 'ZIP Code', 'Personal Loan']).astype(float); uby = ub['Personal Loan']
+uXtr, uXva, uytr, uyva = train_test_split(ubX, uby, test_size=0.4, random_state=1)
+usc = StandardScaler().fit(uXtr); uZtr, uZva = usc.transform(uXtr), usc.transform(uXva)
+logi = []
+for C in np.logspace(-3, 1, 33):
+    row = dict(C=r(C, 5))
+    for pen in ['l1', 'l2']:
+        m = LogisticRegression(penalty=pen, C=C, solver='liblinear').fit(uZtr, uytr)
+        row[pen] = [r(v, 3) for v in m.coef_[0]]; row[pen + 'acc'] = r(m.score(uZva, uyva), 4)
+    logi.append(row)
+out['ubLogiPath'] = logi
+out['ubCols'] = list(ubX.columns)
+big = LogisticRegression(penalty='l2', C=1e42, solver='liblinear').fit(uZtr, uytr)
+out['ubLogiNoPen'] = dict(coef=[r(v, 3) for v in big.coef_[0]], acc=r(big.score(uZva, uyva), 4))
+
 js = 'const DATA = ' + json.dumps(out, ensure_ascii=False, separators=(',', ':')) + ';\n'
 open('src/data.js', 'w').write(js)
 print('bytes', len(js))
@@ -156,5 +189,6 @@ print('backward', out['toyotaBackward'], out['toyotaBackwardKept'])
 print('lasso nz', [(d['a'], sum(1 for v in d['coef'] if v != 0), d['rmse']) for d in out['lassoPath'][::4]])
 print('ridge', [(d['a'], d['rmse']) for d in out['ridgePath'][::5]])
 print('ols rmse', out['olsStdRMSE'], 'cols', cols)
+print('cv lasso', [(d['a'], d['cv'], d['se']) for d in out['lassoPath'][::6]]); print('cv ridge', [(d['a'], d['cv']) for d in out['ridgePath'][::6]]); print('cv enet', [(d['a'], d['cv'], sum(1 for v in d['coef'] if v != 0)) for d in out['enetPath'][::6]]); print('logi', [(d['C'], sum(1 for v in d['l1'] if v != 0), d['l1acc'], d['l2acc']) for d in out['ubLogiPath'][::4]], out['ubLogiNoPen']['acc'])
 print('ubMLE', out['ubMLE'], 'n unique incomes', len(out['ubIncome']))
 print('shap base', out['shapLinear']['base'], [(c_['pred'], c_['actual']) for c_ in out['shapLinear']['cars']])
