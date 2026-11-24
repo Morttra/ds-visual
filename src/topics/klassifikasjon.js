@@ -110,19 +110,20 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score
 
 predictors = ['Income', 'Lot_Size']
-scaler = StandardScaler().fit(train_df[predictors])          # bare treningsdata
-train_X = scaler.transform(train_df[predictors])
-valid_X = scaler.transform(valid_df[predictors])
+scaler = StandardScaler().fit(train_df[predictors])          # snitt og standardavvik fra treningsdata
+train_X = scaler.transform(train_df[predictors])            # z-score, så begge variablene teller likt
+valid_X = scaler.transform(valid_df[predictors])            # med treningens snitt og standardavvik
 
 results = []
-for k in range(1, 15):
-    knn = KNeighborsClassifier(n_neighbors=k).fit(train_X, train_df['Ownership'])
+for k in range(1, 15):                                       # prøv k = 1 til 14
+    knn = KNeighborsClassifier(n_neighbors=k).fit(train_X, train_df['Ownership'])   # tren med k naboer
     results.append({'k': k, 'accuracy': accuracy_score(valid_df['Ownership'], knn.predict(valid_X))})
-print(pd.DataFrame(results))
+print(pd.DataFrame(results))                                 # accuracy på validering per k; velg den beste
 
-new_household = pd.DataFrame([{'Income': 60, 'Lot_Size': 20}])
-knn = KNeighborsClassifier(n_neighbors=4).fit(train_X, train_df['Ownership'])
-print(knn.predict(scaler.transform(new_household)))
+new_household = pd.DataFrame([{'Income': 60, 'Lot_Size': 20}])   # ny husholdning som skal klassifiseres
+knn = KNeighborsClassifier(n_neighbors=4).fit(train_X, train_df['Ownership'])   # valgt k = 4
+print(knn.predict(scaler.transform(new_household)))         # skaler på samme måte før prediksjon
+# avstand til og radnummer for de 4 nærmeste
 distances, indices = knn.kneighbors(scaler.transform(new_household))</code></pre>`
 });
 
@@ -217,9 +218,10 @@ topic({
 predictors = ['DAY_WEEK', 'CRS_DEP_TIME', 'ORIGIN', 'DEST', 'CARRIER']
 X = pd.get_dummies(delays_df[predictors])            # alle kategorier som 0/1
 y = delays_df['Flight Status']
-train_X, valid_X, train_y, valid_y = train_test_split(X, y, test_size=0.40, random_state=1)
+train_X, valid_X, train_y, valid_y = train_test_split(X, y, test_size=0.40, random_state=1)   # 60/40
 
+# alpha: litt glatting, så ingen sannsynlighet blir 0
 delays_nb = MultinomialNB(alpha=0.01).fit(train_X, train_y)
 pred_prob = delays_nb.predict_proba(valid_X)          # sannsynlighet per klasse
-classificationSummary(y_true=valid_y, y_pred=delays_nb.predict(valid_X))</code></pre>`
+classificationSummary(y_true=valid_y, y_pred=delays_nb.predict(valid_X))   # forvirringsmatrise og accuracy</code></pre>`
 });

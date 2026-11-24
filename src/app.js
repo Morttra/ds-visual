@@ -89,9 +89,29 @@ function route() {
   const main = clear(document.getElementById('main'));
   const id = decodeURIComponent(location.hash.slice(1));
   const t = TOPICS[id];
-  if (t) { renderTopic(main, t); linkTerms(main, t.id); LAST_PAGE = t.id; }
+  if (t) { renderTopic(main, t); muteComments(main); linkTerms(main, t.id); LAST_PAGE = t.id; }
   else if (id === 'datasett' || id.startsWith('datasett-')) renderDatasets(main, id.slice(9));
   else if (id === 'ordliste' || id.startsWith('ordliste-')) renderGlossary(main, id.slice(9));
   else renderHome(main);
   window.scrollTo(0, 0);
+}
+
+/* Gir Python-kommentarer (# … utenfor strenger) en dempet farge i kodeblokkene */
+function muteComments(root) {
+  for (const code of root.querySelectorAll('pre code')) {
+    const lines = code.textContent.split('\n');
+    code.textContent = '';
+    lines.forEach((l, i) => {
+      let q = null, k = -1;
+      for (let j = 0; j < l.length; j++) {
+        const ch = l[j];
+        if (q) { if (ch === q) q = null; }
+        else if (ch === "'" || ch === '"') q = ch;
+        else if (ch === '#') { k = j; break; }
+      }
+      if (k < 0) code.append(l);
+      else { const sp = document.createElement('span'); sp.className = 'cmt'; sp.textContent = l.slice(k); code.append(l.slice(0, k), sp); }
+      if (i < lines.length - 1) code.append('\n');
+    });
+  }
 }

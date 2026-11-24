@@ -5,6 +5,26 @@ function NumIn(parent, o) {
   inp.addEventListener('input', () => { const v = +inp.value; if (isFinite(v)) o.oninput(v); });
   parent.append(H('div', { class: 'ctl' }, H('label', { for: id }, o.label), inp)); return inp;
 }
+/* Tegner kurven der f(x, y) = 0 med marching squares på et nx × ny-rutenett i [0,1]², som én sti */
+function zeroContour(g, plot, f, nx, ny, cls) {
+  const V = range(nx + 1, i => range(ny + 1, j => f(i / nx, j / ny)));
+  const X = u => plot.x(u).toFixed(1), Y = u => plot.y(u).toFixed(1), seg = [];
+  const cut = (xa, ya, va, xb, yb, vb) => { const t = va / (va - vb); return [xa + t * (xb - xa), ya + t * (yb - ya)]; };
+  for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
+    const x0 = i / nx, x1 = (i + 1) / nx, y0 = j / ny, y1 = (j + 1) / ny;
+    const a = V[i][j], b = V[i + 1][j], c = V[i + 1][j + 1], d = V[i][j + 1];
+    const E = {};
+    if ((a > 0) !== (b > 0)) E.bot = cut(x0, y0, a, x1, y0, b);
+    if ((b > 0) !== (c > 0)) E.rgt = cut(x1, y0, b, x1, y1, c);
+    if ((d > 0) !== (c > 0)) E.top = cut(x0, y1, d, x1, y1, c);
+    if ((a > 0) !== (d > 0)) E.lft = cut(x0, y0, a, x0, y1, d);
+    const k = Object.keys(E);
+    const pairs = k.length === 2 ? [[E[k[0]], E[k[1]]]]
+      : k.length === 4 ? (((a + b + c + d) > 0) === (a > 0) ? [[E.bot, E.rgt], [E.top, E.lft]] : [[E.bot, E.lft], [E.top, E.rgt]]) : [];
+    for (const [p, q] of pairs) seg.push(`M${X(p[0])} ${Y(p[1])}L${X(q[0])} ${Y(q[1])}`);
+  }
+  if (seg.length) S('path', { d: seg.join(''), fill: 'none', class: cls || 's-ink', 'stroke-width': 2, 'stroke-linecap': 'round' }, g);
+}
 const ACT = {
   sigmoid: { f: z => sigmoid(z), name: 'sigmoid', tex: '1 / (1 + e^(−z))' },
   tanh: { f: z => Math.tanh(z), name: 'tanh', tex: 'tanh(z)' },
@@ -134,21 +154,23 @@ topic({
     tryit: ['Med η = 0,1 fra w = 2,8 havner du i det lokale minimumet til høyre, ikke i det laveste punktet.', 'Prøv η = 0,01. Det går riktig vei, men svært sakte.', 'Prøv η = 0,8–1,2. Stegene blir så lange at w hopper frem og tilbake eller forsvinner ut av bildet.']
   }, {
     title: 'Tren et lite nett i nettleseren',
-    sub: 'Simulerte data. Et nett med to input, ett skjult lag (tanh) og sigmoid ut, trent med mini-batch gradient descent på 200 punkter. Hule punkter er valideringsdata.',
+    sub: 'Simulerte data: 400 punkter, 200 til trening (fylte) og 200 til validering (hule). Vektene justeres bare ut fra treningspunktene. Nettet har to input, ett skjult lag med valgfri aktivering og sigmoid ut, og trenes med mini-batch gradient descent. Den mørke linjen er beslutningsgrensen, der nettet gir p = 0,5.',
     build(el) {
       const all = fit01(moons(RNG(13), 400, 0.18)), tr = all.slice(0, 200), va = all.slice(200);
       const T = p => [2 * p[0] - 1, 2 * p[1] - 1, p[2]], trT = tr.map(T), vaT = va.map(T);
-      let h = 6, lr = 0.5, bs = 32, net, ep, ups, hist, running = false, raf = 0, rng;
+      let h = 6, lr = 0.5, bs = 32, act = 'relu', net, ep, ups, hist, running = false, raf = 0, rng;
+      /* Den deriverte uttrykt ved aktiveringen a = f(z), brukt i backprop */
+      const DACT = { relu: a => (a > 0 ? 1 : 0), sigmoid: a => a * (1 - a), tanh: a => 1 - a * a };
       function reset() { const r = RNG(100 + h); rng = RNG(7); net = { h, W1: range(h, () => [0.5 * r.n(), 0.5 * r.n()]), b1: range(h, () => 0.1 * r.n()), W2: range(h, () => 0.1 * r.n()), b2: 0 }; ep = 0; ups = 0; hist = []; }
-      const fwd = x => { const a = new Array(net.h); let z = net.b2; for (let j = 0; j < net.h; j++) { a[j] = Math.tanh(net.W1[j][0] * x[0] + net.W1[j][1] * x[1] + net.b1[j]); z += net.W2[j] * a[j]; } return { a, p: sigmoid(z) }; };
+      const fwd = x => { const f = ACT[act].f, a = new Array(net.h); let z = net.b2; for (let j = 0; j < net.h; j++) { a[j] = f(net.W1[j][0] * x[0] + net.W1[j][1] * x[1] + net.b1[j]); z += net.W2[j] * a[j]; } return { a, z, p: sigmoid(z) }; };
       const loss = D => mean(D.map(x => { const p = clamp(fwd(x).p, 1e-7, 1 - 1e-7); return -(x[2] * Math.log(p) + (1 - x[2]) * Math.log(1 - p)); }));
       const accu = D => D.filter(x => (fwd(x).p > 0.5 ? 1 : 0) === x[2]).length / D.length;
       function epoch() {
-        const idx = rng.shuffle(range(trT.length));
+        const idx = rng.shuffle(range(trT.length)), df = DACT[act];
         for (let s = 0; s < idx.length; s += bs) {
           const B = idx.slice(s, s + bs), gW1 = range(net.h, () => [0, 0]), gb1 = new Array(net.h).fill(0), gW2 = new Array(net.h).fill(0); let gb2 = 0;
           for (const i of B) { const x = trT[i], { a, p } = fwd(x), d2 = p - x[2]; gb2 += d2;
-            for (let j = 0; j < net.h; j++) { gW2[j] += d2 * a[j]; const d1 = d2 * net.W2[j] * (1 - a[j] * a[j]); gW1[j][0] += d1 * x[0]; gW1[j][1] += d1 * x[1]; gb1[j] += d1; } }
+            for (let j = 0; j < net.h; j++) { gW2[j] += d2 * a[j]; const d1 = d2 * net.W2[j] * df(a[j]); gW1[j][0] += d1 * x[0]; gW1[j][1] += d1 * x[1]; gb1[j] += d1; } }
           const m = B.length; net.b2 -= lr * gb2 / m;
           for (let j = 0; j < net.h; j++) { net.W2[j] -= lr * gW2[j] / m; net.W1[j][0] -= lr * gW1[j][0] / m; net.W1[j][1] -= lr * gW1[j][1] / m; net.b1[j] -= lr * gb1[j] / m; }
           ups++;
@@ -157,6 +179,7 @@ topic({
       }
       const ctl = Controls(el);
       Slider(ctl, { label: 'Skjulte nevroner', min: 1, max: 16, value: h, oninput: v => { h = v; stop(); reset(); draw(); } });
+      Seg(ctl, { label: 'Aktivering', options: [['relu', 'ReLU'], ['sigmoid', 'sigmoid'], ['tanh', 'tanh']], value: act, onchange: v => { act = v; stop(); reset(); draw(); } });
       Seg(ctl, { label: 'Learning rate', options: [[0.05, '0,05'], [0.5, '0,5'], [3, '3']], value: lr, onchange: v => { lr = v; } });
       Seg(ctl, { label: 'Batch size', options: [[8, '8'], [32, '32'], [200, '200 (alle)']], value: bs, onchange: v => { bs = v; } });
       const ctl2 = Controls(el);
@@ -166,7 +189,7 @@ topic({
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const a = H('div'), b = H('div'); cols.append(a, b);
       const plot = new Plot(a, { w: 520, h: 420, m: { t: 10, r: 10, b: 10, l: 10 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'Beslutningsgrensen til nettet' });
-      const gR = plot.layer(), gP = plot.layer();
+      const gR = plot.layer(), gP = plot.layer(), gC = plot.layer();
       tr.forEach(p => S('circle', { cx: plot.x(p[0]), cy: plot.y(p[1]), r: 3.4, class: p[2] ? 'f-c1' : 'f-c0' }, gP));
       va.forEach(p => S('circle', { cx: plot.x(p[0]), cy: plot.y(p[1]), r: 3.4, fill: 'none', class: p[2] ? 's-c1' : 's-c0', 'stroke-width': 1.2 }, gP));
       const p2 = new Plot(b, { w: 380, h: 240, x: [0, 50], y: [0, 0.8], xlab: 'Epoch', ylab: 'Tap (kryssentropi)', label: 'Tap mot epoch' });
@@ -178,6 +201,7 @@ topic({
       onLeave(stop);
       function draw() {
         clear(gR); regionGrid(gR, plot, (x, y) => fwd([2 * x - 1, 2 * y - 1]).p, 48, 38, 0, 1, 0, 1);
+        clear(gC); zeroContour(gC, plot, (x, y) => fwd([2 * x - 1, 2 * y - 1]).z, 104, 84);
         const xm = Math.max(50, Math.ceil(ep / 50) * 50); if (xm !== p2.o.x[1]) p2.setDomain([0, xm], [0, 0.8]);
         clear(gL);
         if (hist.length > 1) for (const [k, cl] of [[1, 'c4'], [2, 'c0']]) S('path', { d: pathOf(hist.filter((_, i) => i % Math.max(1, Math.floor(hist.length / 300)) === 0 || i === hist.length - 1).map(r => [p2.x(r[0]), p2.y(Math.min(r[k], 0.8))])), fill: 'none', class: 's-' + cl, 'stroke-width': 2 }, gL);
@@ -185,7 +209,7 @@ topic({
       }
       reset(); draw();
     },
-    tryit: ['Trykk «Start trening» med 6 nevroner. Grensen bøyer seg gradvis rundt de to halvmånene.', 'Prøv 1 skjult nevron. Da kan nettet bare lage en rett grense, som logistisk regresjon.', 'Sammenlign batch size 8 og 200. Med 8 blir det 25 oppdateringer per epoch, så nettet lærer på færre epochs, men hver epoch tar lengre tid.', 'Learning rate 3 gir urolige hopp. 0,05 gir trege, men jevne kurver.']
+    tryit: ['Trykk «Start trening» med 6 nevroner. Grensen bøyer seg gradvis rundt de to halvmånene.', 'Prøv 1 skjult nevron. Da kan nettet bare lage en rett grense, som logistisk regresjon. Det gjelder alle tre aktiveringene.', 'Velg 3 nevroner og bytt aktivering. Med ReLU blir grensen noen få rette biter med skarpe knekker, og med tanh blir bøyene myke. Sigmoid kommer dit også, men trenger mange flere epochs, fordi den deriverte aldri er større enn 0,25.','Sammenlign batch size 8 og 200. Med 8 blir det 25 oppdateringer per epoch, så nettet lærer på færre epochs, men hver epoch tar lengre tid.', 'Learning rate 3 gir urolige hopp. 0,05 gir trege, men jevne kurver.']
   }, {
     title: 'Konvolusjon: et filter som glir over bildet',
     sub: 'Et 8 × 8 gråtonebilde av sifferet 7 og et 3 × 3-filter. I hver posisjon ganges filteret med pikslene under, og summen blir én verdi i feature map-et.',
@@ -282,17 +306,21 @@ topic({
 <div class="pit"><b>Eksamensfelle: iterasjoner</b>50 000 bilder, batch size 250 og 10 epochs gir 50 000 / 250 = 200 oppdateringer per epoch, altså 2 000 totalt.</div>
 <h2>Python</h2>
 <pre><code>from sklearn.neural_network import MLPClassifier               # scikit-learn, som i læreboka
+# ett skjult lag med 6 nevroner, sigmoid-aktivering ('logistic'), optimeringsmetoden lbfgs
 clf = MLPClassifier(hidden_layer_sizes=(6,), activation='logistic', solver='lbfgs', random_state=1)
 clf.fit(train_X, train_y)
 
 from tensorflow import keras                                    # Keras (TensorFlow)
-model = keras.Sequential([
-    keras.layers.Input(shape=(4,)),
-    keras.layers.Dense(6, activation='relu'),
-    keras.layers.Dense(3, activation='softmax')])
+model = keras.Sequential([                                      # lagene kobles etter hverandre
+    keras.layers.Input(shape=(4,)),                             # 4 features inn
+    keras.layers.Dense(6, activation='relu'),                   # skjult lag: 6 nevroner med ReLU
+    keras.layers.Dense(3, activation='softmax')])               # 3 klasser ut, softmax gir sannsynligheter
+# adam = gradient descent med tilpasset steglengde; tap = kryssentropi (y må være one-hot)
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+# de siste 20 % av radene holdes av til validering
 model.fit(X, y, epochs=20, batch_size=32, validation_split=0.2)
 
+# ferdig trent VGG16 uten de fullt koblede lagene på toppen (include_top=False)
 base = keras.applications.VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
 base.trainable = False                                          # transfer learning: frys ryggraden</code></pre>`
 });

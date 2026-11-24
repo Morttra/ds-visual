@@ -104,14 +104,15 @@ from mlba import regressionSummary
 
 predictors = ['Age_08_04', 'KM', 'Fuel_Type', 'HP', 'Met_Color', 'Automatic',
               'CC', 'Doors', 'Quarterly_Tax', 'Weight']
+# Fuel_Type blir 0/1-kolonner, én droppes som referanse
 X = pd.get_dummies(car_df[predictors], drop_first=True)
 y = car_df['Price']
-train_X, valid_X, train_y, valid_y = train_test_split(X, y, test_size=0.4, random_state=1)
+train_X, valid_X, train_y, valid_y = train_test_split(X, y, test_size=0.4, random_state=1)   # 60/40
 
-car_lm = LinearRegression().fit(train_X, train_y)
-print(pd.DataFrame({'Predictor': X.columns, 'coefficient': car_lm.coef_}))
-print('intercept', car_lm.intercept_)
-regressionSummary(y_true=valid_y, y_pred=car_lm.predict(valid_X))</code></pre>`
+car_lm = LinearRegression().fit(train_X, train_y)          # minste kvadraters metode
+print(pd.DataFrame({'Predictor': X.columns, 'coefficient': car_lm.coef_}))   # koeffisient per variabel
+print('intercept', car_lm.intercept_)                      # konstantleddet
+regressionSummary(y_true=valid_y, y_pred=car_lm.predict(valid_X))   # feilmål på validering</code></pre>`
 });
 
 topic({
@@ -208,18 +209,21 @@ topic({
 from sklearn.linear_model import LinearRegression
 
 # train_X, train_y: bruktbildataene (Toyota Corolla), Y = Price
-def train_model(variables):
+def train_model(variables):                # mlba kaller denne for hver variabelliste den vil teste
     if len(variables) == 0:
-        return None
+        return None                        # ingen variabler: ingen modell å trene
     return LinearRegression().fit(train_X[variables], train_y)
 
-def score_model(model, variables):
+def score_model(model, variables):         # gir AIC for modellen; lavere er bedre
+    # modellen uten variabler predikerer bare snittet (df=1: konstantleddet)
     if len(variables) == 0:
         return AIC_score(y_true=train_y, y_pred=[train_y.mean()] * len(train_y), model=model, df=1)
     return AIC_score(y_true=train_y, y_pred=model.predict(train_X[variables]), model=model)
 
+# forward: start tomt, legg til den variabelen som senker AIC mest, stopp når ingen hjelper
 best_model, best_variables = forward_selection(train_X.columns, train_model, score_model, verbose=True)
 print(best_variables)
+# backward: start med alle, fjern én og én så lenge AIC blir lavere
 best_model, best_variables = backward_elimination(train_X.columns, train_model, score_model, verbose=True)</code></pre>`
 });
 
@@ -325,12 +329,13 @@ topic({
 <pre><code># train_X, train_y: bankkundedataene (Universal Bank), Y = Personal Loan
 from sklearn.linear_model import LogisticRegression
 
-logit_reg = LogisticRegression(penalty='l2', C=1e42, solver='liblinear')   # nesten ingen straff
+# C = 1/λ: enorm C gir nesten ingen straff
+logit_reg = LogisticRegression(penalty='l2', C=1e42, solver='liblinear')
 logit_reg.fit(train_X, train_y)
 print('intercept', logit_reg.intercept_[0])
-print(pd.DataFrame({'coeff': logit_reg.coef_[0]}, index=X.columns))
+print(pd.DataFrame({'coeff': logit_reg.coef_[0]}, index=X.columns))   # koeffisienter på log-odds-skala
 
 prob = logit_reg.predict_proba(valid_X)[:, 1]        # propensitet for klasse 1
 pred = logit_reg.predict(valid_X)                     # klasse med terskel 0,5
-classificationSummary(y_true=valid_y, y_pred=pred)</code></pre>`
+classificationSummary(y_true=valid_y, y_pred=pred)   # forvirringsmatrise og accuracy</code></pre>`
 });

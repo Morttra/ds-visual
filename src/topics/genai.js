@@ -130,15 +130,16 @@ topic({
 <h2>Python</h2>
 <pre><code>import numpy as np
 
+# velger neste token ut fra modellens rå-score (logits); T = temperatur
 def neste_token(logits, T=1.0, rng=np.random.default_rng(1)):
-    p = np.exp(logits / T)
-    p = p / p.sum()                       # softmax med temperatur
-    return rng.choice(len(p), p=p)        # trekk ett token
+    p = np.exp(logits / T)                # lav T forsterker forskjellene, høy T jevner dem ut
+    p = p / p.sum()                       # del på summen: sannsynligheter (softmax)
+    return rng.choice(len(p), p=p)        # trekk ett token med sannsynlighetene p
 
-ord = ['øve', 'løse', 'lese', 'sove']
-logits = np.array([3.1, 2.5, 2.3, 1.3])
-print([ord[neste_token(logits, T=0.1)] for _ in range(5)])   # nesten alltid 'øve'
-print([ord[neste_token(logits, T=2.0)] for _ in range(5)])   # mer variasjon</code></pre>`
+ord = ['øve', 'løse', 'lese', 'sove']      # fire mulige neste ord
+logits = np.array([3.1, 2.5, 2.3, 1.3])  # modellens score for hvert ord
+print([ord[neste_token(logits, T=0.1)] for _ in range(5)])   # 5 trekk med lav T: nesten alltid 'øve'
+print([ord[neste_token(logits, T=2.0)] for _ in range(5)])   # 5 trekk med høy T: mer variasjon</code></pre>`
 });
 
 topic({

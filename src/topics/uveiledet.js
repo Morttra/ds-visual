@@ -148,12 +148,15 @@ topic({
 <pre><code>from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 from sklearn.metrics import pairwise
 
-utilities_df_norm = (utilities_df - utilities_df.mean()) / utilities_df.std()
+utilities_df_norm = (utilities_df - utilities_df.mean()) / utilities_df.std()   # z-score per kolonne
+# avstand mellom alle par av selskaper
 d_norm = pairwise.pairwise_distances(utilities_df_norm, metric='euclidean')
 
-Z = linkage(utilities_df_norm, method='single')        # eller 'complete', 'average', 'centroid', 'ward'
+# slår sammen de to nærmeste klyngene steg for steg; method kan også være 'complete', 'average', 'centroid', 'ward'
+Z = linkage(utilities_df_norm, method='single')
+# tegn treet; klynger under høyde 2,75 får egen farge
 dendrogram(Z, labels=utilities_df_norm.index, color_threshold=2.75)
-memb = fcluster(Z, 6, criterion='maxclust')             # 6 klynger</code></pre>`
+memb = fcluster(Z, 6, criterion='maxclust')             # kutt treet så det blir 6 klynger</code></pre>`
 });
 
 topic({
@@ -229,13 +232,15 @@ topic({
 <pre><code># utilities_df_norm: kraftselskapdataene, normalisert som z-score
 from sklearn.cluster import KMeans
 
+# n_init=10: 10 starter, beste beholdes
 kmeans = KMeans(n_clusters=6, random_state=0, n_init=10).fit(utilities_df_norm)
-memb = pd.Series(kmeans.labels_, index=utilities_df_norm.index)
-centroids = pd.DataFrame(kmeans.cluster_centers_, columns=utilities_df_norm.columns)
-print(kmeans.inertia_)
+memb = pd.Series(kmeans.labels_, index=utilities_df_norm.index)                   # klyngenummer per selskap
+centroids = pd.DataFrame(kmeans.cluster_centers_, columns=utilities_df_norm.columns)   # snittet i hver klynge
+print(kmeans.inertia_)                                 # summen av kvadrerte avstander til eget senter
 
+# inertia for k = 1 til 9
 inertia = [KMeans(n_clusters=k, random_state=0, n_init=10).fit(utilities_df_norm).inertia_ for k in range(1, 10)]
-plt.plot(range(1, 10), inertia, marker='o')           # albueplott</code></pre>`
+plt.plot(range(1, 10), inertia, marker='o')           # albueplott: velg k der kurven flater ut</code></pre>`
 });
 
 topic({
@@ -331,13 +336,15 @@ topic({
 <pre><code>from sklearn.decomposition import PCA
 from sklearn import preprocessing
 
-pcs = PCA(n_components=2).fit(cereals_df[['calories', 'rating']])
+pcs = PCA(n_components=2).fit(cereals_df[['calories', 'rating']])   # PCA på to variabler, uskalert
 print(pcs.components_)                        # vektene (loadings)
 print(pcs.explained_variance_ratio_)          # PVE
 
+# alle numeriske kolonner (fra kolonne 3), uten rader med manglende verdier, standardisert
 pcs = PCA().fit(preprocessing.scale(cereals_df.iloc[:, 3:].dropna(axis=0)))
-pcsSummary = pd.DataFrame({'Standard deviation': np.sqrt(pcs.explained_variance_),
+pcsSummary = pd.DataFrame({'Standard deviation': np.sqrt(pcs.explained_variance_),   # tabellen fra læreboka
                            'Proportion of variance': pcs.explained_variance_ratio_,
                            'Cumulative proportion': np.cumsum(pcs.explained_variance_ratio_)})
+# hver frokostblanding på komponentene
 scores = pcs.transform(preprocessing.scale(cereals_df.iloc[:, 3:].dropna(axis=0)))</code></pre>`
 });

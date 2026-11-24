@@ -198,6 +198,8 @@ a.term:hover{color:var(--accent)}
 pre{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow-x:auto;font-size:.84rem;line-height:1.55}
 .prose code{font-size:.88em;background:var(--soft);border-radius:4px;padding:1px 4px}
 .prose pre code{background:none;padding:0;font-size:1em}
+.prose pre{width:min(1040px,calc(100vw - 56px));max-width:none}
+.prose pre .cmt{color:var(--muted)}
 .pros{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:12px 0}
 .pros>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 14px}
 .pros h3{margin:4px 0 2px;font-size:.95rem}
@@ -209,6 +211,7 @@ pre{background:var(--surface);border:1px solid var(--line);border-radius:10px;pa
 .foot{border-top:1px solid var(--line);color:var(--muted);font-size:.82rem;padding:18px 0 36px;margin-top:20px}
 
 @media (max-width:860px){
+  .prose pre{width:auto}
   .cols,.cols.even{grid-template-columns:minmax(0,1fr)}
   .tree ul{display:block;padding:0 0 0 18px}
   .tree>ul{padding-left:0}
@@ -582,11 +585,31 @@ function route() {
   const main = clear(document.getElementById('main'));
   const id = decodeURIComponent(location.hash.slice(1));
   const t = TOPICS[id];
-  if (t) { renderTopic(main, t); linkTerms(main, t.id); LAST_PAGE = t.id; }
+  if (t) { renderTopic(main, t); muteComments(main); linkTerms(main, t.id); LAST_PAGE = t.id; }
   else if (id === 'datasett' || id.startsWith('datasett-')) renderDatasets(main, id.slice(9));
   else if (id === 'ordliste' || id.startsWith('ordliste-')) renderGlossary(main, id.slice(9));
   else renderHome(main);
   window.scrollTo(0, 0);
+}
+
+/* Gir Python-kommentarer (# … utenfor strenger) en dempet farge i kodeblokkene */
+function muteComments(root) {
+  for (const code of root.querySelectorAll('pre code')) {
+    const lines = code.textContent.split('\n');
+    code.textContent = '';
+    lines.forEach((l, i) => {
+      let q = null, k = -1;
+      for (let j = 0; j < l.length; j++) {
+        const ch = l[j];
+        if (q) { if (ch === q) q = null; }
+        else if (ch === "'" || ch === '"') q = ch;
+        else if (ch === '#') { k = j; break; }
+      }
+      if (k < 0) code.append(l);
+      else { const sp = document.createElement('span'); sp.className = 'cmt'; sp.textContent = l.slice(k); code.append(l.slice(0, k), sp); }
+      if (i < lines.length - 1) code.append('\n');
+    });
+  }
 }
 
 /* ---- datasets.js ---- */
@@ -994,19 +1017,19 @@ topic({
 <pre><code>import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
-X = pd.get_dummies(df[predictors], drop_first=True)   # k − 1 dummyer
-train_X, valid_X = ...                                  # partisjoner først
+X = pd.get_dummies(df[predictors], drop_first=True)   # kategorier blir 0/1-kolonner, k − 1 dummyer
+train_X, valid_X = ...                                  # partisjoner først, før alt annet
 
-train_X = train_X.fillna(train_X.median())             # imputer med treningsmedianen
-valid_X = valid_X.fillna(train_X.median())
+train_X = train_X.fillna(train_X.median())             # fyll manglende verdier med treningsmedianen
+valid_X = valid_X.fillna(train_X.median())             # validering fylles også med treningsmedianen
 
-scaler = StandardScaler().fit(train_X)                  # tilpass kun på treningsdata
-train_Z = scaler.transform(train_X)
-valid_Z = scaler.transform(valid_X)
+scaler = StandardScaler().fit(train_X)                  # lærer snitt og standardavvik, kun fra treningsdata
+train_Z = scaler.transform(train_X)                     # z-score: (x − snitt) / standardavvik
+valid_Z = scaler.transform(valid_X)                     # samme snitt og standardavvik som treningen
 
-q1, q3 = df['KM'].quantile([0.25, 0.75])                # 1,5 · IQR-regelen
-iqr = q3 - q1
-uteliggere = df[(df['KM'] &lt; q1 - 1.5*iqr) | (df['KM'] &gt; q3 + 1.5*iqr)]</code></pre>`
+q1, q3 = df['KM'].quantile([0.25, 0.75])                # 1. og 3. kvartil (1,5 · IQR-regelen)
+iqr = q3 - q1                                           # kvartilbredden
+uteliggere = df[(df['KM'] &lt; q1 - 1.5*iqr) | (df['KM'] &gt; q3 + 1.5*iqr)]   # rader utenfor grensene</code></pre>`
 });
 
 topic({
@@ -1132,13 +1155,15 @@ topic({
 <h2>Python</h2>
 <pre><code>from sklearn.model_selection import train_test_split, cross_val_score, TimeSeriesSplit
 
+# 60 % trening, 40 % validering; random_state gir samme tilfeldige deling hver gang
 train_X, valid_X, train_y, valid_y = train_test_split(X, y, test_size=0.4, random_state=1)
 
+# 5-fold CV: trener 5 ganger, hver gang med en ny femtedel holdt utenfor som validering
 scores = cross_val_score(model, X, y, cv=5, scoring='neg_root_mean_squared_error')
-print('RMSE per fold:', -scores, 'snitt:', -scores.mean())
+print('RMSE per fold:', -scores, 'snitt:', -scores.mean())   # minus fordi sklearn gir negativ RMSE
 
-tscv = TimeSeriesSplit(n_splits=5)          # fortid → fremtid
-for train_idx, valid_idx in tscv.split(X):
+tscv = TimeSeriesSplit(n_splits=5)          # 5 delinger der valideringen alltid ligger etter treningen i tid
+for train_idx, valid_idx in tscv.split(X):  # radnumrene til trening og validering i hver deling
     ...</code></pre>`
 });
 
@@ -1202,12 +1227,12 @@ topic({
 <h2>Python</h2>
 <pre><code>from mlba import regressionSummary
 
-regressionSummary(y_true=train_y, y_pred=model.predict(train_X))   # trening
-regressionSummary(y_true=valid_y, y_pred=model.predict(valid_X))   # validering
+regressionSummary(y_true=train_y, y_pred=model.predict(train_X))   # feilmål (RMSE, MAE …) på trening
+regressionSummary(y_true=valid_y, y_pred=model.predict(valid_X))   # og på validering
 
 # naiv benchmark: predikér snittet av treningsdataene
 import numpy as np
-regressionSummary(y_true=valid_y, y_pred=np.full(len(valid_y), train_y.mean()))</code></pre>`
+regressionSummary(y_true=valid_y, y_pred=np.full(len(valid_y), train_y.mean()))   # samme tall for alle</code></pre>`
 });
 
 topic({
@@ -1321,19 +1346,19 @@ topic({
 <pre><code>from mlba import classificationSummary, gainsChart, liftChart
 from sklearn.metrics import roc_curve, auc
 
-prob = model.predict_proba(valid_X)[:, 1]
-pred = [1 if p &gt; 0.5 else 0 for p in prob]                 # bytt terskel her
-classificationSummary(y_true=valid_y, y_pred=pred, class_names=['0', '1'])
+prob = model.predict_proba(valid_X)[:, 1]                # kolonne 1 = sannsynlighet for klasse 1
+pred = [1 if p &gt; 0.5 else 0 for p in prob]              # klasse 1 hvis p &gt; 0,5; bytt terskel her
+classificationSummary(y_true=valid_y, y_pred=pred, class_names=['0', '1'])   # forvirringsmatrise og accuracy
 
-fpr, tpr, _ = roc_curve(valid_y, prob)
-print('AUC:', auc(fpr, tpr))
+fpr, tpr, _ = roc_curve(valid_y, prob)                   # FPR og TPR for alle mulige terskler
+print('AUC:', auc(fpr, tpr))                             # arealet under ROC-kurven
 
-df = pd.DataFrame({'actual': valid_y, 'prob': prob})
-gainsChart(df, ranking='prob', actual='actual')          # kumulativ gevinst
-liftChart(df, ranking='prob', actual='actual')           # desil-diagram
+df = pd.DataFrame({'actual': valid_y, 'prob': prob})     # fasit og sannsynlighet side om side
+gainsChart(df, ranking='prob', actual='actual')          # sortert etter prob: kumulativt antall 1-ere
+liftChart(df, ranking='prob', actual='actual')           # lift per tidel (desil-diagram)
 
-df['profit'] = df['actual'].apply(lambda x: 100 if x == 1 else -200)
-gainsChart(df, ranking='prob', actual='profit', type='regression')   # gevinst i kroner</code></pre>`
+df['profit'] = df['actual'].apply(lambda x: 100 if x == 1 else -200)   # en 1-er gir +100, en 0 koster 200
+gainsChart(df, ranking='prob', actual='profit', type='regression')   # kumulativ gevinst i kroner</code></pre>`
 });
 
 /* ---- topics/regresjon.js ---- */
@@ -1443,14 +1468,15 @@ from mlba import regressionSummary
 
 predictors = ['Age_08_04', 'KM', 'Fuel_Type', 'HP', 'Met_Color', 'Automatic',
               'CC', 'Doors', 'Quarterly_Tax', 'Weight']
+# Fuel_Type blir 0/1-kolonner, én droppes som referanse
 X = pd.get_dummies(car_df[predictors], drop_first=True)
 y = car_df['Price']
-train_X, valid_X, train_y, valid_y = train_test_split(X, y, test_size=0.4, random_state=1)
+train_X, valid_X, train_y, valid_y = train_test_split(X, y, test_size=0.4, random_state=1)   # 60/40
 
-car_lm = LinearRegression().fit(train_X, train_y)
-print(pd.DataFrame({'Predictor': X.columns, 'coefficient': car_lm.coef_}))
-print('intercept', car_lm.intercept_)
-regressionSummary(y_true=valid_y, y_pred=car_lm.predict(valid_X))</code></pre>`
+car_lm = LinearRegression().fit(train_X, train_y)          # minste kvadraters metode
+print(pd.DataFrame({'Predictor': X.columns, 'coefficient': car_lm.coef_}))   # koeffisient per variabel
+print('intercept', car_lm.intercept_)                      # konstantleddet
+regressionSummary(y_true=valid_y, y_pred=car_lm.predict(valid_X))   # feilmål på validering</code></pre>`
 });
 
 topic({
@@ -1547,18 +1573,21 @@ topic({
 from sklearn.linear_model import LinearRegression
 
 # train_X, train_y: bruktbildataene (Toyota Corolla), Y = Price
-def train_model(variables):
+def train_model(variables):                # mlba kaller denne for hver variabelliste den vil teste
     if len(variables) == 0:
-        return None
+        return None                        # ingen variabler: ingen modell å trene
     return LinearRegression().fit(train_X[variables], train_y)
 
-def score_model(model, variables):
+def score_model(model, variables):         # gir AIC for modellen; lavere er bedre
+    # modellen uten variabler predikerer bare snittet (df=1: konstantleddet)
     if len(variables) == 0:
         return AIC_score(y_true=train_y, y_pred=[train_y.mean()] * len(train_y), model=model, df=1)
     return AIC_score(y_true=train_y, y_pred=model.predict(train_X[variables]), model=model)
 
+# forward: start tomt, legg til den variabelen som senker AIC mest, stopp når ingen hjelper
 best_model, best_variables = forward_selection(train_X.columns, train_model, score_model, verbose=True)
 print(best_variables)
+# backward: start med alle, fjern én og én så lenge AIC blir lavere
 best_model, best_variables = backward_elimination(train_X.columns, train_model, score_model, verbose=True)</code></pre>`
 });
 
@@ -1664,14 +1693,15 @@ topic({
 <pre><code># train_X, train_y: bankkundedataene (Universal Bank), Y = Personal Loan
 from sklearn.linear_model import LogisticRegression
 
-logit_reg = LogisticRegression(penalty='l2', C=1e42, solver='liblinear')   # nesten ingen straff
+# C = 1/λ: enorm C gir nesten ingen straff
+logit_reg = LogisticRegression(penalty='l2', C=1e42, solver='liblinear')
 logit_reg.fit(train_X, train_y)
 print('intercept', logit_reg.intercept_[0])
-print(pd.DataFrame({'coeff': logit_reg.coef_[0]}, index=X.columns))
+print(pd.DataFrame({'coeff': logit_reg.coef_[0]}, index=X.columns))   # koeffisienter på log-odds-skala
 
 prob = logit_reg.predict_proba(valid_X)[:, 1]        # propensitet for klasse 1
 pred = logit_reg.predict(valid_X)                     # klasse med terskel 0,5
-classificationSummary(y_true=valid_y, y_pred=pred)</code></pre>`
+classificationSummary(y_true=valid_y, y_pred=pred)   # forvirringsmatrise og accuracy</code></pre>`
 });
 
 /* ---- topics/regularisering.js ---- */
@@ -1926,17 +1956,22 @@ from sklearn.linear_model import RidgeCV, LassoCV, ElasticNetCV, LogisticRegress
 import numpy as np
 
 # train_X, train_y: bruktbildataene (Toyota Corolla), Y = Price
+# standardiser først (straffen krever lik skala), så lasso der 5-fold CV velger alpha
 lasso = make_pipeline(StandardScaler(), LassoCV(cv=5, random_state=1)).fit(train_X, train_y)
+# lasso[-1] = siste steg i pipelinen, selve lassoen
 print('valgt alpha:', lasso[-1].alpha_)
 print(pd.Series(lasso[-1].coef_, index=train_X.columns))      # noen er 0
 
+# ridge: prøv 50 alpha-verdier fra 0,1 til 10 000
 ridge = make_pipeline(StandardScaler(), RidgeCV(alphas=np.logspace(-1, 4, 50))).fit(train_X, train_y)
+# elastic net: CV velger både alpha og blandingen l1_ratio
 enet = make_pipeline(StandardScaler(), ElasticNetCV(l1_ratio=[0.2, 0.5, 0.8], cv=5)).fit(train_X, train_y)
 
-# logistisk regresjon med lasso-straff (C = 1/lambda)
+# logistisk regresjon med lasso-straff (C = 1/lambda, så liten C = sterk straff)
 logit_l1 = make_pipeline(StandardScaler(),
                          LogisticRegression(penalty='l1', C=0.05, solver='liblinear')).fit(train_X, train_y)
-logit_plain = LogisticRegression(penalty='l2', C=1e42, solver='liblinear')   # som i læreboka: i praksis ingen straff</code></pre>`
+# som i læreboka: i praksis ingen straff
+logit_plain = LogisticRegression(penalty='l2', C=1e42, solver='liblinear')</code></pre>`
 });
 
 /* ---- topics/klassifikasjon.js ---- */
@@ -2052,19 +2087,20 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score
 
 predictors = ['Income', 'Lot_Size']
-scaler = StandardScaler().fit(train_df[predictors])          # bare treningsdata
-train_X = scaler.transform(train_df[predictors])
-valid_X = scaler.transform(valid_df[predictors])
+scaler = StandardScaler().fit(train_df[predictors])          # snitt og standardavvik fra treningsdata
+train_X = scaler.transform(train_df[predictors])            # z-score, så begge variablene teller likt
+valid_X = scaler.transform(valid_df[predictors])            # med treningens snitt og standardavvik
 
 results = []
-for k in range(1, 15):
-    knn = KNeighborsClassifier(n_neighbors=k).fit(train_X, train_df['Ownership'])
+for k in range(1, 15):                                       # prøv k = 1 til 14
+    knn = KNeighborsClassifier(n_neighbors=k).fit(train_X, train_df['Ownership'])   # tren med k naboer
     results.append({'k': k, 'accuracy': accuracy_score(valid_df['Ownership'], knn.predict(valid_X))})
-print(pd.DataFrame(results))
+print(pd.DataFrame(results))                                 # accuracy på validering per k; velg den beste
 
-new_household = pd.DataFrame([{'Income': 60, 'Lot_Size': 20}])
-knn = KNeighborsClassifier(n_neighbors=4).fit(train_X, train_df['Ownership'])
-print(knn.predict(scaler.transform(new_household)))
+new_household = pd.DataFrame([{'Income': 60, 'Lot_Size': 20}])   # ny husholdning som skal klassifiseres
+knn = KNeighborsClassifier(n_neighbors=4).fit(train_X, train_df['Ownership'])   # valgt k = 4
+print(knn.predict(scaler.transform(new_household)))         # skaler på samme måte før prediksjon
+# avstand til og radnummer for de 4 nærmeste
 distances, indices = knn.kneighbors(scaler.transform(new_household))</code></pre>`
 });
 
@@ -2159,11 +2195,12 @@ topic({
 predictors = ['DAY_WEEK', 'CRS_DEP_TIME', 'ORIGIN', 'DEST', 'CARRIER']
 X = pd.get_dummies(delays_df[predictors])            # alle kategorier som 0/1
 y = delays_df['Flight Status']
-train_X, valid_X, train_y, valid_y = train_test_split(X, y, test_size=0.40, random_state=1)
+train_X, valid_X, train_y, valid_y = train_test_split(X, y, test_size=0.40, random_state=1)   # 60/40
 
+# alpha: litt glatting, så ingen sannsynlighet blir 0
 delays_nb = MultinomialNB(alpha=0.01).fit(train_X, train_y)
 pred_prob = delays_nb.predict_proba(valid_X)          # sannsynlighet per klasse
-classificationSummary(y_true=valid_y, y_pred=delays_nb.predict(valid_X))</code></pre>`
+classificationSummary(y_true=valid_y, y_pred=delays_nb.predict(valid_X))   # forvirringsmatrise og accuracy</code></pre>`
 });
 
 /* ---- topics/traer.js ---- */
@@ -2387,15 +2424,18 @@ from mlba import plotDecisionTree, classificationSummary
 
 full_tree = DecisionTreeClassifier(random_state=1).fit(train_X, train_y)   # vokser til alle blader er rene
 
+# hyperparametre å prøve: 4 · 3 · 3 = 36 kombinasjoner
 param_grid = {'max_depth': [4, 6, 8, 10],
               'min_samples_split': [10, 20, 30],
               'min_impurity_decrease': [0, 0.0005, 0.001]}
+# 5-fold CV for hver kombinasjon; n_jobs=-1 bruker alle prosessorkjernene
 grid = GridSearchCV(DecisionTreeClassifier(random_state=1), param_grid, cv=5, n_jobs=-1)
 grid.fit(train_X, train_y)
-print(grid.best_score_, grid.best_params_)
+print(grid.best_score_, grid.best_params_)                   # beste CV-accuracy og innstillingene som ga den
 
+# beste innstillinger, trent på nytt på hele treningssettet
 best_tree = grid.best_estimator_
-plotDecisionTree(best_tree, feature_names=list(train_X.columns))
+plotDecisionTree(best_tree, feature_names=list(train_X.columns))   # tegner treet
 classificationSummary(y_true=valid_y, y_pred=best_tree.predict(valid_X))</code></pre>`
 });
 
@@ -2527,13 +2567,14 @@ topic({
 <h2>Python</h2>
 <pre><code>from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
-rf = RandomForestClassifier(n_estimators=500, random_state=1).fit(train_X, train_y)
+rf = RandomForestClassifier(n_estimators=500, random_state=1).fit(train_X, train_y)   # 500 trær
 classificationSummary(y_true=valid_y, y_pred=rf.predict(valid_X))
 
+# variabelviktighet: hvor mye hver variabel i snitt reduserer urenheten i trærne
 importances = pd.DataFrame({'feature': train_X.columns, 'importance': rf.feature_importances_})
-print(importances.sort_values('importance', ascending=False))
+print(importances.sort_values('importance', ascending=False))   # viktigste først
 
-boost = GradientBoostingClassifier().fit(train_X, train_y)
+boost = GradientBoostingClassifier().fit(train_X, train_y)   # standard: 100 små trær med dybde 3
 classificationSummary(y_true=valid_y, y_pred=boost.predict(valid_X))</code></pre>`
 });
 
@@ -2544,6 +2585,26 @@ function NumIn(parent, o) {
   const id = uid('n'), inp = H('input', { type: 'number', id, value: o.value, min: o.min, max: o.max, step: o.step || 1 });
   inp.addEventListener('input', () => { const v = +inp.value; if (isFinite(v)) o.oninput(v); });
   parent.append(H('div', { class: 'ctl' }, H('label', { for: id }, o.label), inp)); return inp;
+}
+/* Tegner kurven der f(x, y) = 0 med marching squares på et nx × ny-rutenett i [0,1]², som én sti */
+function zeroContour(g, plot, f, nx, ny, cls) {
+  const V = range(nx + 1, i => range(ny + 1, j => f(i / nx, j / ny)));
+  const X = u => plot.x(u).toFixed(1), Y = u => plot.y(u).toFixed(1), seg = [];
+  const cut = (xa, ya, va, xb, yb, vb) => { const t = va / (va - vb); return [xa + t * (xb - xa), ya + t * (yb - ya)]; };
+  for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
+    const x0 = i / nx, x1 = (i + 1) / nx, y0 = j / ny, y1 = (j + 1) / ny;
+    const a = V[i][j], b = V[i + 1][j], c = V[i + 1][j + 1], d = V[i][j + 1];
+    const E = {};
+    if ((a > 0) !== (b > 0)) E.bot = cut(x0, y0, a, x1, y0, b);
+    if ((b > 0) !== (c > 0)) E.rgt = cut(x1, y0, b, x1, y1, c);
+    if ((d > 0) !== (c > 0)) E.top = cut(x0, y1, d, x1, y1, c);
+    if ((a > 0) !== (d > 0)) E.lft = cut(x0, y0, a, x0, y1, d);
+    const k = Object.keys(E);
+    const pairs = k.length === 2 ? [[E[k[0]], E[k[1]]]]
+      : k.length === 4 ? (((a + b + c + d) > 0) === (a > 0) ? [[E.bot, E.rgt], [E.top, E.lft]] : [[E.bot, E.lft], [E.top, E.rgt]]) : [];
+    for (const [p, q] of pairs) seg.push(`M${X(p[0])} ${Y(p[1])}L${X(q[0])} ${Y(q[1])}`);
+  }
+  if (seg.length) S('path', { d: seg.join(''), fill: 'none', class: cls || 's-ink', 'stroke-width': 2, 'stroke-linecap': 'round' }, g);
 }
 const ACT = {
   sigmoid: { f: z => sigmoid(z), name: 'sigmoid', tex: '1 / (1 + e^(−z))' },
@@ -2674,21 +2735,23 @@ topic({
     tryit: ['Med η = 0,1 fra w = 2,8 havner du i det lokale minimumet til høyre, ikke i det laveste punktet.', 'Prøv η = 0,01. Det går riktig vei, men svært sakte.', 'Prøv η = 0,8–1,2. Stegene blir så lange at w hopper frem og tilbake eller forsvinner ut av bildet.']
   }, {
     title: 'Tren et lite nett i nettleseren',
-    sub: 'Simulerte data. Et nett med to input, ett skjult lag (tanh) og sigmoid ut, trent med mini-batch gradient descent på 200 punkter. Hule punkter er valideringsdata.',
+    sub: 'Simulerte data: 400 punkter, 200 til trening (fylte) og 200 til validering (hule). Vektene justeres bare ut fra treningspunktene. Nettet har to input, ett skjult lag med valgfri aktivering og sigmoid ut, og trenes med mini-batch gradient descent. Den mørke linjen er beslutningsgrensen, der nettet gir p = 0,5.',
     build(el) {
       const all = fit01(moons(RNG(13), 400, 0.18)), tr = all.slice(0, 200), va = all.slice(200);
       const T = p => [2 * p[0] - 1, 2 * p[1] - 1, p[2]], trT = tr.map(T), vaT = va.map(T);
-      let h = 6, lr = 0.5, bs = 32, net, ep, ups, hist, running = false, raf = 0, rng;
+      let h = 6, lr = 0.5, bs = 32, act = 'relu', net, ep, ups, hist, running = false, raf = 0, rng;
+      /* Den deriverte uttrykt ved aktiveringen a = f(z), brukt i backprop */
+      const DACT = { relu: a => (a > 0 ? 1 : 0), sigmoid: a => a * (1 - a), tanh: a => 1 - a * a };
       function reset() { const r = RNG(100 + h); rng = RNG(7); net = { h, W1: range(h, () => [0.5 * r.n(), 0.5 * r.n()]), b1: range(h, () => 0.1 * r.n()), W2: range(h, () => 0.1 * r.n()), b2: 0 }; ep = 0; ups = 0; hist = []; }
-      const fwd = x => { const a = new Array(net.h); let z = net.b2; for (let j = 0; j < net.h; j++) { a[j] = Math.tanh(net.W1[j][0] * x[0] + net.W1[j][1] * x[1] + net.b1[j]); z += net.W2[j] * a[j]; } return { a, p: sigmoid(z) }; };
+      const fwd = x => { const f = ACT[act].f, a = new Array(net.h); let z = net.b2; for (let j = 0; j < net.h; j++) { a[j] = f(net.W1[j][0] * x[0] + net.W1[j][1] * x[1] + net.b1[j]); z += net.W2[j] * a[j]; } return { a, z, p: sigmoid(z) }; };
       const loss = D => mean(D.map(x => { const p = clamp(fwd(x).p, 1e-7, 1 - 1e-7); return -(x[2] * Math.log(p) + (1 - x[2]) * Math.log(1 - p)); }));
       const accu = D => D.filter(x => (fwd(x).p > 0.5 ? 1 : 0) === x[2]).length / D.length;
       function epoch() {
-        const idx = rng.shuffle(range(trT.length));
+        const idx = rng.shuffle(range(trT.length)), df = DACT[act];
         for (let s = 0; s < idx.length; s += bs) {
           const B = idx.slice(s, s + bs), gW1 = range(net.h, () => [0, 0]), gb1 = new Array(net.h).fill(0), gW2 = new Array(net.h).fill(0); let gb2 = 0;
           for (const i of B) { const x = trT[i], { a, p } = fwd(x), d2 = p - x[2]; gb2 += d2;
-            for (let j = 0; j < net.h; j++) { gW2[j] += d2 * a[j]; const d1 = d2 * net.W2[j] * (1 - a[j] * a[j]); gW1[j][0] += d1 * x[0]; gW1[j][1] += d1 * x[1]; gb1[j] += d1; } }
+            for (let j = 0; j < net.h; j++) { gW2[j] += d2 * a[j]; const d1 = d2 * net.W2[j] * df(a[j]); gW1[j][0] += d1 * x[0]; gW1[j][1] += d1 * x[1]; gb1[j] += d1; } }
           const m = B.length; net.b2 -= lr * gb2 / m;
           for (let j = 0; j < net.h; j++) { net.W2[j] -= lr * gW2[j] / m; net.W1[j][0] -= lr * gW1[j][0] / m; net.W1[j][1] -= lr * gW1[j][1] / m; net.b1[j] -= lr * gb1[j] / m; }
           ups++;
@@ -2697,6 +2760,7 @@ topic({
       }
       const ctl = Controls(el);
       Slider(ctl, { label: 'Skjulte nevroner', min: 1, max: 16, value: h, oninput: v => { h = v; stop(); reset(); draw(); } });
+      Seg(ctl, { label: 'Aktivering', options: [['relu', 'ReLU'], ['sigmoid', 'sigmoid'], ['tanh', 'tanh']], value: act, onchange: v => { act = v; stop(); reset(); draw(); } });
       Seg(ctl, { label: 'Learning rate', options: [[0.05, '0,05'], [0.5, '0,5'], [3, '3']], value: lr, onchange: v => { lr = v; } });
       Seg(ctl, { label: 'Batch size', options: [[8, '8'], [32, '32'], [200, '200 (alle)']], value: bs, onchange: v => { bs = v; } });
       const ctl2 = Controls(el);
@@ -2706,7 +2770,7 @@ topic({
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const a = H('div'), b = H('div'); cols.append(a, b);
       const plot = new Plot(a, { w: 520, h: 420, m: { t: 10, r: 10, b: 10, l: 10 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'Beslutningsgrensen til nettet' });
-      const gR = plot.layer(), gP = plot.layer();
+      const gR = plot.layer(), gP = plot.layer(), gC = plot.layer();
       tr.forEach(p => S('circle', { cx: plot.x(p[0]), cy: plot.y(p[1]), r: 3.4, class: p[2] ? 'f-c1' : 'f-c0' }, gP));
       va.forEach(p => S('circle', { cx: plot.x(p[0]), cy: plot.y(p[1]), r: 3.4, fill: 'none', class: p[2] ? 's-c1' : 's-c0', 'stroke-width': 1.2 }, gP));
       const p2 = new Plot(b, { w: 380, h: 240, x: [0, 50], y: [0, 0.8], xlab: 'Epoch', ylab: 'Tap (kryssentropi)', label: 'Tap mot epoch' });
@@ -2718,6 +2782,7 @@ topic({
       onLeave(stop);
       function draw() {
         clear(gR); regionGrid(gR, plot, (x, y) => fwd([2 * x - 1, 2 * y - 1]).p, 48, 38, 0, 1, 0, 1);
+        clear(gC); zeroContour(gC, plot, (x, y) => fwd([2 * x - 1, 2 * y - 1]).z, 104, 84);
         const xm = Math.max(50, Math.ceil(ep / 50) * 50); if (xm !== p2.o.x[1]) p2.setDomain([0, xm], [0, 0.8]);
         clear(gL);
         if (hist.length > 1) for (const [k, cl] of [[1, 'c4'], [2, 'c0']]) S('path', { d: pathOf(hist.filter((_, i) => i % Math.max(1, Math.floor(hist.length / 300)) === 0 || i === hist.length - 1).map(r => [p2.x(r[0]), p2.y(Math.min(r[k], 0.8))])), fill: 'none', class: 's-' + cl, 'stroke-width': 2 }, gL);
@@ -2725,7 +2790,7 @@ topic({
       }
       reset(); draw();
     },
-    tryit: ['Trykk «Start trening» med 6 nevroner. Grensen bøyer seg gradvis rundt de to halvmånene.', 'Prøv 1 skjult nevron. Da kan nettet bare lage en rett grense, som logistisk regresjon.', 'Sammenlign batch size 8 og 200. Med 8 blir det 25 oppdateringer per epoch, så nettet lærer på færre epochs, men hver epoch tar lengre tid.', 'Learning rate 3 gir urolige hopp. 0,05 gir trege, men jevne kurver.']
+    tryit: ['Trykk «Start trening» med 6 nevroner. Grensen bøyer seg gradvis rundt de to halvmånene.', 'Prøv 1 skjult nevron. Da kan nettet bare lage en rett grense, som logistisk regresjon. Det gjelder alle tre aktiveringene.', 'Velg 3 nevroner og bytt aktivering. Med ReLU blir grensen noen få rette biter med skarpe knekker, og med tanh blir bøyene myke. Sigmoid kommer dit også, men trenger mange flere epochs, fordi den deriverte aldri er større enn 0,25.','Sammenlign batch size 8 og 200. Med 8 blir det 25 oppdateringer per epoch, så nettet lærer på færre epochs, men hver epoch tar lengre tid.', 'Learning rate 3 gir urolige hopp. 0,05 gir trege, men jevne kurver.']
   }, {
     title: 'Konvolusjon: et filter som glir over bildet',
     sub: 'Et 8 × 8 gråtonebilde av sifferet 7 og et 3 × 3-filter. I hver posisjon ganges filteret med pikslene under, og summen blir én verdi i feature map-et.',
@@ -2822,17 +2887,21 @@ topic({
 <div class="pit"><b>Eksamensfelle: iterasjoner</b>50 000 bilder, batch size 250 og 10 epochs gir 50 000 / 250 = 200 oppdateringer per epoch, altså 2 000 totalt.</div>
 <h2>Python</h2>
 <pre><code>from sklearn.neural_network import MLPClassifier               # scikit-learn, som i læreboka
+# ett skjult lag med 6 nevroner, sigmoid-aktivering ('logistic'), optimeringsmetoden lbfgs
 clf = MLPClassifier(hidden_layer_sizes=(6,), activation='logistic', solver='lbfgs', random_state=1)
 clf.fit(train_X, train_y)
 
 from tensorflow import keras                                    # Keras (TensorFlow)
-model = keras.Sequential([
-    keras.layers.Input(shape=(4,)),
-    keras.layers.Dense(6, activation='relu'),
-    keras.layers.Dense(3, activation='softmax')])
+model = keras.Sequential([                                      # lagene kobles etter hverandre
+    keras.layers.Input(shape=(4,)),                             # 4 features inn
+    keras.layers.Dense(6, activation='relu'),                   # skjult lag: 6 nevroner med ReLU
+    keras.layers.Dense(3, activation='softmax')])               # 3 klasser ut, softmax gir sannsynligheter
+# adam = gradient descent med tilpasset steglengde; tap = kryssentropi (y må være one-hot)
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+# de siste 20 % av radene holdes av til validering
 model.fit(X, y, epochs=20, batch_size=32, validation_split=0.2)
 
+# ferdig trent VGG16 uten de fullt koblede lagene på toppen (include_top=False)
 base = keras.applications.VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
 base.trainable = False                                          # transfer learning: frys ryggraden</code></pre>`
 });
@@ -2970,15 +3039,16 @@ topic({
 <h2>Python</h2>
 <pre><code>import numpy as np
 
+# velger neste token ut fra modellens rå-score (logits); T = temperatur
 def neste_token(logits, T=1.0, rng=np.random.default_rng(1)):
-    p = np.exp(logits / T)
-    p = p / p.sum()                       # softmax med temperatur
-    return rng.choice(len(p), p=p)        # trekk ett token
+    p = np.exp(logits / T)                # lav T forsterker forskjellene, høy T jevner dem ut
+    p = p / p.sum()                       # del på summen: sannsynligheter (softmax)
+    return rng.choice(len(p), p=p)        # trekk ett token med sannsynlighetene p
 
-ord = ['øve', 'løse', 'lese', 'sove']
-logits = np.array([3.1, 2.5, 2.3, 1.3])
-print([ord[neste_token(logits, T=0.1)] for _ in range(5)])   # nesten alltid 'øve'
-print([ord[neste_token(logits, T=2.0)] for _ in range(5)])   # mer variasjon</code></pre>`
+ord = ['øve', 'løse', 'lese', 'sove']      # fire mulige neste ord
+logits = np.array([3.1, 2.5, 2.3, 1.3])  # modellens score for hvert ord
+print([ord[neste_token(logits, T=0.1)] for _ in range(5)])   # 5 trekk med lav T: nesten alltid 'øve'
+print([ord[neste_token(logits, T=2.0)] for _ in range(5)])   # 5 trekk med høy T: mer variasjon</code></pre>`
 });
 
 topic({
@@ -3227,12 +3297,15 @@ topic({
 <pre><code>from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 from sklearn.metrics import pairwise
 
-utilities_df_norm = (utilities_df - utilities_df.mean()) / utilities_df.std()
+utilities_df_norm = (utilities_df - utilities_df.mean()) / utilities_df.std()   # z-score per kolonne
+# avstand mellom alle par av selskaper
 d_norm = pairwise.pairwise_distances(utilities_df_norm, metric='euclidean')
 
-Z = linkage(utilities_df_norm, method='single')        # eller 'complete', 'average', 'centroid', 'ward'
+# slår sammen de to nærmeste klyngene steg for steg; method kan også være 'complete', 'average', 'centroid', 'ward'
+Z = linkage(utilities_df_norm, method='single')
+# tegn treet; klynger under høyde 2,75 får egen farge
 dendrogram(Z, labels=utilities_df_norm.index, color_threshold=2.75)
-memb = fcluster(Z, 6, criterion='maxclust')             # 6 klynger</code></pre>`
+memb = fcluster(Z, 6, criterion='maxclust')             # kutt treet så det blir 6 klynger</code></pre>`
 });
 
 topic({
@@ -3308,13 +3381,15 @@ topic({
 <pre><code># utilities_df_norm: kraftselskapdataene, normalisert som z-score
 from sklearn.cluster import KMeans
 
+# n_init=10: 10 starter, beste beholdes
 kmeans = KMeans(n_clusters=6, random_state=0, n_init=10).fit(utilities_df_norm)
-memb = pd.Series(kmeans.labels_, index=utilities_df_norm.index)
-centroids = pd.DataFrame(kmeans.cluster_centers_, columns=utilities_df_norm.columns)
-print(kmeans.inertia_)
+memb = pd.Series(kmeans.labels_, index=utilities_df_norm.index)                   # klyngenummer per selskap
+centroids = pd.DataFrame(kmeans.cluster_centers_, columns=utilities_df_norm.columns)   # snittet i hver klynge
+print(kmeans.inertia_)                                 # summen av kvadrerte avstander til eget senter
 
+# inertia for k = 1 til 9
 inertia = [KMeans(n_clusters=k, random_state=0, n_init=10).fit(utilities_df_norm).inertia_ for k in range(1, 10)]
-plt.plot(range(1, 10), inertia, marker='o')           # albueplott</code></pre>`
+plt.plot(range(1, 10), inertia, marker='o')           # albueplott: velg k der kurven flater ut</code></pre>`
 });
 
 topic({
@@ -3410,14 +3485,16 @@ topic({
 <pre><code>from sklearn.decomposition import PCA
 from sklearn import preprocessing
 
-pcs = PCA(n_components=2).fit(cereals_df[['calories', 'rating']])
+pcs = PCA(n_components=2).fit(cereals_df[['calories', 'rating']])   # PCA på to variabler, uskalert
 print(pcs.components_)                        # vektene (loadings)
 print(pcs.explained_variance_ratio_)          # PVE
 
+# alle numeriske kolonner (fra kolonne 3), uten rader med manglende verdier, standardisert
 pcs = PCA().fit(preprocessing.scale(cereals_df.iloc[:, 3:].dropna(axis=0)))
-pcsSummary = pd.DataFrame({'Standard deviation': np.sqrt(pcs.explained_variance_),
+pcsSummary = pd.DataFrame({'Standard deviation': np.sqrt(pcs.explained_variance_),   # tabellen fra læreboka
                            'Proportion of variance': pcs.explained_variance_ratio_,
                            'Cumulative proportion': np.cumsum(pcs.explained_variance_ratio_)})
+# hver frokostblanding på komponentene
 scores = pcs.transform(preprocessing.scale(cereals_df.iloc[:, 3:].dropna(axis=0)))</code></pre>`
 });
 
@@ -3508,14 +3585,15 @@ topic({
 <h2>Python</h2>
 <pre><code>import shap
 
-explainer = shap.Explainer(model.predict, X_train)        # modellagnostisk
-shap_values = explainer(X_valid)
+X100 = shap.utils.sample(X_train, 100)                     # 100 tilfeldige bakgrunnsrader
+explainer = shap.Explainer(model.predict, X100)            # trenger bare predict-funksjonen: modellagnostisk
+shap_values = explainer(X_valid)                           # én SHAP-verdi per rad og variabel
 
 shap.plots.waterfall(shap_values[0])                       # lokal forklaring, én observasjon
 shap.plots.beeswarm(shap_values)                           # global oversikt
 shap.plots.scatter(shap_values[:, 'Age_08_04'])            # SHAP mot verdien til én variabel (her bilens alder)
 
-explainer_rf = shap.TreeExplainer(rf_model)                # rask variant for trær og skoger
+explainer_rf = shap.TreeExplainer(rf_model)                # rask, eksakt variant som bruker trestrukturen
 shap_values_rf = explainer_rf(X_valid)</code></pre>`
 });
 
@@ -3594,15 +3672,17 @@ topic({
 from mapie.utils import train_conformalize_test_split
 from mapie.metrics.regression import regression_coverage_score
 
+# tre deler: 60 % trening, 20 % kalibrering, 20 % test
 (X_train, X_cal, X_test, y_train, y_cal, y_test) = train_conformalize_test_split(
     X, y, train_size=0.6, conformalize_size=0.2, test_size=0.2, random_state=1)
 
-rf_model = RandomForestRegressor(random_state=1).fit(X_train, y_train)
+rf_model = RandomForestRegressor(random_state=1).fit(X_train, y_train)   # trent bare på treningsdelen
 
+# 90 % intervaller; prefit=True betyr at modellen allerede er trent
 mapie_model = SplitConformalRegressor(estimator=rf_model, confidence_level=0.90, prefit=True)
-mapie_model.conformalize(X_cal, y_cal)
-y_pred, y_interval = mapie_model.predict_interval(X_test)
-print(regression_coverage_score(y_test, y_interval))</code></pre>`
+mapie_model.conformalize(X_cal, y_cal)                    # feil på kalibreringsdata gir intervallbredden
+y_pred, y_interval = mapie_model.predict_interval(X_test)   # punktprediksjon og intervall
+print(regression_coverage_score(y_test, y_interval))      # andel testpunkter innenfor, bør være ca. 0,90</code></pre>`
 });
 
 window.addEventListener('hashchange', route);

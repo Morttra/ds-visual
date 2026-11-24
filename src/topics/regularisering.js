@@ -249,15 +249,20 @@ from sklearn.linear_model import RidgeCV, LassoCV, ElasticNetCV, LogisticRegress
 import numpy as np
 
 # train_X, train_y: bruktbildataene (Toyota Corolla), Y = Price
+# standardiser først (straffen krever lik skala), så lasso der 5-fold CV velger alpha
 lasso = make_pipeline(StandardScaler(), LassoCV(cv=5, random_state=1)).fit(train_X, train_y)
+# lasso[-1] = siste steg i pipelinen, selve lassoen
 print('valgt alpha:', lasso[-1].alpha_)
 print(pd.Series(lasso[-1].coef_, index=train_X.columns))      # noen er 0
 
+# ridge: prøv 50 alpha-verdier fra 0,1 til 10 000
 ridge = make_pipeline(StandardScaler(), RidgeCV(alphas=np.logspace(-1, 4, 50))).fit(train_X, train_y)
+# elastic net: CV velger både alpha og blandingen l1_ratio
 enet = make_pipeline(StandardScaler(), ElasticNetCV(l1_ratio=[0.2, 0.5, 0.8], cv=5)).fit(train_X, train_y)
 
-# logistisk regresjon med lasso-straff (C = 1/lambda)
+# logistisk regresjon med lasso-straff (C = 1/lambda, så liten C = sterk straff)
 logit_l1 = make_pipeline(StandardScaler(),
                          LogisticRegression(penalty='l1', C=0.05, solver='liblinear')).fit(train_X, train_y)
-logit_plain = LogisticRegression(penalty='l2', C=1e42, solver='liblinear')   # som i læreboka: i praksis ingen straff</code></pre>`
+# som i læreboka: i praksis ingen straff
+logit_plain = LogisticRegression(penalty='l2', C=1e42, solver='liblinear')</code></pre>`
 });

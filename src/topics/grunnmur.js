@@ -140,19 +140,19 @@ topic({
 <pre><code>import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
-X = pd.get_dummies(df[predictors], drop_first=True)   # k − 1 dummyer
-train_X, valid_X = ...                                  # partisjoner først
+X = pd.get_dummies(df[predictors], drop_first=True)   # kategorier blir 0/1-kolonner, k − 1 dummyer
+train_X, valid_X = ...                                  # partisjoner først, før alt annet
 
-train_X = train_X.fillna(train_X.median())             # imputer med treningsmedianen
-valid_X = valid_X.fillna(train_X.median())
+train_X = train_X.fillna(train_X.median())             # fyll manglende verdier med treningsmedianen
+valid_X = valid_X.fillna(train_X.median())             # validering fylles også med treningsmedianen
 
-scaler = StandardScaler().fit(train_X)                  # tilpass kun på treningsdata
-train_Z = scaler.transform(train_X)
-valid_Z = scaler.transform(valid_X)
+scaler = StandardScaler().fit(train_X)                  # lærer snitt og standardavvik, kun fra treningsdata
+train_Z = scaler.transform(train_X)                     # z-score: (x − snitt) / standardavvik
+valid_Z = scaler.transform(valid_X)                     # samme snitt og standardavvik som treningen
 
-q1, q3 = df['KM'].quantile([0.25, 0.75])                # 1,5 · IQR-regelen
-iqr = q3 - q1
-uteliggere = df[(df['KM'] &lt; q1 - 1.5*iqr) | (df['KM'] &gt; q3 + 1.5*iqr)]</code></pre>`
+q1, q3 = df['KM'].quantile([0.25, 0.75])                # 1. og 3. kvartil (1,5 · IQR-regelen)
+iqr = q3 - q1                                           # kvartilbredden
+uteliggere = df[(df['KM'] &lt; q1 - 1.5*iqr) | (df['KM'] &gt; q3 + 1.5*iqr)]   # rader utenfor grensene</code></pre>`
 });
 
 topic({
@@ -278,13 +278,15 @@ topic({
 <h2>Python</h2>
 <pre><code>from sklearn.model_selection import train_test_split, cross_val_score, TimeSeriesSplit
 
+# 60 % trening, 40 % validering; random_state gir samme tilfeldige deling hver gang
 train_X, valid_X, train_y, valid_y = train_test_split(X, y, test_size=0.4, random_state=1)
 
+# 5-fold CV: trener 5 ganger, hver gang med en ny femtedel holdt utenfor som validering
 scores = cross_val_score(model, X, y, cv=5, scoring='neg_root_mean_squared_error')
-print('RMSE per fold:', -scores, 'snitt:', -scores.mean())
+print('RMSE per fold:', -scores, 'snitt:', -scores.mean())   # minus fordi sklearn gir negativ RMSE
 
-tscv = TimeSeriesSplit(n_splits=5)          # fortid → fremtid
-for train_idx, valid_idx in tscv.split(X):
+tscv = TimeSeriesSplit(n_splits=5)          # 5 delinger der valideringen alltid ligger etter treningen i tid
+for train_idx, valid_idx in tscv.split(X):  # radnumrene til trening og validering i hver deling
     ...</code></pre>`
 });
 
@@ -348,12 +350,12 @@ topic({
 <h2>Python</h2>
 <pre><code>from mlba import regressionSummary
 
-regressionSummary(y_true=train_y, y_pred=model.predict(train_X))   # trening
-regressionSummary(y_true=valid_y, y_pred=model.predict(valid_X))   # validering
+regressionSummary(y_true=train_y, y_pred=model.predict(train_X))   # feilmål (RMSE, MAE …) på trening
+regressionSummary(y_true=valid_y, y_pred=model.predict(valid_X))   # og på validering
 
 # naiv benchmark: predikér snittet av treningsdataene
 import numpy as np
-regressionSummary(y_true=valid_y, y_pred=np.full(len(valid_y), train_y.mean()))</code></pre>`
+regressionSummary(y_true=valid_y, y_pred=np.full(len(valid_y), train_y.mean()))   # samme tall for alle</code></pre>`
 });
 
 topic({
@@ -467,17 +469,17 @@ topic({
 <pre><code>from mlba import classificationSummary, gainsChart, liftChart
 from sklearn.metrics import roc_curve, auc
 
-prob = model.predict_proba(valid_X)[:, 1]
-pred = [1 if p &gt; 0.5 else 0 for p in prob]                 # bytt terskel her
-classificationSummary(y_true=valid_y, y_pred=pred, class_names=['0', '1'])
+prob = model.predict_proba(valid_X)[:, 1]                # kolonne 1 = sannsynlighet for klasse 1
+pred = [1 if p &gt; 0.5 else 0 for p in prob]              # klasse 1 hvis p &gt; 0,5; bytt terskel her
+classificationSummary(y_true=valid_y, y_pred=pred, class_names=['0', '1'])   # forvirringsmatrise og accuracy
 
-fpr, tpr, _ = roc_curve(valid_y, prob)
-print('AUC:', auc(fpr, tpr))
+fpr, tpr, _ = roc_curve(valid_y, prob)                   # FPR og TPR for alle mulige terskler
+print('AUC:', auc(fpr, tpr))                             # arealet under ROC-kurven
 
-df = pd.DataFrame({'actual': valid_y, 'prob': prob})
-gainsChart(df, ranking='prob', actual='actual')          # kumulativ gevinst
-liftChart(df, ranking='prob', actual='actual')           # desil-diagram
+df = pd.DataFrame({'actual': valid_y, 'prob': prob})     # fasit og sannsynlighet side om side
+gainsChart(df, ranking='prob', actual='actual')          # sortert etter prob: kumulativt antall 1-ere
+liftChart(df, ranking='prob', actual='actual')           # lift per tidel (desil-diagram)
 
-df['profit'] = df['actual'].apply(lambda x: 100 if x == 1 else -200)
-gainsChart(df, ranking='prob', actual='profit', type='regression')   # gevinst i kroner</code></pre>`
+df['profit'] = df['actual'].apply(lambda x: 100 if x == 1 else -200)   # en 1-er gir +100, en 0 koster 200
+gainsChart(df, ranking='prob', actual='profit', type='regression')   # kumulativ gevinst i kroner</code></pre>`
 });

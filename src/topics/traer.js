@@ -218,15 +218,18 @@ from mlba import plotDecisionTree, classificationSummary
 
 full_tree = DecisionTreeClassifier(random_state=1).fit(train_X, train_y)   # vokser til alle blader er rene
 
+# hyperparametre å prøve: 4 · 3 · 3 = 36 kombinasjoner
 param_grid = {'max_depth': [4, 6, 8, 10],
               'min_samples_split': [10, 20, 30],
               'min_impurity_decrease': [0, 0.0005, 0.001]}
+# 5-fold CV for hver kombinasjon; n_jobs=-1 bruker alle prosessorkjernene
 grid = GridSearchCV(DecisionTreeClassifier(random_state=1), param_grid, cv=5, n_jobs=-1)
 grid.fit(train_X, train_y)
-print(grid.best_score_, grid.best_params_)
+print(grid.best_score_, grid.best_params_)                   # beste CV-accuracy og innstillingene som ga den
 
+# beste innstillinger, trent på nytt på hele treningssettet
 best_tree = grid.best_estimator_
-plotDecisionTree(best_tree, feature_names=list(train_X.columns))
+plotDecisionTree(best_tree, feature_names=list(train_X.columns))   # tegner treet
 classificationSummary(y_true=valid_y, y_pred=best_tree.predict(valid_X))</code></pre>`
 });
 
@@ -358,12 +361,13 @@ topic({
 <h2>Python</h2>
 <pre><code>from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 
-rf = RandomForestClassifier(n_estimators=500, random_state=1).fit(train_X, train_y)
+rf = RandomForestClassifier(n_estimators=500, random_state=1).fit(train_X, train_y)   # 500 trær
 classificationSummary(y_true=valid_y, y_pred=rf.predict(valid_X))
 
+# variabelviktighet: hvor mye hver variabel i snitt reduserer urenheten i trærne
 importances = pd.DataFrame({'feature': train_X.columns, 'importance': rf.feature_importances_})
-print(importances.sort_values('importance', ascending=False))
+print(importances.sort_values('importance', ascending=False))   # viktigste først
 
-boost = GradientBoostingClassifier().fit(train_X, train_y)
+boost = GradientBoostingClassifier().fit(train_X, train_y)   # standard: 100 små trær med dybde 3
 classificationSummary(y_true=valid_y, y_pred=boost.predict(valid_X))</code></pre>`
 });

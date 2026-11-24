@@ -84,14 +84,15 @@ topic({
 <h2>Python</h2>
 <pre><code>import shap
 
-explainer = shap.Explainer(model.predict, X_train)        # modellagnostisk
-shap_values = explainer(X_valid)
+X100 = shap.utils.sample(X_train, 100)                     # 100 tilfeldige bakgrunnsrader
+explainer = shap.Explainer(model.predict, X100)            # trenger bare predict-funksjonen: modellagnostisk
+shap_values = explainer(X_valid)                           # én SHAP-verdi per rad og variabel
 
 shap.plots.waterfall(shap_values[0])                       # lokal forklaring, én observasjon
 shap.plots.beeswarm(shap_values)                           # global oversikt
 shap.plots.scatter(shap_values[:, 'Age_08_04'])            # SHAP mot verdien til én variabel (her bilens alder)
 
-explainer_rf = shap.TreeExplainer(rf_model)                # rask variant for trær og skoger
+explainer_rf = shap.TreeExplainer(rf_model)                # rask, eksakt variant som bruker trestrukturen
 shap_values_rf = explainer_rf(X_valid)</code></pre>`
 });
 
@@ -170,13 +171,15 @@ topic({
 from mapie.utils import train_conformalize_test_split
 from mapie.metrics.regression import regression_coverage_score
 
+# tre deler: 60 % trening, 20 % kalibrering, 20 % test
 (X_train, X_cal, X_test, y_train, y_cal, y_test) = train_conformalize_test_split(
     X, y, train_size=0.6, conformalize_size=0.2, test_size=0.2, random_state=1)
 
-rf_model = RandomForestRegressor(random_state=1).fit(X_train, y_train)
+rf_model = RandomForestRegressor(random_state=1).fit(X_train, y_train)   # trent bare på treningsdelen
 
+# 90 % intervaller; prefit=True betyr at modellen allerede er trent
 mapie_model = SplitConformalRegressor(estimator=rf_model, confidence_level=0.90, prefit=True)
-mapie_model.conformalize(X_cal, y_cal)
-y_pred, y_interval = mapie_model.predict_interval(X_test)
-print(regression_coverage_score(y_test, y_interval))</code></pre>`
+mapie_model.conformalize(X_cal, y_cal)                    # feil på kalibreringsdata gir intervallbredden
+y_pred, y_interval = mapie_model.predict_interval(X_test)   # punktprediksjon og intervall
+print(regression_coverage_score(y_test, y_interval))      # andel testpunkter innenfor, bør være ca. 0,90</code></pre>`
 });
