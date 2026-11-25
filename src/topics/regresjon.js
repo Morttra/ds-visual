@@ -7,7 +7,7 @@ topic({
   id: 'lineaer-regresjon', data: [['toyota']], short: 'Lineær regresjon', lecture: 'F5', tags: ['Prediksjon', 'Numerisk Y'],
   title: 'Multippel lineær regresjon',
   path: ['Veiledet læring', 'Prediksjon'],
-  lead: 'Lineær regresjon modellerer Y som et konstantledd pluss en vektet sum av forklaringsvariablene. Vektene (koeffisientene) velges slik at summen av kvadrerte residualer blir minst mulig.',
+  lead: 'Lineær regresjon modellerer responsvariabelen Y som et konstantledd pluss en vektet sum av forklaringsvariablene. Vektene (koeffisientene) velges slik at summen av kvadrerte residualer blir minst mulig.',
   figs: [{
     title: 'Minste kvadraters metode, bokstavelig talt',
     sub: '30 bruktbiler fra treningsdataene: alder i måneder mot pris i euro. Hver rute er en kvadrert residual. Minste kvadraters linje er linjen som gjør det samlede arealet av rutene minst mulig.',
@@ -83,7 +83,7 @@ topic({
   body: `
 <h2>Modellen</h2>
 <div class="formula"><span class="v">Y</span> = β<sub>0</sub> + β<sub>1</sub><span class="v">x</span><sub>1</sub> + β<sub>2</sub><span class="v">x</span><sub>2</sub> + … + β<sub><span class="v">p</span></sub><span class="v">x</span><sub><span class="v">p</span></sub> + ε</div>
-<p>Koeffisientene estimeres med <b>minste kvadraters metode</b>: velg b<sub>0</sub>, …, b<sub>p</sub> som minimerer SSE = Σ(<i>y</i> − <i>ŷ</i>)². Prediksjonen for en ny observasjon er <i>ŷ</i> = b<sub>0</sub> + b<sub>1</sub><i>x</i><sub>1</sub> + … + b<sub>p</sub><i>x</i><sub>p</sub>.</p>
+<p>Koeffisientene estimeres med <b>minste kvadraters metode</b>: velg b<sub>0</sub>, …, b<sub>p</sub> som minimerer SSE = Σ(<i>y</i> − <i>ŷ</i>)². Prediksjonen for et nytt datapunkt er <i>ŷ</i> = b<sub>0</sub> + b<sub>1</sub><i>x</i><sub>1</sub> + … + b<sub>p</sub><i>x</i><sub>p</sub>.</p>
 <h2>Tolkning av koeffisientene</h2>
 <ul>
 <li>b<sub>j</sub> er endringen i predikert Y når <i>x</i><sub>j</sub> øker med én enhet <b>og alle andre variabler holdes fast</b>.</li>
@@ -91,13 +91,13 @@ topic({
 <li>Størrelsen på b avhenger av enheten. Vil du sammenligne viktighet, standardiser variablene først.</li>
 </ul>
 <h2>Forklaring eller prediksjon?</h2>
-<p>Når målet er <b>forklaring</b> (statistikk), bryr vi oss om forutsetningene, standardfeil og p-verdier, og vi bruker hele datasettet. Når målet er <b>prediksjon</b> (data science), er det viktigste hvor godt modellen treffer nye data. Da partisjonerer vi og evaluerer på valideringsdataene.</p>
+<p>Når målet er <b>forklaring</b> (statistikk), bryr vi oss om forutsetningene, standardfeil og p-verdier, og vi bruker hele datasettet. Når målet er <b>prediksjon</b> (data science), er det viktigste hvor godt modellen treffer nye data. Da partisjonerer vi og evaluerer på valideringssettet.</p>
 <p>Forutsetningene for klassisk inferens er linearitet, uavhengige feil, konstant varians og normalfordelte feil. For prediksjon er det nok at modellen gir lav valideringsfeil, men brudd kan likevel gi dårligere prediksjoner.</p>
 <div class="pros">
-<div><h3>Styrker</h3><ul><li>Rask og lett å tolke</li><li>Fungerer godt med få observasjoner</li><li>Gir både prediksjon og effekt per variabel</li></ul></div>
-<div><h3>Svakheter</h3><ul><li>Fanger bare lineære sammenhenger, med mindre du lager nye variabler (x², interaksjoner)</li><li>Sensitiv for uteliggere og sterkt korrelerte variabler (multikollinearitet)</li><li>Dårlig til å ekstrapolere utenfor dataområdet</li></ul></div>
+<div><h3>Styrker</h3><ul><li>Rask og lett å tolke</li><li>Fungerer godt med få datapunkter</li><li>Gir både prediksjon og effekt per variabel</li></ul></div>
+<div><h3>Svakheter</h3><ul><li>Fanger bare lineære sammenhenger, med mindre du lager nye variabler (x², interaksjoner)</li><li>Sensitiv for utstikkere og sterkt korrelerte variabler (multikollinearitet)</li><li>Dårlig til å ekstrapolere utenfor dataområdet</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle: R² på treningsdata</b>R² øker alltid når du legger til en variabel, også når variabelen er ren støy. Sammenlign modeller med justert R², AIC eller RMSE på valideringsdata.</div>
+<div class="pit"><b>Eksamensfelle: R² på treningsdata</b>R² øker alltid når du legger til en variabel, også når variabelen er ren støy. Sammenlign modeller med justert R², AIC eller RMSE på valideringssettet.</div>
 <h2>Python</h2>
 <pre><code>from sklearn.linear_model import LinearRegression
 from mlba import regressionSummary
@@ -116,12 +116,12 @@ regressionSummary(y_true=valid_y, y_pred=car_lm.predict(valid_X))   # feilmål p
 });
 
 topic({
-  id: 'variabelseleksjon', data: [['toyota']], short: 'Variabelvalg', lecture: 'F5', tags: ['Prediksjon', 'Subset selection', 'AIC'],
-  title: 'Variabelvalg: uttømmende søk, forward og backward',
+  id: 'variabelseleksjon', data: [['toyota']], short: 'Subset selection', lecture: 'F5', tags: ['Prediksjon', 'Subset selection', 'AIC'],
+  title: 'Subset selection: exhaustive search, forward og backward',
   path: ['Veiledet læring', 'Prediksjon'],
-  lead: 'Flere forklaringsvariabler er ikke alltid bedre. Delmengdeseleksjon prøver ut ulike utvalg av variablene og velger det beste etter et mål som straffer kompleksitet: justert R², AIC, BIC eller feilen på valideringsdata.',
+  lead: 'Flere forklaringsvariabler er ikke alltid bedre. Subset selection prøver ut ulike utvalg av variablene og velger det beste etter et mål som straffer kompleksitet: justert R², AIC, BIC eller feilen på valideringssettet.',
   figs: [{
-    title: 'Uttømmende søk på bruktbildataene',
+    title: 'Exhaustive search på bruktbildataene',
     sub: 'Alle 2 047 modeller med 1–11 av variablene er tilpasset på treningsdataene. For hver modellstørrelse vises den beste. Justert R² skal være høy, AIC skal være lav.',
     build(el) {
       const E = DATA.toyotaExhaustive; let k = 9;
@@ -152,17 +152,17 @@ topic({
     },
     tryit: ['Fra 1 til 4 variabler stiger justert R² kraftig. Etter rundt 6 variabler skjer nesten ingenting.',
       'Den beste modellen målt med både justert R² og AIC har 9 variabler (grønt punkt). Doors og Met_Color faller ut.',
-      'Her kommer forward, backward og uttømmende søk til samme modell. Det er ikke garantert generelt.']
+      'Her kommer forward, backward og exhaustive search til samme modell. Det er ikke garantert generelt.']
   }, {
     title: 'Hvor mange modeller må vi prøve?',
-    sub: 'Uttømmende søk prøver alle delmengder av p variabler. Forward og backward prøver høyst 1 + p(p + 1)/2 modeller.',
+    sub: 'Exhaustive search prøver alle delmengder av p variabler. Forward og backward prøver høyst 1 + p(p + 1)/2 modeller.',
     build(el) {
       let p = 11;
       const ctl = Controls(el);
       Slider(ctl, { label: 'Antall kandidatvariabler p', min: 1, max: 40, value: p, oninput: v => { p = v; draw(); } });
       const plot = new Plot(el, { w: 760, h: 250, x: [1, 40], y: [0, 12.5], yticks: [0, 3, 6, 9, 12], yfmt: v => ({ 0: '1', 3: '1 000', 6: '1 mill.', 9: '1 mrd.', 12: '10¹²' })[v], xlab: 'p', ylab: 'Antall modeller (log)', label: 'Antall modeller mot p' });
       const g = plot.layer();
-      const tiles = Tiles(el, [['ex', 'Uttømmende: 2^p'], ['st', 'Forward/backward: maks 1 + p(p+1)/2'], ['t', 'Tid ved 1 ms per modell (uttømmende)']]);
+      const tiles = Tiles(el, [['ex', 'Exhaustive: 2^p'], ['st', 'Forward/backward: maks 1 + p(p+1)/2'], ['t', 'Tid ved 1 ms per modell (exhaustive)']]);
       const ps = range(40, i => i + 1);
       S('path', { d: pathOf(ps.map(q => [plot.x(q), plot.y(Math.min(12.5, q * Math.log10(2)))])), fill: 'none', class: 's-c0', 'stroke-width': 2.5 }, plot.gData);
       S('path', { d: pathOf(ps.map(q => [plot.x(q), plot.y(Math.log10(1 + q * (q + 1) / 2))])), fill: 'none', class: 's-c1', 'stroke-width': 2.5 }, plot.gData);
@@ -174,7 +174,7 @@ topic({
         const sec = ex / 1000; tiles.set('t', sec < 60 ? fx(sec, 1) + ' sek' : sec < 3600 ? fx(sec / 60, 1) + ' min' : sec < 86400 * 2 ? fx(sec / 3600, 1) + ' timer' : sec < 3.15e7 * 2 ? fint(sec / 86400) + ' døgn' : fint(sec / 3.15e7) + ' år');
       }
       draw();
-      el.append(H('p', { class: 'note', html: '<b style="color:var(--c0)">Uttømmende søk</b> dobles for hver ny variabel. <b style="color:var(--c1)">Forward og backward</b> vokser bare kvadratisk.' }));
+      el.append(H('p', { class: 'note', html: '<b style="color:var(--c0)">Exhaustive search</b> dobles for hver ny variabel. <b style="color:var(--c1)">Forward og backward</b> vokser bare kvadratisk.' }));
     }
   }],
   body: `
@@ -184,9 +184,9 @@ topic({
 <li>Variabler som nesten bare bidrar med støy, øker variansen i prediksjonene.</li>
 <li>Sterkt korrelerte variabler (multikollinearitet) gir ustabile koeffisienter.</li>
 </ul>
-<h2>Delmengdeseleksjon (subset selection)</h2>
+<h2>Subset selection (valg av variabler)</h2>
 <ul>
-<li><b>Uttømmende søk:</b> prøv alle 2<sup>p</sup> − 1 kombinasjoner og velg den beste etter justert R², AIC eller valideringsfeil. Garantert best, men umulig for store p.</li>
+<li><b>Exhaustive search:</b> prøv alle 2<sup>p</sup> − 1 kombinasjoner og velg den beste etter justert R², AIC eller valideringsfeil. Garantert best, men umulig for store p.</li>
 <li><b>Forward selection:</b> start uten variabler. Legg til den som forbedrer modellen mest, til ingen forbedrer den. Høyst 1 + p(p + 1)/2 modeller.</li>
 <li><b>Backward elimination:</b> start med alle. Fjern den minst nyttige, til fjerning gjør modellen dårligere.</li>
 <li><b>Stepwise:</b> som forward, men en variabel som er lagt til, kan fjernes igjen senere.</li>
@@ -195,15 +195,15 @@ topic({
 <p>Vanlig R² øker alltid når en variabel legges til, også når variabelen er ren støy. Derfor brukes mål som straffer antall variabler:</p>
 <div class="formula">Justert R² = 1 − (1 − R²) · (<span class="v">n</span> − 1) / (<span class="v">n</span> − <span class="v">p</span> − 1)<br>AIC = <span class="v">n</span> · ln(SSE / <span class="v">n</span>) + <span class="v">n</span> · (1 + ln 2π) + 2(<span class="v">p</span> + 1)<br>BIC = <span class="v">n</span> · ln(SSE / <span class="v">n</span>) + <span class="v">n</span> · (1 + ln 2π) + ln(<span class="v">n</span>) · (<span class="v">p</span> + 1)</div>
 <ul>
-<li><i>n</i> er antall observasjoner og <i>p</i> antall forklaringsvariabler. <i>p</i> + 1 teller med konstantleddet.</li>
+<li><i>n</i> er antall datapunkter og <i>p</i> antall forklaringsvariabler. <i>p</i> + 1 teller med konstantleddet.</li>
 <li><b>AIC</b> (Akaikes informasjonskriterium) har to deler. Første ledd blir lavere jo bedre modellen passer dataene (lavere SSE). Siste ledd er en straff på 2 per parameter. <b>Lavere AIC er bedre.</b> Selve tallet betyr ingenting alene; det er forskjellen mellom modeller på de samme dataene som teller.</li>
 <li><b>BIC</b> (bayesiansk informasjonskriterium) straffer med ln(<i>n</i>) per parameter i stedet for 2. Allerede fra <i>n</i> = 8 er ln(<i>n</i>) større enn 2, så BIC foretrekker enklere modeller enn AIC.</li>
 <li>Midtleddet <i>n</i> · (1 + ln 2π) er likt for alle modeller på de samme dataene, så det påvirker ikke hvilken modell som vinner.</li>
-<li>Det tryggeste målet er fortsatt feilen på valideringsdata, for eksempel RMSE.</li>
+<li>Det tryggeste målet er fortsatt feilen på valideringssettet, for eksempel RMSE.</li>
 </ul>
-<div class="pit"><b>Eksamensfelle: R² på treningsdata</b>R² stiger alltid med flere variabler. Sammenlign modeller med justert R², AIC, BIC eller RMSE på valideringsdata.</div>
+<div class="pit"><b>Eksamensfelle: R² på treningsdata</b>R² stiger alltid med flere variabler. Sammenlign modeller med justert R², AIC, BIC eller RMSE på valideringssettet.</div>
 <h2>Alternativet: krymp i stedet for å velge</h2>
-<p>I stedet for å slå variabler helt av eller på kan vi beholde alle og straffe store koeffisienter. Det kalles regularisering, og de vanligste variantene er ridge, lasso og elastic net. Lasso gjør i tillegg variabelvalg automatisk ved å sette noen koeffisienter til null. Se <a href="#regularisering">siden om regularisering</a>.</p>
+<p>I stedet for å slå variabler helt av eller på kan vi beholde alle og straffe store koeffisienter. Det kalles regularisering, og de vanligste variantene er ridge, lasso og elastic net. Lasso velger i tillegg variabler automatisk ved å sette noen koeffisienter til null. Se <a href="#regularisering">siden om regularisering</a>.</p>
 <h2>Python</h2>
 <pre><code>from mlba import forward_selection, backward_elimination, AIC_score
 from sklearn.linear_model import LinearRegression
@@ -320,7 +320,7 @@ topic({
 <p>Modellen gir en propensitet <i>p</i>. Med terskel 0,5 blir <i>p</i> &gt; 0,5 klassifisert som 1. Terskelen kan flyttes etter hva feilene koster. Se <a href="#evaluering-klassifikasjon">evaluering av klassifikasjon</a>.</p>
 <div class="pros">
 <div><h3>Styrker</h3><ul><li>Gir sannsynligheter, ikke bare klasser</li><li>Koeffisientene kan tolkes som oddsratioer</li><li>Rask, og fungerer bra med få data</li></ul></div>
-<div><h3>Svakheter</h3><ul><li>Lineær beslutningsgrense i X</li><li>Krever dummyer og omforming for ikke-lineære mønstre</li><li>Sensitiv for sterkt korrelerte variabler</li></ul></div>
+<div><h3>Svakheter</h3><ul><li>Lineær klassifikasjonsgrense i X</li><li>Krever dummyer og omforming for ikke-lineære mønstre</li><li>Sensitiv for sterkt korrelerte variabler</li></ul></div>
 </div>
 <div class="pit"><b>Eksamensfelle: odds er ikke sannsynlighet</b>Odds = 3 betyr p = 0,75, ikke 3 %. Og e<sup>b</sup> = 1,5 betyr at <i>oddsen</i> øker med 50 %, ikke sannsynligheten.</div>
 <div class="pit"><b>Eksamensfelle: regn baklengs</b>Får du en logit, regn odds = e<sup>logit</sup> og så p = odds / (1 + odds). Logit = 0 gir alltid p = 0,5.</div>

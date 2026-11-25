@@ -1,4 +1,4 @@
-/* Legges oppå en trent modell: SHAP og konform prediksjon */
+/* Legges oppå en trent modell: SHAP og conformal prediction */
 
 topic({
   id: 'shap', data: [['toyota']], short: 'SHAP', lecture: 'F8', tags: ['Forklarbar KI', 'Modellagnostisk', 'Shapley-verdier'],
@@ -7,7 +7,7 @@ topic({
   lead: 'SHAP forklarer én enkelt prediksjon ved å fordele avstanden mellom prediksjonen og gjennomsnittsprediksjonen på forklaringsvariablene. Fordelingen bygger på Shapley-verdier fra spillteori: hver variabels gjennomsnittlige marginale bidrag.',
   figs: [{
     title: 'Shapley-verdier: rettferdig fordeling av en gevinst',
-    sub: 'Tre konsulenter, Ada, Bo og Cleo, kan ta et oppdrag alene eller sammen. Tallene er hva hver koalisjon kan tjene (i 1000 kr). Endre tallene og se fordelingen.',
+    sub: 'Tre konsulenter, Ada, Bo og Cleo, kan ta et oppdrag alene eller sammen. Tallene er hva hvert fellesskap kan tjene (i 1000 kr). Endre tallene og se fordelingen.',
     build(el) {
       const P = ['A', 'B', 'C'], N = { A: 'Ada', B: 'Bo', C: 'Cleo' };
       const v = { '': 0, A: 60, B: 40, C: 20, AB: 120, AC: 90, BC: 70, ABC: 160 };
@@ -30,12 +30,12 @@ topic({
     tryit: ['Les en rad: i rekkefølgen Bo → Ada → Cleo bidrar Ada med v(Ada + Bo) − v(Bo) = 120 − 40 = 80.', 'Shapley-verdiene summerer alltid til hva alle tre tjener sammen. Det kalles effektivitet.', 'Gjør Cleo verdiløs: sett v(Cleo) = 0, v(Ada + Cleo) = 60, v(Bo + Cleo) = 40 og v(Ada + Bo + Cleo) = 120. Da får Cleo 0. En spiller som aldri bidrar, får ingenting.']
   }, {
     title: 'Waterfall: hvorfor fikk denne bilen denne prisen?',
-    sub: 'En lineær regresjonsmodell for bruktbilpris, trent på 600 biler og brukt på biler fra valideringsdataene som den ikke har sett. For en lineær modell er SHAP-verdien φ = b · (x − gjennomsnitt av x).',
+    sub: 'En lineær regresjonsmodell for bruktbilpris, trent på 600 biler og brukt på biler fra valideringssettet som den ikke har sett. For en lineær modell er SHAP-verdien φ = b · (x − gjennomsnitt av x).',
     build(el) {
       const s = DATA.shapLinear; let ci = 0;
       const ctl = Controls(el);
       Seg(ctl, { label: 'Bil', options: s.cars.map((c, i) => [i, 'Bil ' + (i + 1)]), value: ci, onchange: v => { ci = v; draw(); } });
-      const svg = S('svg', { viewBox: '0 0 760 420', class: 'plot', role: 'img', 'aria-label': 'Waterfall-plott' }); el.append(svg);
+      const svg = S('svg', { viewBox: '0 0 760 420', class: 'plot', role: 'img', 'aria-label': 'Waterfall-plot' }); el.append(svg);
       const tiles = Tiles(el, [['b', 'E[f(X)]: snittprediksjon'], ['p', 'f(x): prediksjon for bilen'], ['a', 'Faktisk pris']]);
       function draw() {
         const c = s.cars[ci], items = s.cols.map((n, j) => [n, c.phi[j], c.x[j]]).sort((p, q) => Math.abs(q[1]) - Math.abs(p[1]));
@@ -63,22 +63,22 @@ topic({
   }],
   body: `
 <h2>Hvorfor forklarbar KI?</h2>
-<p>Ensembler og nevrale nett treffer godt, men er «svarte bokser». Når en modell avgjør lån, forsikring eller ansettelser, må vi kunne forklare beslutningen, oppdage skjevheter og stole på at modellen bruker fornuftige signaler.</p>
+<p>Ensembler og nevrale nettverk treffer godt, men er black box-modeller. Når en modell avgjør lån, forsikring eller ansettelser, må vi kunne forklare beslutningen, oppdage bias og stole på at modellen bruker fornuftige signaler.</p>
 <ul>
-<li><b>Global forklaring:</b> hvordan modellen oppfører seg generelt (variabelviktighet, partial dependence plot).</li>
-<li><b>Lokal forklaring:</b> hvorfor akkurat denne observasjonen fikk akkurat denne prediksjonen (SHAP-waterfall).</li>
+<li><b>Global forklaring:</b> hvordan modellen oppfører seg generelt (feature importance, partial dependence plot).</li>
+<li><b>Lokal forklaring:</b> hvorfor akkurat dette datapunktet fikk akkurat denne prediksjonen (SHAP-waterfall).</li>
 <li><b>Modellspesifikk</b> forklaring virker for én modelltype (koeffisienter, trestruktur). <b>Modellagnostisk</b> forklaring, som SHAP, virker for alle modeller.</li>
 </ul>
 <h2>Shapley-verdier</h2>
 <p>I spillteori fordeler Shapley-verdien gevinsten fra et samarbeid. Hver spiller får sitt <b>gjennomsnittlige marginale bidrag</b> over alle rekkefølger spillerne kan bli med i.</p>
 <div class="formula">φ<sub><span class="v">i</span></sub> = Σ<sub><span class="v">S</span> ⊆ <span class="v">N</span> \\ {<span class="v">i</span>}</sub> |<span class="v">S</span>|! (<span class="v">n</span> − |<span class="v">S</span>| − 1)! / <span class="v">n</span>! · [<span class="v">v</span>(<span class="v">S</span> ∪ {<span class="v">i</span>}) − <span class="v">v</span>(<span class="v">S</span>)]</div>
-<p>Med tre spillere er vektene 1/3 for den tomme koalisjonen, 1/6 for hver av de to koalisjonene med én annen spiller, og 1/3 for koalisjonen med begge de andre. Det gir samme svar som snittet over de seks rekkefølgene.</p>
+<p>Med tre spillere er vektene 1/3 for det tomme fellesskapet, 1/6 for hvert av de to fellesskapene med én annen spiller, og 1/3 for fellesskapet med begge de andre. Det gir samme svar som snittet over de seks rekkefølgene.</p>
 <h2>Fra spill til modell</h2>
 <ul>
-<li>Spillerne er forklaringsvariablene. «Gevinsten» er prediksjonen for én observasjon minus snittprediksjonen.</li>
+<li>Spillerne er forklaringsvariablene. «Gevinsten» er prediksjonen for ett datapunkt minus snittprediksjonen.</li>
 <li><b>Lokal nøyaktighet:</b> E[f(X)] + Σ φ<sub>j</sub> = f(x). Waterfall-plottet viser nettopp denne summen.</li>
 <li>For en lineær modell er φ<sub>j</sub> = b<sub>j</sub> (x<sub>j</sub> − x̄<sub>j</sub>). For andre modeller estimerer <code>shap</code> verdiene, for eksempel med spesialiserte metoder for trær.</li>
-<li><b>Beeswarm-plott</b> viser SHAP-verdiene for alle observasjoner: én rad per variabel, punktene farget etter variabelens verdi. Det gir et globalt bilde bygget av lokale forklaringer.</li>
+<li><b>Beeswarm-plot</b> viser SHAP-verdiene for alle datapunktene: én rad per variabel, punktene farget etter variabelens verdi. Det gir et globalt bilde bygget av lokale forklaringer.</li>
 </ul>
 <div class="pit"><b>Eksamensfelle</b>SHAP forklarer <i>modellen</i>, ikke virkeligheten. En stor SHAP-verdi betyr at modellen bruker variabelen mye, ikke at variabelen forårsaker utfallet.</div>
 <h2>Python</h2>
@@ -88,7 +88,7 @@ X100 = shap.utils.sample(X_train, 100)                     # 100 tilfeldige bakg
 explainer = shap.Explainer(model.predict, X100)            # trenger bare predict-funksjonen: modellagnostisk
 shap_values = explainer(X_valid)                           # én SHAP-verdi per rad og variabel
 
-shap.plots.waterfall(shap_values[0])                       # lokal forklaring, én observasjon
+shap.plots.waterfall(shap_values[0])                       # lokal forklaring for ett datapunkt
 shap.plots.beeswarm(shap_values)                           # global oversikt
 shap.plots.scatter(shap_values[:, 'Age_08_04'])            # SHAP mot verdien til én variabel (her bilens alder)
 
@@ -97,13 +97,13 @@ shap_values_rf = explainer_rf(X_valid)</code></pre>`
 });
 
 topic({
-  id: 'konform', dataNote: 'Figuren bruker <b>simulerte data</b>: en kjent kurve pluss normalfordelt støy, slik at vi kan trekke så mange nye kalibrerings- og testpunkter vi vil.', short: 'Konform prediksjon', lecture: 'F8', tags: ['Usikkerhet', 'Modellagnostisk', 'Prediksjonsintervall'],
-  title: 'Usikkerhet med konform prediksjon',
+  id: 'konform', dataNote: 'Figuren bruker <b>simulerte data</b>: en kjent kurve pluss normalfordelt støy, slik at vi kan trekke så mange nye kalibrerings- og testpunkter vi vil.', short: 'Conformal prediction', lecture: 'F8', tags: ['Usikkerhetskvantifisering', 'Modellagnostisk', 'Prediksjonsintervall'],
+  title: 'Usikkerhetskvantifisering med conformal prediction',
   path: ['Legges oppå en trent modell'],
-  lead: 'En prediksjon uten usikkerhet sier ikke hvor mye vi kan stole på den. Konform prediksjon legger et kalibrert intervall rundt prediksjonene fra en hvilken som helst modell. Split conformal bruker feilene på et eget kalibreringssett til å bestemme hvor bredt intervallet må være.',
+  lead: 'En prediksjon uten usikkerhet sier ikke hvor mye vi kan stole på den. Conformal prediction legger et kalibrert intervall rundt prediksjonene fra en hvilken som helst modell. Split conformal bruker feilene på egne kalibreringsdata til å bestemme hvor bredt intervallet må være.',
   figs: [{
     title: 'Split conformal: fra kalibreringsfeil til intervall',
-    sub: 'Simulerte data. En modell (blå kurve) er trent på egne treningsdata. Feilene på kalibreringssettet sorteres, og q̂ er den k-te minste, der k = ⌈(n + 1)(1 − α)⌉. Intervallet ŷ ± q̂ testes på 400 nye punkter.',
+    sub: 'Simulerte data. En modell (blå kurve) er trent på egne treningsdata. Feilene på kalibreringsdataene sorteres, og q̂ er den k-te minste, der k = ⌈(n + 1)(1 − α)⌉. Intervallet ŷ ± q̂ testes på 400 nye punkter.',
     build(el) {
       const f = x => 2 + 1.2 * Math.sin(1.6 * x) + 0.25 * x, noise = 0.45;
       const gen = (seed, n) => { const r = RNG(seed); return range(n, () => { const x = 6 * r(); return [x, f(x) + noise * r.n()]; }); };
@@ -113,15 +113,15 @@ topic({
       const qhat = (scores, a) => { const s = scores.slice().sort((p, q) => p - q), k = Math.ceil((s.length + 1) * a); return { k, q: k <= s.length ? s[k - 1] : Infinity, s }; };
       const ctl = Controls(el);
       Slider(ctl, { label: 'Kalibreringspunkter n', min: 5, max: 200, value: n, oninput: v => { n = v; draw(); } });
-      Slider(ctl, { label: 'Ønsket dekning 1 − α', min: 0.5, max: 0.99, step: 0.01, value: cov, fmt: v => fpct(v, 0), oninput: v => { cov = v; draw(); } });
-      Btn(ctl, 'Nytt kalibreringssett', () => { seed++; draw(); }, 'primary');
+      Slider(ctl, { label: 'Ønsket coverage 1 − α', min: 0.5, max: 0.99, step: 0.01, value: cov, fmt: v => fpct(v, 0), oninput: v => { cov = v; draw(); } });
+      Btn(ctl, 'Nye kalibreringsdata', () => { seed++; draw(); }, 'primary');
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const a = H('div'), c = H('div'); cols.append(a, c);
       const plot = new Plot(a, { w: 560, h: 380, x: [0, 6], y: [-0.5, 5.5], xlab: 'x', ylab: 'y', label: 'Prediksjonsintervall på testdata' });
       const gB = plot.clipLayer(), gT = plot.layer(), gC = plot.layer();
       const strip = new Plot(c, { w: 380, h: 170, m: { t: 10, r: 12, b: 40, l: 12 }, x: [0, 2], y: [0, 1], yticks: [], xlab: 'Kalibreringsfeil |y − ŷ| (sortert)', label: 'Sorterte kalibreringsfeil' });
       const gS = strip.layer();
-      const tiles = Tiles(c, [['k', 'k = ⌈(n + 1)(1 − α)⌉'], ['q', 'q̂ (feilgrense)'], ['w', 'Intervallbredde 2q̂'], ['tc', 'Dekning på disse testdataene'], ['avg', 'Forventet dekning k / (n + 1)']]);
+      const tiles = Tiles(c, [['k', 'k = ⌈(n + 1)(1 − α)⌉'], ['q', 'q̂ (feilgrense)'], ['w', 'Intervallbredde 2q̂'], ['tc', 'Coverage på disse testdataene'], ['avg', 'Forventet coverage k / (n + 1)']]);
       function draw() {
         const cal = gen(seed * 31, n), sc = cal.map(p => Math.abs(p[1] - yh(p[0]))), { k, q, s } = qhat(sc, cov);
         const X = plot.x, Y = plot.y, xs = range(121, i => i / 20);
@@ -139,9 +139,9 @@ topic({
         tiles.set('tc', fpct(tc)); tiles.set('avg', k > n ? '100 % (∞)' : fpct(k / (n + 1)), 'good');
       }
       draw();
-      el.append(H('p', { class: 'note', html: 'Gule punkter er kalibreringssettet. Røde testpunkter havner utenfor intervallet.' }));
+      el.append(H('p', { class: 'note', html: 'Gule punkter er kalibreringsdataene. Røde testpunkter havner utenfor intervallet.' }));
     },
-    tryit: ['Med n = 19 og 90 % dekning blir k = ⌈20 · 0,9⌉ = 18: q̂ er den nest største av 19 feil.', 'Trykk «Nytt kalibreringssett» flere ganger. Dekningen på testdataene hopper rundt 90 %. Garantien gjelder i snitt: forventet dekning er k / (n + 1), som aldri er under 1 − α.', 'Sett n = 5 og 90 %. Da blir k = 6 &gt; n, og intervallet blir uendelig bredt: for få kalibreringspunkter til å garantere ønsket dekning.', 'Øk dekningen til 99 %. Intervallet blir mye bredere. God dekning er lett å få; smale intervaller (skarphet) er det vanskelige.']
+    tryit: ['Med n = 19 og 90 % coverage blir k = ⌈20 · 0,9⌉ = 18: q̂ er den nest største av 19 feil.', 'Trykk «Nye kalibreringsdata» flere ganger. Coverage på testdataene hopper rundt 90 %. Garantien gjelder i snitt: forventet coverage er k / (n + 1), som aldri er under 1 − α.', 'Sett n = 5 og 90 %. Da blir k = 6 &gt; n, og intervallet blir uendelig bredt: for få kalibreringspunkter til å garantere ønsket coverage.', 'Øk coverage til 99 %. Intervallet blir mye bredere. Høy coverage er lett å få; smale intervaller (sharpness) er det vanskelige.']
   }],
   body: `
 <h2>To typer usikkerhet</h2>
@@ -149,8 +149,8 @@ topic({
 <li><b>Aleatorisk usikkerhet</b> er tilfeldig variasjon i dataene selv: to like biler selges til ulik pris. Den forsvinner ikke med mer data.</li>
 <li><b>Epistemisk usikkerhet</b> skyldes at modellen vet for lite: få data i et område eller feil modellform. Den kan reduseres med mer data og bedre modeller.</li>
 </ul>
-<h2>Godt intervall: dekning og skarphet</h2>
-<p>Et 90 %-intervall er <b>kalibrert</b> når det inneholder den sanne verdien for 90 % av nye observasjoner (dekning, coverage). Blant intervaller med riktig dekning vil vi ha de smaleste (<b>skarphet</b>). Et uendelig bredt intervall har 100 % dekning, men er ubrukelig.</p>
+<h2>Godt intervall: coverage og sharpness</h2>
+<p>Et 90 %-intervall er <b>kalibrert</b> når det inneholder den sanne verdien for 90 % av nye observasjoner (<b>coverage</b>). Blant intervaller med riktig coverage vil vi ha de smaleste (<b>sharpness</b>). Et uendelig bredt intervall har 100 % coverage, men er ubrukelig.</p>
 <h2>Split conformal steg for steg</h2>
 <ol>
 <li>Del dataene i tre: trening, kalibrering og test. Kalibreringsdataene skal ikke brukes til å trene modellen.</li>
@@ -162,10 +162,10 @@ topic({
 <div class="formula">Garanti: P(<span class="v">y</span><sub>ny</sub> ∈ [<span class="v">ŷ</span> − <span class="v">q̂</span>, <span class="v">ŷ</span> + <span class="v">q̂</span>]) ≥ 1 − α</div>
 <p>Garantien holder når nye observasjoner kommer fra samme fordeling som kalibreringsdataene (exchangeability), og den gjelder i snitt over mange nye observasjoner, ikke for hver enkelt. Med absoluttfeil blir intervallet like bredt overalt. Mer avanserte varianter, som conformalized quantile regression, gir bredde som varierer.</p>
 <div class="pros">
-<div><h3>Styrker</h3><ul><li>Modellagnostisk: en «wrapper» rundt hvilken som helst trent modell</li><li>Garantert dekning med få antakelser</li><li>Du velger selv dekningsgraden</li></ul></div>
+<div><h3>Styrker</h3><ul><li>Modellagnostisk: en «wrapper» rundt hvilken som helst trent modell</li><li>Garantert coverage med få antakelser</li><li>Du velger selv ønsket coverage</li></ul></div>
 <div><h3>Svakheter</h3><ul><li>Krever egne kalibreringsdata</li><li>Garantien er i snitt, ikke for hver gruppe</li><li>Med enkel score er bredden lik for alle</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle: finn q̂ for hånd</b>n = 9 kalibreringsfeil og 80 % dekning: k = ⌈10 · 0,8⌉ = 8, så q̂ er den 8. minste feilen. Husk +1 i formelen og å runde opp.</div>
+<div class="pit"><b>Eksamensfelle: finn q̂ for hånd</b>n = 9 kalibreringsfeil og 80 % coverage: k = ⌈10 · 0,8⌉ = 8, så q̂ er den 8. minste feilen. Husk +1 i formelen og å runde opp.</div>
 <h2>Python</h2>
 <pre><code>from mapie.regression import SplitConformalRegressor
 from mapie.utils import train_conformalize_test_split
@@ -175,11 +175,11 @@ from mapie.metrics.regression import regression_coverage_score
 (X_train, X_cal, X_test, y_train, y_cal, y_test) = train_conformalize_test_split(
     X, y, train_size=0.6, conformalize_size=0.2, test_size=0.2, random_state=1)
 
-rf_model = RandomForestRegressor(random_state=1).fit(X_train, y_train)   # trent bare på treningsdelen
+rf_model = RandomForestRegressor(random_state=1).fit(X_train, y_train)   # trent bare på treningsdataene
 
 # 90 % intervaller; prefit=True betyr at modellen allerede er trent
 mapie_model = SplitConformalRegressor(estimator=rf_model, confidence_level=0.90, prefit=True)
 mapie_model.conformalize(X_cal, y_cal)                    # feil på kalibreringsdata gir intervallbredden
 y_pred, y_interval = mapie_model.predict_interval(X_test)   # punktprediksjon og intervall
-print(regression_coverage_score(y_test, y_interval))      # andel testpunkter innenfor, bør være ca. 0,90</code></pre>`
+print(regression_coverage_score(y_test, y_interval))      # coverage: andel testpunkter innenfor, bør være ca. 0,90</code></pre>`
 });

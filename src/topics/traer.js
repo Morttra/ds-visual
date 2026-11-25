@@ -1,4 +1,4 @@
-/* Beslutningstrær og ensembler. Inneholder en liten CART-implementasjon (to forklaringsvariabler). */
+/* Desisjonstrær og ensembler. Inneholder en liten CART-implementasjon (to forklaringsvariabler). */
 
 function impurity(c1, n, crit) {
   if (!n) return 0; const p = c1 / n;
@@ -46,7 +46,7 @@ function drawTree(wrap, root, d, names, path, fmtT) {
   const Hh = (depthMax + 1) * lh + 10, pos = new Map();
   leaves.forEach((l, i) => pos.set(l, [10 + lw * (i + 0.5), 0]));
   (function place(nd) { if (pos.has(nd)) { pos.get(nd)[1] = 8 + nd.depth * lh; return pos.get(nd); } const a = place(nd.L), b = place(nd.R); const p = [(a[0] + b[0]) / 2, 8 + nd.depth * lh]; pos.set(nd, p); return p; })(root);
-  const svg = S('svg', { viewBox: `0 0 ${W} ${Hh}`, width: W, class: 'plot', style: 'max-width:none;margin:0 auto;width:' + W + 'px', role: 'img', 'aria-label': 'Beslutningstreet' });
+  const svg = S('svg', { viewBox: `0 0 ${W} ${Hh}`, width: W, class: 'plot', style: 'max-width:none;margin:0 auto;width:' + W + 'px', role: 'img', 'aria-label': 'Desisjonstreet' });
   const on = new Set(path || []);
   for (const [nd, p] of pos) if (!(nd.leaf || nd.depth >= d)) for (const [ch, lab] of [[nd.L, 'ja'], [nd.R, 'nei']]) {
     const q = pos.get(ch); S('line', { x1: p[0], y1: p[1] + 40, x2: q[0], y2: q[1], class: on.has(ch) ? 's-acc' : 's-mut', 'stroke-width': on.has(ch) ? 3 : 1.3 }, svg);
@@ -66,10 +66,10 @@ function synth2D(seed, n, flip) {
 }
 
 topic({
-  id: 'beslutningstraer', data: [['mowers']], short: 'Beslutningstrær', lecture: 'F7', tags: ['Klassifikasjon', 'Prediksjon', 'Gini og entropi'],
-  title: 'Beslutningstrær',
+  id: 'beslutningstraer', data: [['mowers']], short: 'Desisjonstrær', lecture: 'F7', tags: ['Klassifikasjon', 'Prediksjon', 'Gini og entropi'],
+  title: 'Desisjonstrær',
   path: ['Veiledet læring', 'Klassifikasjon og prediksjon'],
-  lead: 'Et beslutningstre deler dataene i rektangler med enkle ja/nei-regler, én variabel om gangen. Hver splitt velges slik at gruppene blir så rene som mulig. Resultatet er regler som er lette å lese.',
+  lead: 'Et desisjonstre deler dataene i rektangler med enkle ja/nei-regler, én variabel om gangen. Hver splitt velges slik at gruppene blir så rene som mulig. Resultatet er regler som er lette å lese.',
   figs: [{
     title: 'Finn den beste første splitten',
     sub: 'Sitteklipperdataene: 24 husholdninger, 12 eiere og 12 ikke-eiere. Velg variabel og flytt splitten. Rent betyr at en gruppe bare har én klasse.',
@@ -128,7 +128,7 @@ topic({
       const gR = plot.layer(), gP = plot.layer(), gQ = plot.layer();
       R.forEach(r => S('circle', { cx: plot.x(r[0]), cy: plot.y(r[1]), r: 6, class: (r[2] ? 'f-c1' : 'f-c0') + ' s-surf', 'stroke-width': 1.5 }, gP));
       const qS = S('polygon', { class: 'f-hl s-ink' }, gQ);
-      const tiles = Tiles(b, [['lv', 'Antall blader'], ['acc', 'Treffsikkerhet på treningsdata'], ['res', 'Ny husholdning']]);
+      const tiles = Tiles(b, [['lv', 'Antall terminalnoder'], ['acc', 'Nøyaktighet på treningsdata'], ['res', 'Ny husholdning']]);
       const tw = H('div', { style: 'overflow-x:auto;margin-top:10px' }); el.append(tw);
       clickMove(plot, p => { q = [clamp(p.x, 26, 119), clamp(p.y, 13.2, 24.8)]; draw(); });
       function draw() {
@@ -145,9 +145,9 @@ topic({
       }
       draw();
     },
-    tryit: ['Øk dybden én og én. Hver splitt deler et rektangel i to. Ved dybde 4 er alle blader rene, og treffsikkerheten på treningsdata er 100 %.',
-      'Plasser stjerna og følg den uthevede veien ned i treet. Det er akkurat det du gjør når du klassifiserer en ny post for hånd.',
-      'Tallene i boksene er [ikke-eier, eier]. Andelen eiere i bladet er propensiteten treet gir.']
+    tryit: ['Øk dybden én og én. Hver splitt deler et rektangel i to. Ved dybde 4 er alle terminalnoder rene, og nøyaktigheten på treningsdata er 100 %.',
+      'Plasser stjerna og følg den uthevede veien ned i treet. Det er akkurat det du gjør når du klassifiserer et nytt datapunkt for hånd.',
+      'Tallene i boksene er [ikke-eier, eier]. Andelen eiere i terminalnoden er propensiteten treet gir.']
   }, {
     title: 'Overtilpasning: hvor dypt bør treet være?',
     sub: '400 simulerte punkter der grensen er en bølge og 15 % av etikettene er tilfeldig snudd. Treet trenes på 240 punkter (fylte) og valideres på 160 (hule).',
@@ -163,10 +163,10 @@ topic({
       const a = H('div'), b = H('div'); cols.append(a, b);
       const plot = new Plot(a, { w: 520, h: 420, x: [0, 1], y: [0, 1], xlab: 'x₁', ylab: 'x₂', label: 'Beslutningsområder for valgt dybde' });
       const gR = plot.layer(), gP = plot.layer();
-      const p2 = new Plot(b, { w: 380, h: 260, x: [0, 17], y: [0.6, 1], xticks: [1, 4, 8, 12, 16], xlab: 'Maks dybde', ylab: 'Treffsikkerhet', label: 'Treffsikkerhet mot dybde' });
+      const p2 = new Plot(b, { w: 380, h: 260, x: [0, 17], y: [0.6, 1], xticks: [1, 4, 8, 12, 16], xlab: 'Maks dybde', ylab: 'Nøyaktighet', label: 'Nøyaktighet mot dybde' });
       for (const [k, cl] of [[1, 'c4'], [2, 'c0']]) { S('path', { d: pathOf(curve.map(c => [p2.x(c[0]), p2.y(c[k])])), fill: 'none', class: 's-' + cl, 'stroke-width': 2 }, p2.gData); curve.forEach(c => S('circle', { cx: p2.x(c[0]), cy: p2.y(c[k]), r: 2.5, class: 'f-' + cl }, p2.gData)); }
       const vl = S('line', { y1: p2.y(0.6), y2: p2.y(1), class: 's-ink', 'stroke-dasharray': '3 3' }, p2.gTop);
-      const tiles = Tiles(b, [['tr', 'Trening'], ['va', 'Validering'], ['lv', 'Antall blader']]);
+      const tiles = Tiles(b, [['tr', 'Trening'], ['va', 'Validering'], ['lv', 'Antall terminalnoder']]);
       b.append(H('p', { class: 'note', html: '<b style="color:var(--c4)">Trening</b> stiger mot 100 %. <b style="color:var(--c0)">Validering</b> topper seg og faller.' }));
       function draw() {
         clear(gR); clear(gP); const X0 = plot.x, Y0 = plot.y;
@@ -178,47 +178,47 @@ topic({
       }
       draw();
     },
-    tryit: ['Ved dybde 1–2 er treet for grovt til å følge bølgen.', 'Ved stor dybde lager treet små rektangler rundt enkeltpunkter som er snudd ved en tilfeldighet. Valideringen blir dårligere.', 'Maks dybde er en hyperparameter. Den velges ut fra valideringsdata, for eksempel med grid search.']
+    tryit: ['Ved dybde 1–2 er treet for grovt til å følge bølgen.', 'Ved stor dybde lager treet små rektangler rundt enkeltpunkter som er snudd ved en tilfeldighet. Valideringen blir dårligere.', 'Maks dybde er en hyperparameter. Den velges ut fra valideringssettet, for eksempel med grid search.']
   }],
   body: `
 <h2>Slik leser du et tre</h2>
 <ul>
 <li><b>Rotnoden</b> øverst inneholder alle treningsdataene. Hver <b>indre node</b> har en regel, for eksempel Income ≤ 59,7.</li>
 <li>Er regelen sann, går du til venstre (ja). Ellers går du til høyre (nei).</li>
-<li><b>Bladene</b> nederst gir klassen: flertallet av treningspunktene i bladet. Andelen i klasse 1 er propensiteten.</li>
-<li>Hver vei fra rot til blad er en regel av typen <i>HVIS Income &gt; 59,7 OG Lot_Size &gt; 19,8 SÅ eier</i>.</li>
+<li><b>Terminalnodene</b> (bladene) nederst gir klassen: majoritetsklassen blant treningspunktene i terminalnoden. Andelen i klasse 1 er propensiteten.</li>
+<li>Hver vei fra rotnoden til en terminalnode er en regel av typen <i>HVIS Income &gt; 59,7 OG Lot_Size &gt; 19,8 SÅ eier</i>.</li>
 </ul>
 <h2>Rekursiv partisjonering</h2>
 <ol>
 <li>Prøv alle mulige splitter: for hver variabel, alle midtpunkter mellom sorterte verdier.</li>
-<li>Velg splitten som gir lavest vektet urenhet i de to nye gruppene.</li>
+<li>Velg splitten som gir lavest vektet impurity i de to nye gruppene.</li>
 <li>Gjenta i hver gruppe til gruppene er rene eller en stoppregel slår inn.</li>
 </ol>
 <div class="formula">Gini = 1 − Σ <span class="v">p</span><sub><span class="v">k</span></sub>² &nbsp;&nbsp;&nbsp;&nbsp; Entropi = − Σ <span class="v">p</span><sub><span class="v">k</span></sub> log<sub>2</sub>(<span class="v">p</span><sub><span class="v">k</span></sub>)</div>
-<p>Med to klasser er Gini høyst 0,5 og entropi høyst 1, begge når klassene er 50/50. Begge er 0 i en ren gruppe. Vektet urenhet etter en splitt er (<i>n</i><sub>V</sub> · urenhet<sub>V</sub> + <i>n</i><sub>H</sub> · urenhet<sub>H</sub>) / <i>n</i>.</p>
+<p>Med to klasser er Gini høyst 0,5 og entropi høyst 1, begge når klassene er 50/50. Begge er 0 i en ren gruppe. Vektet impurity etter en splitt er (<i>n</i><sub>V</sub> · impurity<sub>V</sub> + <i>n</i><sub>H</sub> · impurity<sub>H</sub>) / <i>n</i>.</p>
 <h2>Regresjonstrær</h2>
-<p>Når Y er et tall, predikerer et blad gjennomsnittet av Y i bladet. Urenheten måles med kvadrerte avvik fra gjennomsnittet (MSE), og splitten som reduserer den mest, velges. Prediksjonen blir en trappefunksjon.</p>
-<h2>Overtilpasning og hyperparametre</h2>
+<p>Når Y er et tall, predikerer en terminalnode gjennomsnittet av Y i terminalnoden. Impurity måles med kvadrerte avvik fra gjennomsnittet (MSE), og splitten som reduserer den mest, velges. Prediksjonen blir en trappefunksjon.</p>
+<h2>Overtilpasning og hyperparametere</h2>
 <ul>
-<li>Et fullt tre (alle blader rene) har 100 % treffsikkerhet på treningsdata, men lærer støy.</li>
+<li>Et fullt tre (alle terminalnoder rene) har 100 % nøyaktighet på treningsdata, men lærer støy.</li>
 <li>Begrens treet med <code>max_depth</code>, <code>min_samples_split</code>, <code>min_samples_leaf</code> eller <code>min_impurity_decrease</code>.</li>
 <li><b>Grid search</b> prøver alle kombinasjoner i et rutenett av verdier. <b>Random search</b> prøver et tilfeldig utvalg av kombinasjoner og dekker store rom raskere.</li>
 <li>Trær er <b>ustabile</b>: små endringer i dataene kan gi et helt annet tre. Det løser ensembler.</li>
 </ul>
 <div class="pros">
-<div><h3>Styrker</h3><ul><li>Lette å forklare og bruke som regler</li><li>Trenger ikke skalering, og tåler uteliggere i X</li><li>Velger variabler automatisk og fanger interaksjoner</li></ul></div>
-<div><h3>Svakheter</h3><ul><li>Ustabile og lett overtilpasset</li><li>Grenser bare parallelle med aksene</li><li>Ofte svakere enn ensembler på treffsikkerhet</li></ul></div>
+<div><h3>Styrker</h3><ul><li>Lette å forklare og bruke som regler</li><li>Trenger ikke skalering, og tåler utstikkere i X</li><li>Velger variabler automatisk og fanger interaksjoner</li></ul></div>
+<div><h3>Svakheter</h3><ul><li>Ustabile og lett overtilpasset</li><li>Grenser bare parallelle med aksene</li><li>Ofte svakere enn ensembler på nøyaktighet</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle: urenhet for hånd</b>Gruppe med 1 eier og 7 ikke-eiere: Gini = 1 − (1/8)² − (7/8)² = 0,219. Entropi = −(1/8 · log₂(1/8) + 7/8 · log₂(7/8)) = 0,544. Husk log med grunntall 2.</div>
+<div class="pit"><b>Eksamensfelle: impurity for hånd</b>Gruppe med 1 eier og 7 ikke-eiere: Gini = 1 − (1/8)² − (7/8)² = 0,219. Entropi = −(1/8 · log₂(1/8) + 7/8 · log₂(7/8)) = 0,544. Husk log med grunntall 2.</div>
 <h2>Python</h2>
 <pre><code># train_X, train_y: bankkundedataene (Universal Bank), Y = Personal Loan
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV
 from mlba import plotDecisionTree, classificationSummary
 
-full_tree = DecisionTreeClassifier(random_state=1).fit(train_X, train_y)   # vokser til alle blader er rene
+full_tree = DecisionTreeClassifier(random_state=1).fit(train_X, train_y)   # vokser til alle terminalnoder er rene
 
-# hyperparametre å prøve: 4 · 3 · 3 = 36 kombinasjoner
+# hyperparametere å prøve: 4 · 3 · 3 = 36 kombinasjoner
 param_grid = {'max_depth': [4, 6, 8, 10],
               'min_samples_split': [10, 20, 30],
               'min_impurity_decrease': [0, 0.0005, 0.001]}
@@ -256,10 +256,10 @@ topic({
       const minis = range(3, i => { const w = H('div'); small.append(w); const p = new Plot(w, { w: 240, h: 190, m: { t: 18, r: 6, b: 8, l: 6 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'Tre ' + (i + 1) }); S('text', { x: 8, y: 13, class: 'lbl', text: 'Tre ' + (i + 1) + ' alene', style: 'font-size:12px' }, p.gTop); return { p, g: p.layer() }; });
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const a = H('div'), b = H('div'); cols.append(a, b);
-      const plot = new Plot(a, { w: 520, h: 420, m: { t: 28, r: 10, b: 10, l: 10 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'Flertallsavstemning' });
+      const plot = new Plot(a, { w: 520, h: 420, m: { t: 28, r: 10, b: 10, l: 10 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'Majoritetsklasse' });
       const title = S('text', { x: 12, y: 18, class: 'lbl', style: 'font-size:13px;font-weight:600' }, plot.gTop);
       const gR = plot.layer(), gP = plot.layer();
-      const p2 = new Plot(b, { w: 380, h: 260, x: [0, 61], y: [0.84, 0.96], xticks: [1, 10, 20, 30, 40, 50, 60], xlab: 'Antall trær', ylab: 'Treffsikkerhet (validering)', label: 'Treffsikkerhet mot antall trær' });
+      const p2 = new Plot(b, { w: 380, h: 260, x: [0, 61], y: [0.84, 0.96], xticks: [1, 10, 20, 30, 40, 50, 60], xlab: 'Antall trær', ylab: 'Nøyaktighet (validering)', label: 'Nøyaktighet mot antall trær' });
       const gA = p2.layer(), mk2 = S('circle', { r: 6.5, class: 'f-hl s-ink' }, p2.gTop);
       const tiles = Tiles(b, [['e', 'Ensemble'], ['s', 'Ett fullt tre']]);
       b.append(H('p', { class: 'note', html: 'Stiplet linje: ett fullt tre trent på alle dataene.' }));
@@ -278,14 +278,14 @@ topic({
         clear(gR); clear(gP);
         regionGrid(gR, plot, (x, y) => vote(T, B, [x, y]), 56, 42, 0, 1, 0, 1);
         tr.forEach(p => S('circle', { cx: plot.x(p[0]), cy: plot.y(p[1]), r: 3.3, class: p[2] ? 'f-c1' : 'f-c0' }, gP));
-        title.textContent = `Flertallet av ${B} ${B === 1 ? 'tre' : 'trær'}`;
+        title.textContent = `Majoritetsklassen av ${B} ${B === 1 ? 'tre' : 'trær'}`;
         mk2.setAttribute('cx', p2.x(B)); mk2.setAttribute('cy', p2.y(clamp(curve[B - 1], 0.84, 0.96)));
         tiles.set('e', fpct(curve[B - 1]));
       }
       draw(true);
     },
     tryit: ['Se på de tre små trærne. Hvert av dem har kantete og ganske ulike grenser, fordi de har sett ulike bootstrap-utvalg.',
-      'Dra antall trær fra 1 til 60. Flertallsgrensen blir jevnere, og treffsikkerheten stabiliserer seg over ett enkelt tre.',
+      'Dra antall trær fra 1 til 60. Grensen for majoritetsklassen blir jevnere, og nøyaktigheten stabiliserer seg over ett enkelt tre.',
       'Bytt til random forest. Trærne blir enda mer ulike hverandre, og det er nettopp det som gjør gjennomsnittet bedre.']
   }, {
     title: 'Boosting: neste tre retter opp feilene',
@@ -338,24 +338,24 @@ topic({
 <li>Trekk et bootstrap-utvalg: like mange rader som i treningsdataene, med tilbakelegging. Noen rader kommer med flere ganger, andre ikke i det hele tatt.</li>
 <li>Tren et tre på utvalget.</li>
 <li>Gjenta mange ganger.</li>
-<li>Klassifikasjon: flertallsavstemning (eller snitt av propensitetene). Prediksjon: gjennomsnitt.</li>
+<li>Klassifikasjon: majoritetsklassen (eller snitt av propensitetene). Prediksjon: gjennomsnitt.</li>
 </ol>
 <h2>Random forest</h2>
-<p>Som bagging, men i hver splitt får treet bare velge blant et tilfeldig utvalg av forklaringsvariablene (<code>max_features</code>). Da blir trærne mindre like, og gjennomsnittet blir bedre. Random forest gir også et mål på <b>variabelviktighet</b>: hvor mye hver variabel reduserer urenheten, summert over alle trærne.</p>
+<p>Som bagging, men i hver splitt får treet bare velge blant et tilfeldig utvalg av forklaringsvariablene (<code>max_features</code>). Da blir trærne mindre like, og gjennomsnittet blir bedre. Random forest gir også et mål på <b>feature importance</b>: hvor mye hver variabel reduserer impurity, summert over alle trærne.</p>
 <h2>Boosting</h2>
 <ol>
 <li>Tilpass et tre.</li>
-<li>Gi postene som ble feilklassifisert, høyere vekt (eller høyere sannsynlighet for å bli trukket i neste utvalg).</li>
+<li>Gi datapunktene som ble feilklassifisert, høyere vekt (eller høyere sannsynlighet for å bli trukket i neste utvalg).</li>
 <li>Tilpass et nytt tre til de vektede dataene.</li>
 <li>Gjenta steg 2 og 3 mange ganger.</li>
 <li>Kombiner trærne med vektet avstemning, der trær med lav feil teller mest.</li>
 </ol>
 <p><b>Gradient boosting</b> (<code>GradientBoostingClassifier</code>) bruker samme idé, men hvert nye tre tilpasses restfeilene til modellen så langt. Boosting reduserer først og fremst bias, og kan overtilpasse hvis det kjører for mange runder.</p>
 <h2>Resultater på bankkundedataene</h2>
-<p><a href="#datasett-ub">Universal Bank-dataene</a> har 5 000 bankkunder, og målet er å forutsi hvem som takker ja til et lånetilbud (9,6 % gjorde det). Med alle de 11 forklaringsvariablene og 60/40-oppdeling gir de tre modellene omtrent denne treffsikkerheten på valideringsdataene: beste enkelttre fra grid search 98,15 %, random forest med 500 trær 98,20 % og gradient boosting 98,35 %. Forskjellene er små her fordi ett tre allerede gjør det svært bra, men ensemblene er sjelden dårligere.</p>
+<p><a href="#datasett-ub">Universal Bank-dataene</a> har 5 000 bankkunder, og målet er å forutsi hvem som takker ja til et lånetilbud (9,6 % gjorde det). Med alle de 11 forklaringsvariablene og 60/40-oppdeling gir de tre modellene omtrent denne nøyaktigheten på valideringssettet: beste enkelttre fra grid search 98,15 %, random forest med 500 trær 98,20 % og gradient boosting 98,35 %. Forskjellene er små her fordi ett tre allerede gjør det svært bra, men ensemblene er sjelden dårligere.</p>
 <div class="pros">
-<div><h3>Styrker</h3><ul><li>Blant de beste metodene på tabelldata</li><li>Robuste mot støy og uteliggere</li><li>Random forest er vanskelig å overtilpasse ved å legge til flere trær</li></ul></div>
-<div><h3>Svakheter</h3><ul><li>Ingen enkle regler å lese, så de blir «svarte bokser» (se <a href="#shap">SHAP</a>)</li><li>Tregere å trene og bruke enn ett tre</li><li>Boosting har flere hyperparametre (læringsrate, antall runder)</li></ul></div>
+<div><h3>Styrker</h3><ul><li>Blant de beste metodene på tabelldata</li><li>Robuste mot støy og utstikkere</li><li>Random forest er vanskelig å overtilpasse ved å legge til flere trær</li></ul></div>
+<div><h3>Svakheter</h3><ul><li>Ingen enkle regler å lese, så de blir black box-modeller (se <a href="#shap">SHAP</a>)</li><li>Tregere å trene og bruke enn ett tre</li><li>Boosting har flere hyperparametere (learning rate, antall runder)</li></ul></div>
 </div>
 <div class="pit"><b>Eksamensfelle: bagging og boosting</b>Bagging trener trærne uavhengig og parallelt, og reduserer varians. Boosting trener dem etter hverandre, der hvert tre avhenger av de forrige, og reduserer først og fremst bias.</div>
 <h2>Python</h2>
@@ -364,7 +364,7 @@ topic({
 rf = RandomForestClassifier(n_estimators=500, random_state=1).fit(train_X, train_y)   # 500 trær
 classificationSummary(y_true=valid_y, y_pred=rf.predict(valid_X))
 
-# variabelviktighet: hvor mye hver variabel i snitt reduserer urenheten i trærne
+# feature importance: hvor mye hver variabel i snitt reduserer impurity i trærne
 importances = pd.DataFrame({'feature': train_X.columns, 'importance': rf.feature_importances_})
 print(importances.sort_values('importance', ascending=False))   # viktigste først
 

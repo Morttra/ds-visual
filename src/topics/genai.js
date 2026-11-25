@@ -7,7 +7,7 @@ topic({
   lead: 'En stor språkmodell (LLM) er trent på én oppgave: å predikere neste token gitt teksten så langt. Svaret bygges ett token om gangen. Temperaturen styrer hvor tilfeldig hvert valg er.',
   figs: [{
     title: 'Fra prompt til svar i fem steg',
-    sub: 'Trykk på et steg. Tallene er en forenklet illustrasjon; ekte modeller har tusenvis av dimensjoner og milliarder av parametre.',
+    sub: 'Trykk på et steg. Tallene er en forenklet illustrasjon; ekte modeller har tusenvis av dimensjoner og milliarder av parametere.',
     build(el) {
       const steps = ['Prompt', 'Tokens', 'Embeddings', 'Transformer', 'Svar'];
       const toks = ['Forkl', 'ar', ' bias', '–', 'var', 'ians', ' i', ' én', ' set', 'ning', '.'];
@@ -107,7 +107,7 @@ topic({
   }],
   body: `
 <h2>Hva er generativ KI?</h2>
-<p>Generativ KI lager nytt innhold: tekst, bilder, lyd eller kode. KI er det brede feltet, maskinlæring er metoder som lærer av data, dyp læring er maskinlæring med store nevrale nett, og generativ KI er dyp læring som produserer nytt innhold. De tidligere modellene i faget har titalls eller hundretalls parametre. De største språkmodellene har hundrevis av milliarder.</p>
+<p>Generativ KI lager nytt innhold: tekst, bilder, lyd eller kode. KI er det brede feltet, maskinlæring er metoder som lærer av data, dyplæring er maskinlæring med store nevrale nettverk, og generativ KI er dyplæring som produserer nytt innhold. De tidligere modellene i faget har titalls eller hundretalls parametere. De største språkmodellene har hundrevis av milliarder.</p>
 <h2>Neste-token-prediksjon er veiledet læring</h2>
 <p>Kjerneoppgaven er å predikere neste token gitt prompten og teksten så langt, som en avansert autofullføring. Fasiten (Y) er det faktiske neste tokenet i treningsteksten, så oppgaven er veiledet, men fasiten kommer gratis fra teksten selv.</p>
 <h2>Fra prompt til svar</h2>
@@ -121,7 +121,7 @@ topic({
 <h2>Temperatur</h2>
 <div class="formula"><span class="v">p</span><sub><span class="v">i</span></sub> = e<sup><span class="v">z</span><sub><span class="v">i</span></sub>/<span class="v">T</span></sup> / Σ<sub><span class="v">j</span></sub> e<sup><span class="v">z</span><sub><span class="v">j</span></sub>/<span class="v">T</span></sup></div>
 <ul>
-<li><b>Lav temperatur:</b> det mest sannsynlige tokenet velges nesten alltid. Stabile, like svar. Bra for uthenting av fakta og faste formater.</li>
+<li><b>Lav temperatur:</b> det mest sannsynlige tokenet velges nesten alltid. Stabile, like svar. Bra når vi skal hente ut fakta i faste formater.</li>
 <li><b>Høy temperatur:</b> flere fortsettelser får en sjanse. Mer variasjon og kreativitet, men flere feil.</li>
 </ul>
 <h2>Bilder og flere typer input</h2>
@@ -207,13 +207,13 @@ topic({
   }],
   body: `
 <h2>Generere eller hente ut?</h2>
-<p>Språkmodeller kan <b>generere</b> ny tekst (utkast, oppsummeringer, kode) eller <b>hente ut</b> strukturert informasjon fra tekst (tall fra årsrapporter, kategorier fra kundemeldinger). Uthenting er nærmere klassisk maskinlæring: det finnes en fasit, og vi kan måle treffsikkerhet.</p>
+<p>Språkmodeller kan <b>generere</b> ny tekst (utkast, oppsummeringer, kode) eller <b>hente ut</b> strukturert informasjon fra tekst (tall fra årsrapporter, kategorier fra kundemeldinger). Å hente ut informasjon er nærmere klassisk maskinlæring: det finnes en fasit, og vi kan måle nøyaktighet.</p>
 <h2>Tre måter å tilpasse</h2>
 <div class="tblwrap"><table class="tbl">
 <tr><th class="l">Metode</th><th class="l">Det vi endrer</th><th class="l">Passer når</th></tr>
 <tr><td class="l">Prompting</td><td class="l">Instruksjon og kontekst</td><td class="l">Oppgaven kan forklares tydelig. Alltid første steg.</td></tr>
 <tr><td class="l">RAG (retrieval augmented generation)</td><td class="l">Kildene som hentes inn</td><td class="l">Svaret skal bygge på egne eller ferske dokumenter.</td></tr>
-<tr><td class="l">Finjustering</td><td class="l">Modellens parametre, gjennom videre trening</td><td class="l">Et fast format eller fagspråk skal læres fra mange eksempler.</td></tr>
+<tr><td class="l">Finjustering</td><td class="l">Modellens parametere gjennom videre trening</td><td class="l">Et fast format eller fagspråk skal læres fra mange eksempler.</td></tr>
 </table></div>
 <h2>RAG i fire steg</h2>
 <ol>
@@ -223,7 +223,7 @@ topic({
 <li>Modellen genererer et svar som kan sjekkes mot kildene.</li>
 </ol>
 <h2>Mål før du tolker</h2>
-<p>Bruker du en språkmodell til å måle noe (for eksempel tone i årsrapporter), lag en menneskelig fasit på et utvalg og mål hvor ofte modellen treffer, akkurat som med en valideringsdel. Først når målingen er god nok, gir det mening å tolke tallene økonomisk.</p>
+<p>Bruker du en språkmodell til å måle noe (for eksempel tone i årsrapporter), lag en menneskelig fasit på et utvalg og mål hvor ofte modellen treffer, akkurat som med et valideringssett. Først når målingen er god nok, gir det mening å tolke tallene økonomisk.</p>
 <h2>Etiske utfordringer</h2>
 <ul>
 <li><b>Hallusinasjon:</b> flytende og selvsikre svar som er feil. Et sikkert svar kan skjule en feil.</li>

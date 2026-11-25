@@ -503,14 +503,14 @@ const ORDER = ['dataforberedelse', 'pca', 'bias-varians', 'evaluering-prediksjon
   'shap', 'konform', 'nevrale-nett', 'hierarkisk-klynging', 'k-means', 'sprakmodeller', 'rag'];
 
 const TREE_LEAVES = {
-  klass: { title: 'Klassifikasjon', note: 'Y er kategorisk: eier eller ikke-eier, svindel eller ærlig.', color: 'var(--c1)',
-    chips: [['logistisk-regresjon', 'Logistisk regresjon'], ['knn', 'k-nærmeste naboer'], ['naiv-bayes', 'Naiv Bayes'], ['beslutningstraer', 'Klassifikasjonstrær'], ['ensembler', 'Random forest og boosting'], ['nevrale-nett', 'Nevrale nett og CNN']] },
-  pred: { title: 'Prediksjon', note: 'Y er et tall: pris, salg, boligverdi.', color: 'var(--c4)',
-    chips: [['lineaer-regresjon', 'Lineær regresjon'], ['variabelseleksjon', 'Variabelvalg og AIC'], ['regularisering', 'Ridge, lasso og elastic net'], ['knn', 'k-NN for tall'], ['beslutningstraer', 'Regresjonstrær'], ['ensembler', 'Ensembler'], ['nevrale-nett', 'Nevrale nett']] },
+  klass: { title: 'Klassifikasjon', note: 'Responsvariabelen Y er kategorisk: eier eller ikke-eier, svindel eller ærlig.', color: 'var(--c1)',
+    chips: [['logistisk-regresjon', 'Logistisk regresjon'], ['knn', 'k-nærmeste naboer'], ['naiv-bayes', 'Naiv Bayes'], ['beslutningstraer', 'Klassifikasjonstrær'], ['ensembler', 'Random forest og boosting'], ['nevrale-nett', 'Nevrale nettverk og CNN']] },
+  pred: { title: 'Prediksjon', note: 'Responsvariabelen Y er numerisk: pris, salg, boligverdi.', color: 'var(--c4)',
+    chips: [['lineaer-regresjon', 'Multippel lineær regresjon'], ['variabelseleksjon', 'Subset selection og AIC'], ['regularisering', 'Ridge, lasso og elastic net'], ['knn', 'k-nærmeste naboer'], ['beslutningstraer', 'Regresjonstrær'], ['ensembler', 'Ensembler'], ['nevrale-nett', 'Nevrale nettverk']] },
   gen: { title: 'Generativ KI', note: 'Y er neste ord eller bildebit. Modellen lager nytt innhold.', color: 'var(--c2)',
     chips: [['sprakmodeller', 'Språkmodeller og temperatur'], ['rag', 'RAG, finjustering og etikk']] },
-  uvel: { title: 'Klynger og PCA', note: 'Ingen Y. Vi ser etter grupper og mønstre i X.', color: 'var(--c0)',
-    chips: [['hierarkisk-klynging', 'Hierarkisk klynging'], ['k-means', 'k-means'], ['pca', 'PCA (prinsipalkomponenter)']] }
+  uvel: { title: 'Klyngeanalyse og PCA', note: 'Ingen Y. Vi ser etter grupper og mønstre i X.', color: 'var(--c0)',
+    chips: [['hierarkisk-klynging', 'Hierarkisk klyngeanalyse'], ['k-means', 'k-means klyngeanalyse'], ['pca', 'Prinsipalkomponent\u00ADanalyse (PCA)']] }
 };
 
 function chip(id, label) {
@@ -528,7 +528,7 @@ function renderHome(main) {
     H('section', { class: 'hero' },
       H('h1', {}, 'Pensum i Data Science, som et tre du kan klikke i'),
       H('p', {}, 'Treet starter med ett spørsmål: har vi en fasit å lære fra? Svaret leder deg til riktig familie av metoder. Trykk på en metode for å se den i aksjon. Hver side har figurer du kan dra i, og en skriftlig forklaring under.'),
-      H('p', { class: 'mini', style: 'margin-top:8px' }, 'Du trenger verken forelesningene eller datasettene. Hver side forklarer dataene den bruker, og ', H('a', { href: '#datasett' }, 'alle datasettene'), ' er samlet på én side. Forkortelser som AIC og RMSE er forklart i ', H('a', { href: '#ordliste' }, 'ordlisten'), '.')),
+      H('p', { class: 'mini', style: 'margin-top:8px' }, 'Du trenger verken forelesningene eller datasettene. Hver side forklarer dataene den bruker, og ', H('a', { href: '#datasett' }, 'alle datasettene'), ' er samlet på én side. Forkortelser og fagord som AIC, RMSE og responsvariabel er forklart i ', H('a', { href: '#ordliste' }, 'ordlisten'), '.')),
     H('div', { class: 'tree', role: 'navigation', 'aria-label': 'Metodetreet' },
       H('ul', {}, H('li', {},
         H('div', { class: 'q' }, 'Har vi en fasit (Y) å lære fra?'),
@@ -536,16 +536,16 @@ function renderHome(main) {
           H('li', {}, H('div', { class: 'branch' }, 'Ja ', H('small', {}, '· veiledet læring')),
             H('ul', {}, H('li', {}, H('div', { class: 'q' }, 'Hva slags Y?'),
               H('ul', {}, H('li', {}, leaf('klass')), H('li', {}, leaf('pred')), H('li', {}, leaf('gen')))))),
-          H('li', {}, H('div', { class: 'branch' }, 'Nei ', H('small', {}, '· ikke-veiledet læring')),
+          H('li', {}, H('div', { class: 'branch' }, 'Nei ', H('small', {}, '· uveiledet læring')),
             H('ul', {}, H('li', {}, H('div', { class: 'q' }, 'Hva vil vi finne?'),
               H('ul', {}, H('li', {}, leaf('uvel')))))))))),
     H('div', { class: 'bands' },
       H('section', { class: 'band' }, H('h2', {}, 'Legges oppå en ferdig trent modell'),
         H('p', {}, 'Virker sammen med nesten alle modellene over: forklar hvorfor modellen svarte som den gjorde, og hvor sikker den er.'),
-        H('div', { class: 'chips' }, chip('shap', 'Forklarbar KI med SHAP'), chip('konform', 'Usikkerhet med konform prediksjon'))),
+        H('div', { class: 'chips' }, chip('shap', 'Forklarbar KI med SHAP'), chip('konform', 'Usikkerhetskvantifisering med conformal prediction'))),
       H('section', { class: 'band' }, H('h2', {}, 'Grunnmuren under alle metodene'),
         H('p', {}, 'Ikke modeller, men stegene som avgjør om en modell er god. Dette går igjen på hver eksamen.'),
-        H('div', { class: 'chips' }, chip('dataforberedelse', 'Dataforberedelse og skalering'), chip('bias-varians', 'Partisjonering og bias–varians'),
+        H('div', { class: 'chips' }, chip('dataforberedelse', 'Preprosessering og skalering'), chip('bias-varians', 'Partisjonering og bias–varians'),
           chip('evaluering-prediksjon', 'Evaluering av prediksjon'), chip('evaluering-klassifikasjon', 'Evaluering av klassifikasjon'))),
       H('section', { class: 'band' }, H('h2', {}, 'Datasettene i eksemplene'),
         H('p', {}, 'Hva hvert datasett inneholder, hva en rad er, og hva vi prøver å forutsi.'),
@@ -553,7 +553,7 @@ function renderHome(main) {
     H('div', { class: 'howto' },
       H('div', {}, H('b', {}, 'Les treet ovenfra'), 'Har vi en fasit Y, og hva slags Y er det? Svarene forteller hvilken familie en metode hører til.'),
       H('div', {}, H('b', {}, 'Lek med figurene'), 'Dra i glidebrytere og punkter. Under hver figur står det hva du kan prøve og se etter.'),
-      H('div', {}, H('b', {}, 'Les forklaringen etterpå'), 'Formler, hyperparametre, styrker og svakheter, typiske eksamensfeller og Python-kode i lærebokas stil.'))
+      H('div', {}, H('b', {}, 'Les forklaringen etterpå'), 'Formler, hyperparametere, styrker og svakheter, typiske eksamensfeller og Python-kode i lærebokas stil.'))
   );
 }
 
@@ -686,7 +686,7 @@ const DATASETS = {
     name: 'Kraftselskaper (Utilities)', file: 'Utilities.csv',
     what: '22 amerikanske kraftselskaper beskrevet med åtte nøkkeltall om økonomi, kostnader og drift. Tanken i læreboka er å gruppere selskaper med lignende profil, slik at man kan lage en detaljert kostnadsmodell for ett «typisk» selskap per gruppe i stedet for for alle 22.',
     row: 'ett selskap',
-    goal: 'Ingen Y. Vi bruker klynging til å finne grupper av like selskaper.',
+    goal: 'Ingen Y. Vi bruker klyngeanalyse til å finne grupper av like selskaper.',
     size: '22 selskaper og 8 variabler. Figurene bruker Sales og Fuel_Cost, slik at alt kan vises i to dimensjoner.',
     vars: [['Sales', 'Årlig strømsalg (kWh)'], ['Fuel_Cost', 'Brenselkostnad i cent per kWh'], ['Fixed_charge', 'Rentedekningsgrad: inntekt delt på gjeld'], ['RoR', 'Avkastning på kapitalen i prosent'], ['Cost', 'Kostnad per kW installert kapasitet'], ['Load_factor', 'Årlig utnyttelse av kapasiteten i prosent'], ['Demand_growth', 'Vekst i toppetterspørsel fra året før, i prosent'], ['Nuclear', 'Andel kjernekraft i prosent']],
     rows() { const S0 = DATA.utilSample; return S0.data.slice(0, 3).map(r => Object.fromEntries(S0.columns.map((c, j) => [c, typeof r[j] === 'string' ? r[j].trim() : r[j]]))); },
@@ -704,7 +704,7 @@ function dataCard(id, o = {}) {
     H('div', { class: 'eb' }, o.full ? 'Datasett' : 'Om dataene på denne siden'),
     H('h2', {}, D.name),
     H('p', {}, D.what, ' ', H('b', {}, 'Én rad er ' + D.row + '. '), H('b', {}, 'Mål: '), D.goal),
-    H('div', { class: 'dvars' }, vars.map(v => H('div', {}, H('code', {}, v[0]), v[2] ? H('span', { class: 'ytag', title: 'Variabelen vi vil forutsi' }, 'Y') : null, H('span', {}, v[1])))),
+    H('div', { class: 'dvars' }, vars.map(v => H('div', {}, H('code', {}, v[0]), v[2] ? H('span', { class: 'ytag', title: 'Responsvariabelen: den vi vil predikere eller klassifisere' }, 'Y') : null, H('span', {}, v[1])))),
     H('div', { class: 'mini', style: 'margin:10px 0 4px' }, 'Eksempelrader'),
     H('div', { class: 'tblwrap' }, H('table', { class: 'tbl dtbl' }, H('tr', {}, cols.map(c => H('th', { class: typeof rows[0][c] === 'string' ? 'l' : '' }, c))),
       rows.map(r => H('tr', {}, cols.map(c => H('td', { class: typeof r[c] === 'string' ? 'l' : '' }, fcell(r[c]))))))),
@@ -729,80 +729,82 @@ function renderDatasets(main, focus) {
 /* Ordliste: forkortelser og begreper. Første forekomst på hver side lenkes automatisk hit (linkTerms). */
 /* Felt: id, t (begrep), f (fullt navn), d (forklaring), x (formel, HTML), p (sider), m (mønster for automatisk lenke), ci (ignorer store/små bokstaver), self (siden begrepet handler om) */
 const GLOSSARY = [
-  { id: 'adam', t: 'Adam', f: 'Adaptive Moment Estimation', d: 'En variant av gradient descent som tilpasser skrittlengden for hver vekt underveis. Standardvalget når man trener nevrale nett i Keras.', p: ['nevrale-nett'], m: 'Adam' },
+  { id: 'adam', t: 'Adam', f: 'Adaptive Moment Estimation', d: 'En variant av gradient descent som tilpasser skrittlengden for hver vekt underveis. Standardvalget når man trener nevrale nettverk i Keras.', p: ['nevrale-nett'], m: 'Adam' },
   { id: 'adaboost', t: 'AdaBoost', f: 'Adaptive Boosting', d: 'Boosting med vekter: punkter som forrige modell bommet på, får større vekt i neste runde. Modellene stemmer med vekt etter hvor gode de var.', p: ['ensembler'], m: 'AdaBoost' },
-  { id: 'aic', t: 'AIC', f: 'Akaike Information Criterion (Akaikes informasjonskriterium)', d: 'Mål for å sammenligne regresjonsmodeller på de samme dataene. Belønner god tilpasning (lav SSE) og straffer antall parametre. Lavere er bedre.', x: 'AIC = <i>n</i> · ln(SSE/<i>n</i>) + <i>n</i>(1 + ln 2π) + 2(<i>p</i> + 1)', p: ['variabelseleksjon'], m: 'AIC' },
-  { id: 'aktivering', t: 'Aktiveringsfunksjon', f: 'Activation function', d: 'Funksjonen et nevron sender den vektede summen gjennom, for eksempel sigmoid, tanh eller ReLU. Det er den som gjør nettet ikke-lineært.', p: ['nevrale-nett'], m: 'aktiveringsfunksjon\\p{L}*', ci: 1 },
+  { id: 'aic', t: 'AIC', f: 'Akaike Information Criterion (Akaikes informasjonskriterium)', d: 'Mål for å sammenligne regresjonsmodeller på de samme dataene. Belønner god tilpasning (lav SSE) og straffer antall parametere. Lavere er bedre.', x: 'AIC = <i>n</i> · ln(SSE/<i>n</i>) + <i>n</i>(1 + ln 2π) + 2(<i>p</i> + 1)', p: ['variabelseleksjon'], m: 'AIC' },
+  { id: 'aktivering', t: 'Aktiveringsfunksjon', f: 'Activation function', d: 'Funksjonen et nevron sender den vektede summen gjennom, for eksempel sigmoid, tanh eller ReLU. Det er den som gjør nettverket ikke-lineært.', p: ['nevrale-nett'], m: 'aktiveringsfunksjon\\p{L}*', ci: 1 },
   { id: 'attention', t: 'Attention', f: 'Oppmerksomhetsmekanisme', d: 'Delen av en transformer som regner ut hvor mye hvert token skal «se på» de andre tokenene i teksten. Vektene summerer til 1.', p: ['sprakmodeller'], m: 'attention', ci: 1 },
   { id: 'auc', t: 'AUC', f: 'Area Under the (ROC) Curve', d: 'Arealet under ROC-kurven. 1 er perfekt, 0,5 er tilfeldig gjetting. Kan leses som sannsynligheten for at en tilfeldig positiv får høyere propensitet enn en tilfeldig negativ.', p: ['evaluering-klassifikasjon'], m: 'AUC' },
   { id: 'bagging', t: 'Bagging', f: 'Bootstrap aggregating', d: 'Tren mange modeller på bootstrap-utvalg av treningsdataene og la dem stemme (klassifikasjon) eller ta gjennomsnittet (prediksjon). Reduserer varians.', p: ['ensembler'], m: 'bagging', ci: 1, self: 'ensembler' },
-  { id: 'batch', t: 'Batch size', f: 'Batchstørrelse', d: 'Antall observasjoner som brukes til hver vektoppdatering når et nevralt nett trenes.', x: 'Oppdateringer per epoch = <i>n</i> / batch size', p: ['nevrale-nett'], m: 'batch size', ci: 1 },
-  { id: 'bias', t: 'Bias', f: 'Skjevhet (to betydninger)', d: '1) I bias–varians: systematisk feil fordi modellen er for enkel. 2) I nevrale nett: konstantleddet b som legges til den vektede summen i et nevron.', p: ['bias-varians', 'nevrale-nett'] },
+  { id: 'batch', t: 'Batch size', f: 'Batchstørrelse', d: 'Antall datapunkter som brukes til hver vektoppdatering når et nevralt nettverk trenes.', x: 'Oppdateringer per epoch = <i>n</i> / batch size', p: ['nevrale-nett'], m: 'batch size', ci: 1 },
+  { id: 'bias', t: 'Bias', f: 'To betydninger', d: '1) I bias–varians: systematisk feil fordi modellen er for enkel. 2) I nevrale nettverk: konstantleddet b som legges til den vektede summen i et nevron.', p: ['bias-varians', 'nevrale-nett'] },
   { id: 'bic', t: 'BIC', f: 'Bayesian Information Criterion (bayesiansk informasjonskriterium)', d: 'Som AIC, men straffer hver parameter med ln(<i>n</i>) i stedet for 2. Foretrekker derfor enklere modeller enn AIC. Lavere er bedre.', x: 'BIC = <i>n</i> · ln(SSE/<i>n</i>) + <i>n</i>(1 + ln 2π) + ln(<i>n</i>) · (<i>p</i> + 1)', p: ['variabelseleksjon'], m: 'BIC' },
   { id: 'boosting', t: 'Boosting', f: '', d: 'Ensemble der modellene trenes etter hverandre, og hver ny modell konsentrerer seg om feilene til de forrige. Reduserer først og fremst bias.', p: ['ensembler'], m: 'boosting', ci: 1, self: 'ensembler' },
   { id: 'bootstrap', t: 'Bootstrap-utvalg', f: 'Bootstrap sample', d: 'Et utvalg på <i>n</i> rader trukket med tilbakelegging fra <i>n</i> rader. Noen rader kommer med flere ganger, andre ikke i det hele tatt.', p: ['ensembler'], m: 'bootstrap\\p{L}*', ci: 1 },
   { id: 'c-logistisk', t: 'C (i logistisk regresjon)', f: 'Inverse of regularization strength', d: 'Parameteren som styrer straffen i <code>LogisticRegression</code>. C = 1/λ, så liten C betyr sterk straff. Læreboka bruker C = 1e42 for å skru straffen av.', x: 'C = 1 / λ', p: ['regularisering', 'logistisk-regresjon'] },
-  { id: 'cnn', t: 'CNN', f: 'Convolutional Neural Network (konvolusjonsnett)', d: 'Nevralt nett for bilder der små filtre glir over bildet og finner mønstre som kanter og former. Samme vekter brukes overalt i bildet.', x: 'Output-størrelse = (<i>W</i> − <i>F</i> + 2<i>P</i>) / <i>S</i> + 1 &nbsp; Parametre = (<i>F</i> · <i>F</i> · <i>C</i> + 1) · <i>K</i>', p: ['nevrale-nett'], m: 'CNN' },
+  { id: 'cnn', t: 'CNN', f: 'Convolutional Neural Network (konvolusjonsnettverk)', d: 'Nevralt nettverk for bilder der små filtre glir over bildet og finner mønstre som kanter og former. Samme vekter brukes overalt i bildet.', x: 'Output-størrelse = (<i>W</i> − <i>F</i> + 2<i>P</i>) / <i>S</i> + 1 &nbsp; Parametere = (<i>F</i> · <i>F</i> · <i>C</i> + 1) · <i>K</i>', p: ['nevrale-nett'], m: 'CNN' },
   { id: 'cosinus', t: 'Cosinuslikhet', f: 'Cosine similarity', d: 'Likhet mellom to vektorer målt med vinkelen mellom dem. 1 betyr samme retning, 0 ingen sammenheng. Brukes for embeddings.', x: 'cos = <b>a</b> · <b>b</b> / (‖<b>a</b>‖ ‖<b>b</b>‖)', p: ['sprakmodeller', 'rag'], m: 'cosinuslikhet', ci: 1 },
-  { id: 'dekning', t: 'Dekning', f: 'Coverage', d: 'Andelen nye observasjoner der den sanne verdien havner inni prediksjonsintervallet. Et 90 %-intervall skal ha 90 % dekning.', p: ['konform'], m: 'dekning\\p{L}*', ci: 1 },
-  { id: 'dendrogram', t: 'Dendrogram', f: '', d: 'Trediagram som viser rekkefølgen og avstanden når klynger slås sammen i hierarkisk klynging. Klipper du treet i en høyde, får du klyngene.', p: ['hierarkisk-klynging'], m: 'dendrogram\\p{L}*', ci: 1, self: 'hierarkisk-klynging' },
+  { id: 'coverage', t: 'Coverage', f: '', d: 'Andelen nye observasjoner der den sanne verdien havner inni prediksjonsintervallet. Et 90 %-intervall skal ha 90 % coverage.', p: ['konform'], m: 'coverage', ci: 1 },
+  { id: 'dendrogram', t: 'Dendrogram', f: '', d: 'Trediagram som viser rekkefølgen og avstanden når klynger slås sammen i hierarkisk klyngeanalyse. Klipper du treet i en høyde, får du klyngene.', p: ['hierarkisk-klynging'], m: 'dendrogram\\p{L}*', ci: 1, self: 'hierarkisk-klynging' },
   { id: 'dummy', t: 'Dummyvariabel', f: 'Dummy variable / one-hot encoding', d: 'En 0/1-variabel som koder én kategori. En kategorisk variabel med <i>k</i> kategorier gir <i>k</i> − 1 dummyer i regresjon; den som faller bort, er referansekategorien.', p: ['dataforberedelse', 'lineaer-regresjon'], m: 'dummy\\p{L}*', ci: 1 },
   { id: 'elastic-net', t: 'Elastic net', f: '', d: 'Regularisering som blander lasso (L1) og ridge (L2). Kan sette koeffisienter til null, men holder grupper av korrelerte variabler sammen.', x: 'minimer SSE + λ [<i>r</i> Σ|β<sub>j</sub>| + (1 − <i>r</i>)/2 · Σβ<sub>j</sub>²]', p: ['regularisering'], m: 'elastic net', ci: 1, self: 'regularisering' },
   { id: 'embedding', t: 'Embedding', f: 'Vektorrepresentasjon', d: 'En tallvektor som representerer et token eller en tekst. Tekster med lignende betydning får vektorer som ligger nær hverandre.', p: ['sprakmodeller', 'rag'], m: 'embedding\\p{L}*', ci: 1 },
-  { id: 'entropi', t: 'Entropi', f: 'Entropy', d: 'Mål på urenhet i en gruppe i et beslutningstre. 0 når gruppen er ren, høyst 1 med to klasser i 50/50.', x: 'Entropi = − Σ <i>p<sub>k</sub></i> log<sub>2</sub>(<i>p<sub>k</sub></i>)', p: ['beslutningstraer'], m: 'entropi', ci: 1 },
-  { id: 'epoch', t: 'Epoch', f: '', d: 'Én gjennomgang av alle treningsdataene når et nevralt nett trenes.', p: ['nevrale-nett'], m: 'epochs?', ci: 1 },
-  { id: 'f1', t: 'F1', f: 'F1-score', d: 'Harmonisk gjennomsnitt av presisjon og sensitivitet. Høy bare når begge er høye.', x: 'F1 = 2 · presisjon · sensitivitet / (presisjon + sensitivitet)', p: ['evaluering-klassifikasjon'], m: 'F1' },
+  { id: 'entropi', t: 'Entropi', f: 'Entropy', d: 'Mål på impurity i en gruppe i et desisjonstre. 0 når gruppen er ren, høyst 1 med to klasser i 50/50.', x: 'Entropi = − Σ <i>p<sub>k</sub></i> log<sub>2</sub>(<i>p<sub>k</sub></i>)', p: ['beslutningstraer'], m: 'entropi', ci: 1 },
+  { id: 'epoch', t: 'Epoch', f: '', d: 'Én gjennomgang av alle treningsdataene når et nevralt nettverk trenes.', p: ['nevrale-nett'], m: 'epochs?', ci: 1 },
+  { id: 'f1', t: 'F1', f: 'F1-score', d: 'Harmonisk gjennomsnitt av presisjon og dekning. Høy bare når begge er høye.', x: 'F1 = 2 · presisjon · dekning / (presisjon + dekning)', p: ['evaluering-klassifikasjon'], m: 'F1' },
   { id: 'feature-map', t: 'Feature map', f: '', d: 'Resultatet av å la ett filter gli over et bilde i et CNN. Hvert filter gir ett feature map.', p: ['nevrale-nett'], m: 'feature map\\p{L}*', ci: 1 },
   { id: 'fpr', t: 'FPR', f: 'False Positive Rate', d: 'Andelen faktisk negative som feilaktig klassifiseres som positive. x-aksen i ROC-kurven.', x: 'FPR = FP / (FP + TN) = 1 − spesifisitet', p: ['evaluering-klassifikasjon'], m: 'FPR' },
+  { id: 'forklaringsvariabel', t: 'Forklaringsvariabel', f: 'X, predictor, feature', d: 'En variabel modellen bruker for å forklare eller predikere responsvariabelen. I Python ofte samlet i X.', p: ['lineaer-regresjon', 'variabelseleksjon', 'logistisk-regresjon', 'knn'], m: 'forklaringsvariab\\p{L}*', ci: 1 },
   { id: 'forvirringsmatrise', t: 'Forvirringsmatrise', f: 'Confusion matrix', d: 'Tabell med faktisk klasse i radene og predikert klasse i kolonnene. Cellene er TP, FP, TN og FN.', p: ['evaluering-klassifikasjon'], m: 'forvirringsmatris\\p{L}*', ci: 1 },
-  { id: 'gini', t: 'Gini (urenhet)', f: 'Gini impurity', d: 'Mål på urenhet i en gruppe i et beslutningstre. 0 når gruppen er ren, høyst 0,5 med to klasser i 50/50.', x: 'Gini = 1 − Σ <i>p<sub>k</sub></i>²', p: ['beslutningstraer'], m: 'Gini' },
+  { id: 'gini', t: 'Gini (impurity)', f: 'Gini impurity', d: 'Mål på impurity i en gruppe i et desisjonstre. 0 når gruppen er ren, høyst 0,5 med to klasser i 50/50.', x: 'Gini = 1 − Σ <i>p<sub>k</sub></i>²', p: ['beslutningstraer'], m: 'Gini' },
   { id: 'gradient-descent', t: 'Gradient descent', f: 'Gradientnedstigning', d: 'Optimeringsmetode som justerer vektene litt i motsatt retning av gradienten, steg for steg, til kostnaden slutter å falle.', x: '<i>w</i> ← <i>w</i> − η · ∂<i>L</i>/∂<i>w</i>', p: ['nevrale-nett'], m: 'gradient descent', ci: 1 },
   { id: 'hallusinasjon', t: 'Hallusinasjon', f: 'Hallucination', d: 'Når en språkmodell skriver noe flytende og selvsikkert som er feil eller oppdiktet.', p: ['sprakmodeller', 'rag'], m: 'hallusin\\p{L}*', ci: 1 },
-  { id: 'hyperparameter', t: 'Hyperparameter', f: '', d: 'En innstilling vi velger før treningen, som k i k-NN, maks dybde i trær eller λ i lasso. Parametre (som koeffisienter og vekter) lærer modellen selv.', p: ['bias-varians', 'beslutningstraer', 'nevrale-nett'], m: 'hyperparamet\\p{L}*', ci: 1 },
+  { id: 'hyperparameter', t: 'Hyperparameter', f: '', d: 'En innstilling vi velger før treningen, som k i k-NN, maks dybde i trær eller λ i lasso. Parametere (som koeffisienter og vekter) lærer modellen selv.', p: ['bias-varians', 'beslutningstraer', 'nevrale-nett'], m: 'hyperparamet\\p{L}*', ci: 1 },
   { id: 'inertia', t: 'Inertia', f: 'Within-cluster sum of squares', d: 'Summen av kvadrerte avstander fra hvert punkt til sentroiden i sin klynge. k-means prøver å gjøre den så liten som mulig.', x: 'Inertia = Σ<sub>klynger</sub> Σ<sub>punkter</sub> avstand²', p: ['k-means'], m: 'inertia', ci: 1 },
-  { id: 'iqr', t: 'IQR', f: 'Interquartile range (interkvartilbredde)', d: 'Avstanden mellom første og tredje kvartil. Brukes i boksplott og i regelen for uteliggere.', x: 'IQR = Q3 − Q1 &nbsp; Uteligger: under Q1 − 1,5 · IQR eller over Q3 + 1,5 · IQR', p: ['dataforberedelse'], m: 'IQR' },
+  { id: 'iqr', t: 'IQR', f: 'Interquartile range (interkvartilbredde)', d: 'Avstanden mellom første og tredje kvartil. Brukes i boksplot og i regelen for utstikkere.', x: 'IQR = Q3 − Q1 &nbsp; Utstikker: under Q1 − 1,5 · IQR eller over Q3 + 1,5 · IQR', p: ['dataforberedelse'], m: 'IQR' },
   { id: 'jaccard', t: 'Jaccard', f: 'Jaccard-koeffisient', d: 'Likhet mellom to binære vektorer som bare teller posisjoner der minst én av dem har 1. Passer når 1-ere er sjeldne.', x: 'Jaccard = <i>a</i> / (<i>a</i> + <i>b</i> + <i>c</i>)', p: ['hierarkisk-klynging'], m: 'Jaccard' },
   { id: 'justert-r2', t: 'Justert R²', f: 'Adjusted R²', d: 'R² med straff for antall forklaringsvariabler. Stiger bare hvis en ny variabel forbedrer modellen mer enn forventet ved ren tilfeldighet.', x: 'Justert R² = 1 − (1 − R²)(<i>n</i> − 1) / (<i>n</i> − <i>p</i> − 1)', p: ['variabelseleksjon'], m: 'justert R²', ci: 1 },
   { id: 'k-fold', t: 'k-fold kryssvalidering', f: 'k-fold cross-validation', d: 'Del dataene i k like store deler. Tren k ganger, hver gang med én del til validering, og snitt feilen.', p: ['bias-varians'], m: 'k-fold', ci: 1 },
   { id: 'k-means', t: 'k-means', f: '', d: 'Klyngemetode som veksler mellom å tildele hvert punkt til nærmeste sentroide og å flytte sentroidene til midten av punktene sine.', p: ['k-means'], m: 'k-means', self: 'k-means' },
-  { id: 'knn', t: 'k-NN', f: 'k nearest neighbors (k nærmeste naboer)', d: 'Klassifiserer eller predikerer et nytt punkt ut fra de k mest like punktene i treningsdataene.', p: ['knn'], m: 'k-NN', self: 'knn' },
-  { id: 'konform', t: 'Konform prediksjon', f: 'Conformal prediction', d: 'Metode som lager kalibrerte prediksjonsintervaller rundt prediksjonene fra hvilken som helst modell, ved hjelp av feilene på et kalibreringssett.', x: '<i>q̂</i> = den <i>k</i>-te minste feilen, <i>k</i> = ⌈(<i>n</i> + 1)(1 − α)⌉', p: ['konform'], m: 'konform prediksjon', ci: 1, self: 'konform' },
-  { id: 'kryssentropi', t: 'Kryssentropi', f: 'Cross-entropy', d: 'Kostnadsfunksjon for klassifikasjon. Blir stor når modellen gir lav sannsynlighet til riktig klasse.', x: 'Tap = − ln(sannsynligheten for riktig klasse)', p: ['nevrale-nett'], m: 'kryssentropi\\p{L}*', ci: 1 },
+  { id: 'knn', t: 'k-NN', f: 'k nearest neighbors (k-nærmeste naboer)', d: 'Klassifiserer eller predikerer et nytt punkt ut fra de k mest like punktene i treningsdataene.', p: ['knn'], m: 'k-NN', self: 'knn' },
+  { id: 'konform', t: 'Conformal prediction', f: 'Split conformal', d: 'Metode som lager kalibrerte prediksjonsintervaller rundt prediksjonene fra hvilken som helst modell, ved hjelp av feilene på egne kalibreringsdata.', x: '<i>q̂</i> = den <i>k</i>-te minste feilen, <i>k</i> = ⌈(<i>n</i> + 1)(1 − α)⌉', p: ['konform'], m: 'conformal prediction', ci: 1, self: 'konform' },
+  { id: 'cross-entropy', t: 'Cross-entropy', f: '', d: 'Kostnadsfunksjon for klassifikasjon. Blir stor når modellen gir lav sannsynlighet til riktig klasse.', x: 'Loss = − ln(sannsynligheten for riktig klasse)', p: ['nevrale-nett'], m: 'cross-entropy', ci: 1 },
   { id: 'lasso', t: 'Lasso', f: 'Least Absolute Shrinkage and Selection Operator', d: 'Regularisering med L1-straff. Krymper koeffisientene og kan sette noen til nøyaktig null, slik at den også velger variabler.', x: 'minimer SSE + λ Σ |β<sub>j</sub>|', p: ['regularisering', 'variabelseleksjon'], m: 'lasso', ci: 1, self: 'regularisering' },
   { id: 'lift', t: 'Lift', f: '', d: 'Hvor mange ganger høyere andelen positive er blant dem modellen velger ut, sammenlignet med å velge tilfeldig.', x: 'Lift = (andel positive blant de valgte) / (andel positive totalt)', p: ['evaluering-klassifikasjon'], m: 'lift', ci: 1 },
-  { id: 'linkage', t: 'Linkage', f: '', d: 'Hvordan avstanden mellom to klynger måles i hierarkisk klynging: enkel (minste avstand), fullstendig (største), gjennomsnitt, sentroide eller Ward.', p: ['hierarkisk-klynging'], m: 'linkage', ci: 1 },
-  { id: 'llm', t: 'LLM', f: 'Large Language Model (stor språkmodell)', d: 'Et svært stort nevralt nett (transformer) trent på å predikere neste token i enorme tekstmengder.', p: ['sprakmodeller', 'rag'], m: 'LLM' },
+  { id: 'linkage', t: 'Linkage', f: '', d: 'Hvordan avstanden mellom to klynger måles i hierarkisk klyngeanalyse: single linkage (minimum avstand), complete linkage (maksimum avstand), average linkage (gjennomsnittlig avstand), sentroide-avstand eller Ward.', p: ['hierarkisk-klynging'], m: 'linkage', ci: 1 },
+  { id: 'llm', t: 'LLM', f: 'Large Language Model (stor språkmodell)', d: 'Et svært stort nevralt nettverk (transformer) trent på å predikere neste token i enorme tekstmengder.', p: ['sprakmodeller', 'rag'], m: 'LLM' },
   { id: 'logit', t: 'Logit', f: 'Log-odds', d: 'Logaritmen av oddsen. Logistisk regresjon modellerer logit som en lineær funksjon av forklaringsvariablene.', x: 'logit = ln(<i>p</i> / (1 − <i>p</i>)) &nbsp; <i>p</i> = 1 / (1 + e<sup>−logit</sup>)', p: ['logistisk-regresjon'], m: 'logit', ci: 1 },
-  { id: 'loocv', t: 'LOOCV', f: 'Leave-one-out cross-validation', d: 'Kryssvalidering der hver observasjon valideres alene, mens modellen trenes på alle de andre. Det er k-fold med k = n.', p: ['bias-varians', 'knn'], m: 'LOOCV' },
+  { id: 'loocv', t: 'LOOCV', f: 'Leave-one-out cross-validation', d: 'Kryssvalidering der hvert datapunkt valideres alene, mens modellen trenes på alle de andre. Det er k-fold med k = n.', p: ['bias-varians', 'knn'], m: 'LOOCV' },
   { id: 'mae', t: 'MAE', f: 'Mean Absolute Error (gjennomsnittlig absoluttfeil)', d: 'Typisk størrelse på feilen, i samme enhet som Y.', x: 'MAE = (1/<i>n</i>) Σ |<i>y</i> − <i>ŷ</i>|', p: ['evaluering-prediksjon'], m: 'MAE' },
   { id: 'mape', t: 'MAPE', f: 'Mean Absolute Percentage Error', d: 'Typisk feil i prosent av den faktiske verdien. Kan ikke brukes når Y kan være 0.', x: 'MAPE = (100/<i>n</i>) Σ |<i>y</i> − <i>ŷ</i>| / |<i>y</i>|', p: ['evaluering-prediksjon'], m: 'MAPE' },
-  { id: 'mapie', t: 'MAPIE', f: 'Model Agnostic Prediction Interval Estimator', d: 'Python-pakke for konform prediksjon som legger intervaller rundt prediksjonene fra en scikit-learn-modell.', p: ['konform'], m: 'MAPIE' },
+  { id: 'mapie', t: 'MAPIE', f: 'Model Agnostic Prediction Interval Estimator', d: 'Python-pakke for conformal prediction som legger intervaller rundt prediksjonene fra en scikit-learn-modell.', p: ['konform'], m: 'MAPIE' },
   { id: 'mdape', t: 'MdAPE', f: 'Median Absolute Percentage Error', d: 'Som MAPE, men medianen i stedet for gjennomsnittet. Påvirkes lite av enkeltstående store bom.', p: ['evaluering-prediksjon'], m: 'MdAPE' },
-  { id: 'me', t: 'ME', f: 'Mean Error (gjennomsnittlig feil)', d: 'Viser systematisk skjevhet. Med <i>e</i> = <i>y</i> − <i>ŷ</i> betyr positiv ME at modellen i snitt predikerer for lavt.', x: 'ME = (1/<i>n</i>) Σ (<i>y</i> − <i>ŷ</i>)', p: ['evaluering-prediksjon'], m: 'ME' },
-  { id: 'mle', t: 'Maksimal likelihood', f: 'Maximum likelihood estimation (MLE)', d: 'Estimeringsmetode som velger parametrene som gjør de observerte dataene mest sannsynlige. Brukes i logistisk regresjon.', p: ['logistisk-regresjon'], m: 'maksimal likelihood', ci: 1 },
-  { id: 'mlp', t: 'MLP', f: 'Multilayer perceptron', d: 'Nevralt nett med fullt koblede lag: input, ett eller flere skjulte lag og output.', p: ['nevrale-nett'], m: 'MLP' },
-  { id: 'mpe', t: 'MPE', f: 'Mean Percentage Error', d: 'Systematisk skjevhet målt i prosent av den faktiske verdien.', x: 'MPE = (100/<i>n</i>) Σ (<i>y</i> − <i>ŷ</i>) / <i>y</i>', p: ['evaluering-prediksjon'], m: 'MPE' },
+  { id: 'me', t: 'ME', f: 'Mean Error (gjennomsnittlig feil)', d: 'Viser om vi systematisk over- eller underpredikerer (bias). Med <i>e</i> = <i>y</i> − <i>ŷ</i> betyr positiv ME at modellen i snitt predikerer for lavt.', x: 'ME = (1/<i>n</i>) Σ (<i>y</i> − <i>ŷ</i>)', p: ['evaluering-prediksjon'], m: 'ME' },
+  { id: 'mle', t: 'Maksimal likelihood', f: 'Maximum likelihood estimation (MLE)', d: 'Estimeringsmetode som velger parameterne som gjør de observerte dataene mest sannsynlige. Brukes i logistisk regresjon.', p: ['logistisk-regresjon'], m: 'maksimal likelihood', ci: 1 },
+  { id: 'mlp', t: 'MLP', f: 'Multilayer perceptron', d: 'Nevralt nettverk med fullt koblede lag: input, ett eller flere skjulte lag og output.', p: ['nevrale-nett'], m: 'MLP' },
+  { id: 'mpe', t: 'MPE', f: 'Mean Percentage Error', d: 'Som ME, men målt i prosent av den faktiske verdien.', x: 'MPE = (100/<i>n</i>) Σ (<i>y</i> − <i>ŷ</i>) / <i>y</i>', p: ['evaluering-prediksjon'], m: 'MPE' },
   { id: 'mse', t: 'MSE', f: 'Mean Squared Error', d: 'Gjennomsnittet av de kvadrerte feilene. Vanlig kostnadsfunksjon for regresjon. RMSE er kvadratroten av MSE.', x: 'MSE = SSE / <i>n</i>', p: ['nevrale-nett', 'beslutningstraer'], m: 'MSE' },
   { id: 'odds', t: 'Odds og oddsratio', f: 'Odds, odds ratio', d: 'Odds er sannsynligheten for at noe skjer delt på sannsynligheten for at det ikke skjer. I logistisk regresjon er e<sup>b</sup> oddsratioen: faktoren oddsen ganges med når <i>x</i> øker med én enhet.', x: 'odds = <i>p</i> / (1 − <i>p</i>) &nbsp; oddsratio = e<sup><i>b</i></sup>', p: ['logistisk-regresjon'], m: 'oddsratio\\p{L}*', ci: 1 },
   { id: 'ols', t: 'Minste kvadraters metode', f: 'Ordinary Least Squares (OLS)', d: 'Velger koeffisientene i lineær regresjon som gjør summen av kvadrerte residualer (SSE) minst mulig.', x: 'minimer SSE = Σ (<i>y</i> − <i>ŷ</i>)²', p: ['lineaer-regresjon'], m: 'minste kvadrater\\p{L}*', ci: 1 },
   { id: 'overtilpasning', t: 'Overtilpasning', f: 'Overfitting', d: 'Når modellen lærer støyen i treningsdataene. Treningsfeilen er lav, men feilen på nye data er høy.', p: ['bias-varians', 'beslutningstraer', 'nevrale-nett'], m: 'overtilpass\\p{L}*', ci: 1 },
-  { id: 'pca', t: 'PCA', f: 'Principal Component Analysis (prinsipalkomponentanalyse)', d: 'Lager nye, ukorrelerte variabler (prinsipalkomponenter) som vektede summer av de opprinnelige. Første komponent fanger mest varians.', p: ['pca'], m: 'PCA', self: 'pca' },
-  { id: 'pooling', t: 'Pooling', f: 'For eksempel max pooling', d: 'Steg i et CNN som krymper bildet, for eksempel ved å beholde den største verdien i hvert 2 × 2-felt. Har ingen parametre.', p: ['nevrale-nett'], m: 'pooling', ci: 1 },
+  { id: 'pca', t: 'PCA', f: 'Principal Component Analysis (prinsipalkomponentanalyse)', d: 'Lager nye, ukorrelerte variabler (prinsipalkomponenter) som lineære kombinasjoner av de opprinnelige. Første komponent fanger mest varians.', p: ['pca'], m: 'PCA', self: 'pca' },
+  { id: 'pooling', t: 'Pooling', f: 'For eksempel max pooling', d: 'Steg i et CNN som krymper bildet, for eksempel ved å beholde den største verdien i hvert 2 × 2-felt. Har ingen parametere.', p: ['nevrale-nett'], m: 'pooling', ci: 1 },
   { id: 'presisjon', t: 'Presisjon', f: 'Precision', d: 'Av dem modellen kaller positive, hvor stor andel er faktisk positive?', x: 'Presisjon = TP / (TP + FP)', p: ['evaluering-klassifikasjon'], m: 'presisjon\\p{L}*', ci: 1 },
-  { id: 'propensitet', t: 'Propensitet', f: 'Propensity', d: 'Modellens anslåtte sannsynlighet for at en observasjon tilhører klasse 1. En terskel gjør propensiteten om til en klasse.', p: ['evaluering-klassifikasjon', 'logistisk-regresjon', 'knn'], m: 'propensitet\\p{L}*', ci: 1 },
+  { id: 'propensitet', t: 'Propensitet', f: 'Propensity', d: 'Modellens anslåtte sannsynlighet for at et datapunkt tilhører klasse 1. En terskel gjør propensiteten om til en klasse.', p: ['evaluering-klassifikasjon', 'logistisk-regresjon', 'knn'], m: 'propensitet\\p{L}*', ci: 1 },
   { id: 'pve', t: 'PVE', f: 'Proportion of Variance Explained', d: 'Andelen av den totale variansen som én prinsipalkomponent forklarer. Summen over alle komponentene er 100 %.', p: ['pca'], m: 'PVE' },
   { id: 'r2', t: 'R²', f: 'Forklart varians (determinasjonskoeffisient)', d: 'Andelen av variasjonen i Y som modellen forklarer. 1 er perfekt, 0 er ikke bedre enn gjennomsnittet.', x: 'R² = 1 − SSE / SST', p: ['lineaer-regresjon', 'variabelseleksjon'], m: 'R²' },
   { id: 'rag', t: 'RAG', f: 'Retrieval-Augmented Generation', d: 'Henter relevante utdrag fra egne dokumenter og legger dem i prompten, slik at språkmodellen svarer ut fra kildene.', p: ['rag'], m: 'RAG', self: 'rag' },
   { id: 'random-forest', t: 'Random forest', f: '', d: 'Bagging med trær, der hver splitt bare får velge blant et tilfeldig utvalg av forklaringsvariablene. Gjør trærne mer ulike og gjennomsnittet bedre.', p: ['ensembler'], m: 'random forest', ci: 1, self: 'ensembler' },
-  { id: 'regularisering', t: 'Regularisering', f: 'Regularization, shrinkage', d: 'Å legge en straff for store koeffisienter oppå tilpasningen, for eksempel ridge, lasso eller elastic net. Gir litt mer bias og mindre varians.', p: ['regularisering'], m: 'regulariser\\p{L}*', ci: 1, self: 'regularisering' },
+  { id: 'regularisering', t: 'Regularisering', f: 'Krymping (shrinkage)', d: 'Å legge en straff for store koeffisienter oppå tilpasningen, for eksempel ridge, lasso eller elastic net. Gir litt mer bias og mindre varians.', p: ['regularisering'], m: 'regulariser\\p{L}*', ci: 1, self: 'regularisering' },
   { id: 'relu', t: 'ReLU', f: 'Rectified Linear Unit', d: 'Aktiveringsfunksjon som setter negative verdier til 0 og lar positive passere uendret.', x: 'ReLU(<i>z</i>) = max(0, <i>z</i>)', p: ['nevrale-nett'], m: 'ReLU' },
+  { id: 'responsvariabel', t: 'Responsvariabel', f: 'Y, response, outcome', d: 'Variabelen vi vil predikere (numerisk Y) eller klassifisere (kategorisk Y). Finnes bare i veiledet læring.', p: ['lineaer-regresjon', 'logistisk-regresjon', 'evaluering-prediksjon', 'evaluering-klassifikasjon'], m: 'responsvariab\\p{L}*', ci: 1 },
   { id: 'ridge', t: 'Ridge', f: 'Ridge regression (L2-regularisering)', d: 'Regularisering med L2-straff. Krymper alle koeffisientene mot null, men setter ingen helt til null.', x: 'minimer SSE + λ Σ β<sub>j</sub>²', p: ['regularisering', 'variabelseleksjon'], m: 'ridge', ci: 1, self: 'regularisering' },
   { id: 'rmse', t: 'RMSE', f: 'Root Mean Squared Error', d: 'Kvadratroten av gjennomsnittlig kvadrert feil, i samme enhet som Y. Straffer store feil ekstra mye.', x: 'RMSE = √[(1/<i>n</i>) Σ (<i>y</i> − <i>ŷ</i>)²]', p: ['evaluering-prediksjon', 'bias-varians', 'lineaer-regresjon'], m: 'RMSE' },
-  { id: 'roc', t: 'ROC-kurve', f: 'Receiver Operating Characteristic', d: 'Sensitivitet plottet mot 1 − spesifisitet for alle mulige terskler. Jo nærmere øvre venstre hjørne, desto bedre.', p: ['evaluering-klassifikasjon'], m: 'ROC' },
-  { id: 'sensitivitet', t: 'Sensitivitet', f: 'Sensitivity, recall, true positive rate (TPR)', d: 'Andelen av de faktisk positive som modellen finner.', x: 'Sensitivitet = TP / (TP + FN)', p: ['evaluering-klassifikasjon'], m: 'sensitivitet', ci: 1 },
+  { id: 'roc', t: 'ROC-kurve', f: 'Receiver Operating Characteristic', d: 'Dekning (TPR) plottet mot 1 − spesifisitet for alle mulige terskler. Jo nærmere øvre venstre hjørne, desto bedre.', p: ['evaluering-klassifikasjon'], m: 'ROC' },
+  { id: 'dekning', t: 'Dekning', f: 'Recall, sensitivitet, true positive rate (TPR)', d: 'Andelen av de faktisk positive som modellen finner.', x: 'Dekning = TP / (TP + FN)', p: ['evaluering-klassifikasjon'], m: 'dekning\\p{L}*', ci: 1 },
   { id: 'sgd', t: 'SGD', f: 'Stochastic Gradient Descent', d: 'Gradient descent der hver oppdatering bruker en liten tilfeldig del av dataene (en batch) i stedet for alle.', p: ['nevrale-nett'], m: 'SGD' },
   { id: 'shap', t: 'SHAP', f: 'SHapley Additive exPlanations', d: 'Forklarer en enkelt prediksjon ved å fordele avstanden fra gjennomsnittsprediksjonen på forklaringsvariablene, med Shapley-verdier.', x: 'E[<i>f</i>(<i>X</i>)] + Σ φ<sub><i>j</i></sub> = <i>f</i>(<i>x</i>)', p: ['shap'], m: 'SHAP', self: 'shap' },
-  { id: 'shapley', t: 'Shapley-verdi', f: 'Shapley value', d: 'En spillers gjennomsnittlige marginale bidrag over alle rekkefølger spillerne kan bli med i. Summerer til gevinsten for hele koalisjonen.', p: ['shap'], m: 'Shapley\\p{L}*' },
+  { id: 'shapley', t: 'Shapley-verdi', f: 'Shapley value', d: 'En spillers gjennomsnittlige marginale bidrag over alle rekkefølger spillerne kan bli med i. Summerer til gevinsten for hele fellesskapet.', p: ['shap'], m: 'Shapley\\p{L}*' },
   { id: 'softmax', t: 'Softmax', f: '', d: 'Gjør en vektor av tall (logits) om til sannsynligheter som summerer til 1. Brukes i output-laget ved flere klasser og i språkmodeller.', x: '<i>p<sub>i</sub></i> = e<sup><i>z<sub>i</sub></i>/<i>T</i></sup> / Σ<sub><i>j</i></sub> e<sup><i>z<sub>j</sub></i>/<i>T</i></sup> &nbsp; (<i>T</i> = temperatur, vanligvis 1)', p: ['nevrale-nett', 'sprakmodeller'], m: 'softmax', ci: 1 },
   { id: 'spesifisitet', t: 'Spesifisitet', f: 'Specificity, true negative rate', d: 'Andelen av de faktisk negative som modellen avviser riktig.', x: 'Spesifisitet = TN / (TN + FP)', p: ['evaluering-klassifikasjon'], m: 'spesifisitet', ci: 1 },
   { id: 'sse', t: 'SSE', f: 'Sum of Squared Errors (residualkvadratsum)', d: 'Summen av de kvadrerte residualene. Minste kvadraters metode gjør SSE så liten som mulig.', x: 'SSE = Σ (<i>y</i> − <i>ŷ</i>)²', p: ['lineaer-regresjon', 'variabelseleksjon', 'regularisering'], m: 'SSE' },
@@ -811,15 +813,15 @@ const GLOSSARY = [
   { id: 'temperatur', t: 'Temperatur', f: 'Temperature', d: 'Parameter i softmax som styrer hvor tilfeldig en språkmodell velger neste token. Lav temperatur gir like svar, høy gir mer variasjon.', p: ['sprakmodeller'], m: 'temperatur\\p{L}*', ci: 1 },
   { id: 'terskel', t: 'Terskel', f: 'Cutoff, threshold', d: 'Grensen som gjør en propensitet om til en klasse. Med terskel 0,5 blir alt over 0,5 klassifisert som 1.', p: ['evaluering-klassifikasjon', 'logistisk-regresjon'], m: 'terskel\\p{L}*', ci: 1 },
   { id: 'token', t: 'Token', f: '', d: 'Enheten en språkmodell jobber med: et ord, en orddel eller et tegn. Teksten deles i tokens av en tokenizer.', p: ['sprakmodeller'], m: 'tokens?', ci: 1 },
-  { id: 'tp', t: 'TP, FP, TN, FN', f: 'True/false positive, true/false negative', d: 'Cellene i forvirringsmatrisen: riktig positiv, falsk positiv (falsk alarm), riktig negativ og falsk negativ (oversett).', p: ['evaluering-klassifikasjon'], m: 'TP|FP|TN|FN' },
-  { id: 'tpr', t: 'TPR', f: 'True Positive Rate', d: 'Det samme som sensitivitet. y-aksen i ROC-kurven.', x: 'TPR = TP / (TP + FN)', p: ['evaluering-klassifikasjon'], m: 'TPR' },
-  { id: 'transfer', t: 'Transfer learning', f: 'Overføringslæring', d: 'Å gjenbruke et nett som er ferdig trent på en stor oppgave, og bare trene de siste lagene på sin egen oppgave.', p: ['nevrale-nett'], m: 'transfer learning', ci: 1 },
+  { id: 'tp', t: 'TP, FP, TN, FN', f: 'True/false positive, true/false negative', d: 'Cellene i forvirringsmatrisen: sann positiv, falsk positiv (falsk alarm), sann negativ og falsk negativ (oversett).', p: ['evaluering-klassifikasjon'], m: 'TP|FP|TN|FN' },
+  { id: 'tpr', t: 'TPR', f: 'True Positive Rate', d: 'Det samme som dekning (også kalt sensitivitet eller recall). y-aksen i ROC-kurven.', x: 'TPR = TP / (TP + FN)', p: ['evaluering-klassifikasjon'], m: 'TPR' },
+  { id: 'transfer', t: 'Transfer learning', f: 'Overføringslæring', d: 'Å gjenbruke et nettverk som er ferdig trent på en stor oppgave, og bare trene de siste lagene på sin egen oppgave.', p: ['nevrale-nett'], m: 'transfer learning', ci: 1 },
   { id: 'transformer', t: 'Transformer', f: '', d: 'Arkitekturen bak moderne språkmodeller. Bruker attention til å se på sammenhengen mellom alle tokens i teksten samtidig.', p: ['sprakmodeller'], m: 'transformer\\p{L}*', ci: 1 },
-  { id: 'uteligger', t: 'Uteligger', f: 'Outlier', d: 'En observasjon som ligger langt fra de andre. Kan være en feil eller en ekte, sjelden verdi.', p: ['dataforberedelse'], m: 'uteligger\\p{L}*', ci: 1 },
-  { id: 'vgg16', t: 'VGG16', f: '', d: 'Kjent CNN for bildegjenkjenning med 16 lag med vekter og 138 millioner parametre, trent på ImageNet. Mye brukt til transfer learning.', p: ['nevrale-nett'], m: 'VGG16' },
-  { id: 'weight-decay', t: 'Weight decay', f: 'Vektstraff', d: 'L2-straff på vektene i et nevralt nett. Samme idé som ridge.', p: ['nevrale-nett', 'regularisering'], m: 'weight decay', ci: 1 },
-  { id: 'z-score', t: 'z-score', f: 'Standardisering', d: 'Gjør en variabel om til antall standardavvik fra gjennomsnittet, slik at variabler på ulik skala blir sammenlignbare.', x: '<i>z</i> = (<i>x</i> − <i>x̄</i>) / <i>s</i>', p: ['dataforberedelse', 'knn', 'pca'], m: 'z-score', ci: 1 },
-  { id: 'lambda', t: 'λ (lambda) og alpha', f: 'Straffeparameter', d: 'Hvor hardt store koeffisienter straffes i ridge, lasso og elastic net. I scikit-learn heter den <code>alpha</code>. Ikke å forveksle med α i konform prediksjon, der α er andelen vi tillater å bomme.', p: ['regularisering'] },
+  { id: 'utstikker', t: 'Utstikker', f: 'Outlier', d: 'Et «ekstremt» datapunkt som skiller seg tydelig fra resten av dataene. Kan være en feil eller en ekte, sjelden verdi.', p: ['dataforberedelse'], m: 'utstikker\\p{L}*', ci: 1 },
+  { id: 'vgg16', t: 'VGG16', f: '', d: 'Kjent CNN for bildegjenkjenning med 16 lag med vekter og 138 millioner parametere, trent på ImageNet. Mye brukt til transfer learning.', p: ['nevrale-nett'], m: 'VGG16' },
+  { id: 'weight-decay', t: 'Weight decay', f: 'L2-regularisering', d: 'L2-straff på vektene i et nevralt nettverk. Samme idé som ridge.', p: ['nevrale-nett', 'regularisering'], m: 'weight decay', ci: 1 },
+  { id: 'z-score', t: 'z-score', f: 'Standardisering, i forelesningene også kalt normalisering', d: 'Gjør en variabel om til antall standardavvik fra gjennomsnittet, slik at variabler på ulik skala blir sammenlignbare.', x: '<i>z</i> = (<i>x</i> − <i>x̄</i>) / <i>s</i>', p: ['dataforberedelse', 'knn', 'pca'], m: 'z-score', ci: 1 },
+  { id: 'lambda', t: 'λ (lambda) og alpha', f: 'Straffeparameter', d: 'Hvor hardt store koeffisienter straffes i ridge, lasso og elastic net. I scikit-learn heter den <code>alpha</code>. Ikke å forveksle med α i conformal prediction, der α er andelen vi tillater å bomme.', p: ['regularisering'] },
   { id: '1se', t: '1-SE-regelen', f: 'One-standard-error rule', d: 'Velg den enkleste modellen (største straff) der kryssvalideringsfeilen er innenfor ett standardavvik fra den laveste. Gir enklere modeller som er omtrent like gode.', p: ['regularisering'], m: '1-SE-regel\\p{L}*', ci: 1 }
 ];
 const GL = Object.fromEntries(GLOSSARY.map(g => [g.id, g]));
@@ -856,7 +858,7 @@ function renderGlossary(main, focus) {
   const back = LAST_PAGE && TOPICS[LAST_PAGE] ? H('a', { href: '#' + LAST_PAGE }, '← Tilbake til ' + TOPICS[LAST_PAGE].title) : null;
   main.append(H('nav', { class: 'crumbs', 'aria-label': 'Du er her' }, H('a', { href: '#' }, 'Metodetreet'), ' › Ordliste', back ? ['  ·  ', back] : null),
     H('header', { class: 'thead' }, H('h1', {}, 'Ordliste'), H('p', { class: 'lead' }, 'Forkortelser og begreper fra faget, med fullt navn, en kort forklaring og formel der det passer. På temasidene er første forekomst av hvert begrep lenket hit.')));
-  const id = uid('q'), inp = H('input', { type: 'search', id, placeholder: 'Søk, for eksempel AIC eller sensitivitet', class: 'glsearch', autocomplete: 'off' });
+  const id = uid('q'), inp = H('input', { type: 'search', id, placeholder: 'Søk, for eksempel AIC eller dekning', class: 'glsearch', autocomplete: 'off' });
   const count = H('span', { class: 'mini' });
   main.append(H('div', { class: 'ctl', style: 'margin:14px 0 4px;gap:12px;flex-wrap:wrap' }, H('label', { for: id, class: 'sr' }, 'Søk i ordlisten'), inp, count));
   const list = H('div', { class: 'gllist' }); main.append(list);
@@ -875,13 +877,13 @@ function renderGlossary(main, focus) {
 }
 
 /* ---- topics/grunnmur.js ---- */
-/* Grunnmur: dataforberedelse, bias–varians, evaluering av prediksjon og klassifikasjon */
+/* Grunnmur: preprosessering, bias–varians, evaluering av prediksjon og klassifikasjon */
 
 topic({
-  id: 'dataforberedelse', data: [['mowers'], ['toyota', ['Price', 'Fuel_Type']]], short: 'Dataforberedelse', lecture: 'F2–F3', tags: ['Grunnmur', 'Brukes før alle modeller'],
-  title: 'Dataforberedelse og skalering',
+  id: 'dataforberedelse', data: [['mowers'], ['toyota', ['Price', 'Fuel_Type']]], short: 'Preprosessering', lecture: 'F2–F3', tags: ['Grunnmur', 'Brukes før alle modeller'],
+  title: 'Preprosessering og skalering',
   path: ['Grunnmur'],
-  lead: 'Før vi modellerer, må dataene i riktig form. Kategorier blir til dummyvariabler, manglende verdier og uteliggere må håndteres, og variabler på ulik skala gjøres sammenlignbare.',
+  lead: 'Før vi modellerer, må dataene i riktig form. Kategorier blir til dummyvariabler, manglende verdier og utstikkere må håndteres, og variabler på ulik skala gjøres sammenlignbare.',
   figs: [{
     title: 'Skalering endrer hvem som er nærmest',
     sub: 'De 24 husholdningene i sitteklipperdataene og en ny husholdning (stjerna) med inntekt 60 og tomt 20. Ringen markerer alt som ligger like nær som den k-te naboen. Med k = 3 bestemmer de tre nærmeste naboene om den nye husholdningen klassifiseres som eier. Dra stjerna for å flytte den.',
@@ -900,7 +902,7 @@ topic({
       Slider(ctl, { label: 'Antall naboer k', min: 1, max: 9, value: 3, oninput: v => { k = v; draw(); } });
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const left = H('div'), right = H('div'); cols.append(left, right);
-      const plot = new Plot(left, { w: 560, h: 430, label: 'Spredningsplott av husholdningene med ny husholdning og nærmeste naboer' });
+      const plot = new Plot(left, { w: 560, h: 430, label: 'Spredningsplot av husholdningene med ny husholdning og nærmeste naboer' });
       const gRing = plot.layer(), gLines = plot.layer(), gPts = plot.layer(), gQ = plot.layer();
       const tiles = Tiles(right, [['pred', 'Klasse ved flertall'], ['share', 'Andel av avstanden fra Income']]);
       const tw = H('div', { class: 'tblwrap', style: 'margin-top:10px' }); right.append(tw);
@@ -936,16 +938,16 @@ topic({
       'Bytt til z-score. Nå bidrar begge variablene omtrent like mye, og naboene blir andre husholdninger.',
       'Sammenlign z-score og min–maks. De gir nesten samme naboer, men min–maks er følsom for ett ekstremt punkt.']
   }, {
-    title: 'Uteliggere med 1,5 · IQR-regelen',
-    sub: 'Kjørelengde for 20 tenkte bruktbiler (oppdiktede tall). Boksen går fra Q1 til Q3, og grensene ligger 1,5 · IQR utenfor boksen. Flytt den siste bilen og se når den blir en uteligger.',
+    title: 'Utstikkere med 1,5 · IQR-regelen',
+    sub: 'Kjørelengde for 20 tenkte bruktbiler (oppdiktede tall). Boksen går fra Q1 til Q3, og grensene ligger 1,5 · IQR utenfor boksen. Flytt den siste bilen og se når den blir en utstikker.',
     build(el) {
       const base = [18, 25, 31, 36, 40, 44, 47, 51, 55, 58, 62, 66, 71, 75, 80, 86, 93, 101, 112];
       let extra = 190;
       const ctl = Controls(el);
       Slider(ctl, { label: 'Kjørelengde for bil nr. 20', min: 0, max: 260, step: 1, value: extra, fmt: v => v + ' tkm', oninput: v => { extra = v; draw(); } });
-      const plot = new Plot(el, { w: 760, h: 210, m: { t: 10, b: 44, l: 20, r: 20 }, x: [0, 270], y: [0, 1], yticks: [], xlab: 'Kjørelengde (1000 km)', grid: true, label: 'Boksplott av kjørelengde' });
+      const plot = new Plot(el, { w: 760, h: 210, m: { t: 10, b: 44, l: 20, r: 20 }, x: [0, 270], y: [0, 1], yticks: [], xlab: 'Kjørelengde (1000 km)', grid: true, label: 'Boksplot av kjørelengde' });
       const g = plot.layer();
-      const tiles = Tiles(el, [['q1', 'Q1'], ['md', 'Median'], ['q3', 'Q3'], ['iqr', 'IQR = Q3 − Q1'], ['lo', 'Nedre grense'], ['hi', 'Øvre grense'], ['n', 'Uteliggere']]);
+      const tiles = Tiles(el, [['q1', 'Q1'], ['md', 'Median'], ['q3', 'Q3'], ['iqr', 'IQR = Q3 − Q1'], ['lo', 'Nedre grense'], ['hi', 'Øvre grense'], ['n', 'Utstikkere']]);
       const jit = base.map((_, i) => 0.18 + 0.12 * ((i * 7) % 5) / 4);
       function draw() {
         const all = base.concat([extra]), s = all.slice().sort((a, b) => a - b);
@@ -965,7 +967,7 @@ topic({
       draw();
     },
     tryit: ['Dra bil nr. 20 sakte oppover. Legg merke til at Q1 og Q3 nesten ikke flytter seg: kvartiler er robuste mot ett ekstremt punkt.',
-      'Finn verdien der bilen akkurat blir en uteligger. Sjekk at den er lik Q3 + 1,5 · IQR.']
+      'Finn verdien der bilen akkurat blir en utstikker. Sjekk at den er lik Q3 + 1,5 · IQR.']
   }, {
     title: 'Kategorier blir til dummyvariabler',
     sub: 'Drivstofftypen i bruktbildataene har tre kategorier: Petrol (bensin), Diesel og CNG (naturgass). <code>pd.get_dummies</code> lager én 0/1-kolonne per kategori. Med <code>drop_first=True</code> forsvinner den første (CNG), som da blir referansekategori.',
@@ -990,7 +992,7 @@ topic({
   }],
   body: `
 <h2>Kort fortalt</h2>
-<p>Steget «utforsk, vask og preprosesser» i dataanalyseprosessen tar ofte mer tid enn selve modelleringen. Målet er at hver variabel har en form modellen kan bruke, uten at vi lekker informasjon fra valideringsdataene inn i treningen.</p>
+<p>Steget «utforsk, vask og preprosesser» i dataanalyseprosessen tar ofte mer tid enn selve modelleringen. Målet er at hver variabel har en form modellen kan bruke, uten at vi lekker informasjon fra valideringssettet inn i treningen.</p>
 <h2>Variabeltyper</h2>
 <ul>
 <li><b>Numeriske:</b> kontinuerlige (inntekt, pris) eller heltall (antall barn).</li>
@@ -1006,12 +1008,12 @@ topic({
 <li><b>Imputer:</b> erstatt med median eller gjennomsnitt (numerisk), eller den vanligste kategorien. Beregn erstatningsverdien på treningsdataene.</li>
 <li><b>Tenk på hvorfor det mangler.</b> Mangler som henger sammen med Y, kan selv være informative. Da kan en egen indikatorvariabel hjelpe.</li>
 </ul>
-<h2>Uteliggere</h2>
-<p>Regelen i boksplottet: en verdi er uteligger hvis den ligger under Q1 − 1,5 · IQR eller over Q3 + 1,5 · IQR, der IQR = Q3 − Q1. En annen tommelfingerregel er |z| &gt; 3. En uteligger er et flagg, ikke en dom. Sjekk om verdien er en registreringsfeil (rett eller fjern) eller en ekte, sjelden observasjon (behold, og vurder en robust metode).</p>
+<h2>Utstikkere</h2>
+<p>Regelen i boksplottet: en verdi er utstikker hvis den ligger under Q1 − 1,5 · IQR eller over Q3 + 1,5 · IQR, der IQR = Q3 − Q1. En annen tommelfingerregel er |z| &gt; 3. En utstikker er et flagg, ikke en dom. Sjekk om verdien er en registreringsfeil (rett eller fjern) eller et ekte, sjeldent datapunkt (behold, og vurder en robust metode).</p>
 <h2>Skalering</h2>
 <div class="formula">z-score: <span class="v">z</span> = (<span class="v">x</span> − <span class="v">x̄</span>) / <span class="v">s</span> &nbsp;&nbsp;&nbsp; min–maks: <span class="v">x</span>* = (<span class="v">x</span> − min) / (maks − min)</div>
-<p>Skalering trengs for alle metoder som bruker <b>avstander eller like store straffer</b> på tvers av variabler: k-NN, klynging, PCA, nevrale nett, og ridge og lasso. Trær trenger det ikke, fordi en splitt bare bryr seg om rekkefølgen av verdiene. Vanlig lineær regresjon gir samme prediksjoner med og uten skalering. Bare tallene på koeffisientene endres.</p>
-<div class="pit"><b>Eksamensfelle: lekkasje</b>Gjennomsnitt, standardavvik, min og maks skal beregnes på <i>treningsdataene</i> og så brukes på valideringsdataene. Skalerer du med hele datasettet, har valideringsdataene påvirket modellen.</div>
+<p>Skalering trengs for alle metoder som bruker <b>avstander eller like store straffer</b> på tvers av variabler: k-NN, klyngeanalyse, PCA, nevrale nettverk, og ridge og lasso. Trær trenger det ikke, fordi en splitt bare bryr seg om rekkefølgen av verdiene. Vanlig lineær regresjon gir samme prediksjoner med og uten skalering. Bare tallene på koeffisientene endres.</p>
+<div class="pit"><b>Eksamensfelle: lekkasje</b>Gjennomsnitt, standardavvik, min og maks skal beregnes på <i>treningsdataene</i> og så brukes på valideringssettet. Skalerer du med hele datasettet, har valideringssettet påvirket modellen.</div>
 <div class="pit"><b>Eksamensfelle: z-score i pandas og scikit-learn</b><code>df.std()</code> i pandas deler på <i>n</i> − 1, mens <code>StandardScaler</code> deler på <i>n</i>. Tallene blir litt forskjellige, men tolkningen er den samme.</div>
 <h2>Python</h2>
 <pre><code>import pandas as pd
@@ -1029,7 +1031,7 @@ valid_Z = scaler.transform(valid_X)                     # samme snitt og standar
 
 q1, q3 = df['KM'].quantile([0.25, 0.75])                # 1. og 3. kvartil (1,5 · IQR-regelen)
 iqr = q3 - q1                                           # kvartilbredden
-uteliggere = df[(df['KM'] &lt; q1 - 1.5*iqr) | (df['KM'] &gt; q3 + 1.5*iqr)]   # rader utenfor grensene</code></pre>`
+utstikkere = df[(df['KM'] &lt; q1 - 1.5*iqr) | (df['KM'] &gt; q3 + 1.5*iqr)]   # rader utenfor grensene</code></pre>`
 });
 
 topic({
@@ -1091,14 +1093,14 @@ topic({
       'Velg «8 utvalg». Ved høy grad spriker kurvene fra ulike treningssett. Det er varians. Den tykke kurven er snittet av dem.']
   }, {
     title: 'Valideringssett, k-fold og tidsrekker',
-    sub: 'Hver rad er én runde. 20 observasjoner er fordelt på trening og validering. Til slutt snitter vi feilen over rundene.',
+    sub: 'Hver rad er én runde. 20 datapunkter er fordelt på trening og validering. Til slutt snitter vi feilen over rundene.',
     build(el) {
       const n = 20; let mode = 'kfold', k = 5;
       const ctl = Controls(el);
       Seg(ctl, { label: 'Metode', options: [['hold', 'Valideringssett'], ['kfold', 'k-fold'], ['loo', 'LOOCV'], ['ts', 'Tidsrekke']], value: mode, onchange: v => { mode = v; draw(); } });
       const ks = Slider(ctl, { label: 'k', min: 2, max: 10, value: k, oninput: v => { k = v; draw(); } });
       const svgWrap = H('div', { style: 'overflow-x:auto' }); el.append(svgWrap);
-      const tiles = Tiles(el, [['m', 'Modeller som trenes'], ['v', 'Validering per runde'], ['u', 'Hver observasjon valideres']]);
+      const tiles = Tiles(el, [['m', 'Modeller som trenes'], ['v', 'Validering per runde'], ['u', 'Hvert datapunkt valideres']]);
       function folds() {
         if (mode === 'hold') return [range(n, i => i >= 12 ? 'v' : 't')];
         if (mode === 'loo') return range(n, r => range(n, i => i === r ? 'v' : 't'));
@@ -1124,7 +1126,7 @@ topic({
       draw();
       el.append(H('p', { class: 'note', html: '<b style="color:var(--c4)">Blå</b> = trening, <b style="color:var(--c0)">oransje</b> = validering, grå = ikke brukt i runden (fremtiden i en tidsrekke).' }));
     },
-    tryit: ['Sammenlign valideringssett og k-fold: med k-fold blir alle observasjonene brukt til validering én gang, så anslaget blir mer stabilt.',
+    tryit: ['Sammenlign valideringssett og k-fold: med k-fold blir alle datapunktene brukt til validering én gang, så anslaget blir mer stabilt.',
       'LOOCV er k-fold med k = n. Det gir mange modeller å trene, men nesten all data i hver runde.',
       'I en tidsrekke trener vi aldri på fremtiden. Valideringsblokken ligger alltid etter treningsdataene.']
   }],
@@ -1137,11 +1139,11 @@ topic({
 <li><b>Varians:</b> modellen er så fleksibel at den følger støyen i akkurat dette treningssettet. Et annet treningssett ville gitt en helt annen modell. Treningsfeilen er lav og valideringsfeilen høy. Det kalles overtilpasning.</li>
 </ul>
 <div class="formula">Forventet feil på nye data = bias² + varians + irreduserbar støy</div>
-<p>Kompleksiteten styres av hyperparametre: polynomgrad, k i k-NN, maks dybde i trær, λ i ridge og lasso, antall nevroner og epoker. Vi velger verdien med lavest valideringsfeil.</p>
+<p>Kompleksiteten styres av hyperparametere: polynomgrad, k i k-NN, maks dybde i trær, λ i ridge og lasso, antall nevroner og epochs. Vi velger verdien med lavest valideringsfeil.</p>
 <h2>Partisjonering</h2>
 <ul>
-<li><b>To deler (for eksempel 60/40):</b> trening og validering. Valideringssettet brukes til å sammenligne modeller og velge hyperparametre.</li>
-<li><b>Tre deler (for eksempel 50/30/20):</b> når valideringssettet brukes mye til valg, blir det også litt «brukt opp». En urørt testdel gir et ærlig anslag på slutten.</li>
+<li><b>To deler (for eksempel 60/40):</b> trening og validering. Valideringssettet brukes til å sammenligne modeller og velge hyperparametere.</li>
+<li><b>Tre deler (for eksempel 50/30/20):</b> når valideringssettet brukes mye til valg, blir det også litt «brukt opp». Et urørt testsett gir et ærlig anslag på slutten.</li>
 <li><b>Ulempe med ett valideringssett:</b> resultatet avhenger av hvilke rader som havnet hvor, og modellen trenes på færre data.</li>
 </ul>
 <h2>Kryssvalidering</h2>
@@ -1149,9 +1151,9 @@ topic({
 <li><b>k-fold:</b> del dataene i k like store deler. Tren k ganger, hver gang med én del til validering. Snitt feilen. Vanlig er k = 5 eller 10.</li>
 <li><b>LOOCV</b> (leave-one-out): k = n. Lite bias, men mange modeller å trene og et ustabilt anslag.</li>
 <li><b>Tidsrekker:</b> rekkefølgen må bevares. Tren på fortiden og valider på perioden rett etter (rullerende eller voksende vindu).</li>
-<li><b>Hyperparametre:</b> kryssvalidering per kandidatverdi, for eksempel med <code>GridSearchCV</code>.</li>
+<li><b>Hyperparametere:</b> kryssvalidering per kandidatverdi, for eksempel med <code>GridSearchCV</code>.</li>
 </ul>
-<div class="pit"><b>Eksamensfelle</b>«Modellen har 99 % treffsikkerhet på treningsdata» sier lite. Spør alltid: målt på hvilke data? Og ble disse dataene brukt til å velge modellen?</div>
+<div class="pit"><b>Eksamensfelle</b>«Modellen har 99 % nøyaktighet på treningsdata» sier lite. Spør alltid: målt på hvilke data? Og ble disse dataene brukt til å velge modellen?</div>
 <h2>Python</h2>
 <pre><code>from sklearn.model_selection import train_test_split, cross_val_score, TimeSeriesSplit
 
@@ -1171,7 +1173,7 @@ topic({
   id: 'evaluering-prediksjon', dataNote: 'Figuren bruker <b>tenkte tall</b>: tolv oppdiktede bruktbiler med faktisk og predikert pris.', short: 'Prediksjonsmål', lecture: 'F4', tags: ['Grunnmur', 'Numerisk Y'],
   title: 'Evaluering av prediksjon',
   path: ['Grunnmur'],
-  lead: 'Når Y er et tall, måler vi hvor langt prediksjonene bommer. Ulike mål straffer ulike typer bom, og fortegnet forteller om modellen bommer systematisk.',
+  lead: 'Når responsvariabelen Y er numerisk, måler vi hvor langt prediksjonene bommer. Ulike mål straffer ulike typer bom, og fortegnet forteller om modellen bommer systematisk.',
   figs: [{
     title: 'Hva straffer hvilket mål?',
     sub: 'Tolv tenkte bruktbiler med faktisk pris (fylt) og predikert pris (hul). Feilen er e = y − ŷ, faktisk minus predikert, som i læreboka.',
@@ -1179,7 +1181,7 @@ topic({
       const r = RNG(11), ys = range(12, () => Math.round(7000 + 15000 * r())), base = ys.map(y => y + Math.round(1100 * r.n()));
       let bias = 0, big = false;
       const ctl = Controls(el);
-      Slider(ctl, { label: 'Legg til skjevhet', min: -3000, max: 3000, step: 100, value: 0, fmt: v => (v > 0 ? '+' : '') + fint(v) + ' €', oninput: v => { bias = v; draw(); } });
+      Slider(ctl, { label: 'Legg til bias', min: -3000, max: 3000, step: 100, value: 0, fmt: v => (v > 0 ? '+' : '') + fint(v) + ' €', oninput: v => { bias = v; draw(); } });
       Seg(ctl, { label: 'Én stor bom', options: [[false, 'Av'], [true, 'På']], value: big, onchange: v => { big = v; draw(); } });
       const plot = new Plot(el, { w: 760, h: 300, x: [0.3, 12.7], y: [0, 30000], xticks: range(12, i => i + 1), xlab: 'Bil nr.', ylab: 'Pris (€)', label: 'Faktisk og predikert pris per bil' });
       const g = plot.layer();
@@ -1204,18 +1206,18 @@ topic({
       draw();
       el.append(H('p', { class: 'note', html: 'Strek <b style="color:var(--c4)">blå</b> når modellen predikerer for lavt (e &gt; 0), <b style="color:var(--c0)">oransje</b> når den predikerer for høyt (e &lt; 0).' }));
     },
-    tryit: ['Dra skjevheten til +2000 €. MAE og RMSE øker, og ME blir −2000: modellen predikerer i snitt for høyt.',
+    tryit: ['Sett bias til +2000 €. MAE og RMSE øker, og ME blir −2000: modellen predikerer i snitt for høyt.',
       'Slå på «Én stor bom». RMSE hopper mye mer enn MAE fordi feilene kvadreres. MdAPE endrer seg nesten ikke.',
-      'Finn en skjevhet der ME er nær 0 men MAE er stor. Da bommer modellen begge veier, uten systematisk skjevhet.']
+      'Sett bias tilbake til 0. ME er nær 0, men MAE er fortsatt stor: modellen bommer begge veier, uten systematisk bias.']
   }],
   body: `
 <h2>Kort fortalt</h2>
-<p>For hver observasjon i valideringsdataene har vi en faktisk verdi <i>y</i> og en prediksjon <i>ŷ</i>. Feilen er <i>e</i> = <i>y</i> − <i>ŷ</i>. Prediksjonsmålene oppsummerer alle feilene i ett tall. Sammenlign alltid mot en <b>naiv benchmark</b>: å predikere gjennomsnittet ȳ av treningsdataene for alle.</p>
+<p>For hvert datapunkt i valideringssettet har vi en faktisk verdi <i>y</i> og en prediksjon <i>ŷ</i>. Feilen er <i>e</i> = <i>y</i> − <i>ŷ</i>. Prediksjonsmålene oppsummerer alle feilene i ett tall. Sammenlign alltid mot en <b>naiv benchmark</b>: å predikere gjennomsnittet ȳ av treningsdataene for alle.</p>
 <h2>Målene</h2>
 <div class="tblwrap"><table class="tbl">
 <tr><th class="l">Mål</th><th class="l">Formel</th><th class="l">Forteller</th></tr>
-<tr><td class="l">ME</td><td class="l">snitt av e</td><td class="l">Systematisk skjevhet. Positiv: predikerer for lavt.</td></tr>
-<tr><td class="l">MPE</td><td class="l">snitt av 100 · e / y</td><td class="l">Skjevhet i prosent.</td></tr>
+<tr><td class="l">ME</td><td class="l">snitt av e</td><td class="l">Om vi systematisk over- eller underpredikerer (bias). Positiv: predikerer for lavt.</td></tr>
+<tr><td class="l">MPE</td><td class="l">snitt av 100 · e / y</td><td class="l">Som ME, men i prosent.</td></tr>
 <tr><td class="l">MAE</td><td class="l">snitt av |e|</td><td class="l">Typisk størrelse på feilen, i Y-enheter.</td></tr>
 <tr><td class="l">MAPE</td><td class="l">snitt av 100 · |e / y|</td><td class="l">Typisk feil i prosent. Ubrukelig når y kan være 0.</td></tr>
 <tr><td class="l">MdAPE</td><td class="l">median av 100 · |e / y|</td><td class="l">Som MAPE, men robust mot enkeltbom.</td></tr>
@@ -1223,7 +1225,7 @@ topic({
 </table></div>
 <p>RMSE ≥ MAE alltid. Er RMSE mye større enn MAE, finnes det noen få store bom.</p>
 <div class="pit"><b>Eksamensfelle: fortegnet</b>Læreboka og <code>regressionSummary</code> bruker e = y − ŷ. Da betyr negativ ME at modellen predikerer for høyt i snitt. Sjekk alltid hvilken definisjon oppgaven bruker.</div>
-<div class="pit"><b>Eksamensfelle: trening eller validering?</b>Sammenlign målene på valideringsdata. Er RMSE på trening mye lavere enn på validering, er modellen trolig overtilpasset.</div>
+<div class="pit"><b>Eksamensfelle: trening eller validering?</b>Sammenlign målene på valideringssettet. Er RMSE på trening mye lavere enn på validering, er modellen trolig overtilpasset.</div>
 <h2>Python</h2>
 <pre><code>from mlba import regressionSummary
 
@@ -1239,7 +1241,7 @@ topic({
   id: 'evaluering-klassifikasjon', data: [['owner']], short: 'Klassifikasjonsmål', lecture: 'F4', tags: ['Grunnmur', 'Kategorisk Y'],
   title: 'Evaluering av klassifikasjon',
   path: ['Grunnmur'],
-  lead: 'En klassifikasjonsmodell gir en sannsynlighet (propensitet). Terskelen gjør den om til en klasse. Forvirringsmatrisen, ROC-kurven og lift-kurven viser hva vi tjener og taper på valget.',
+  lead: 'En klassifikasjonsmodell gir en sannsynlighet (propensitet). Terskelen gjør den om til en klasse. Forvirringsmatrisen, ROC-kurven og lift chart viser hva vi tjener og taper på valget.',
   figs: [{
     title: 'Terskel, forvirringsmatrise, ROC og lift',
     sub: 'De 24 husholdningene med ferdig utregnede propensiteter, sortert fra høyest til lavest. Alt med p &gt; terskel klassifiseres som eier. Tenk deg at vi bare kontakter dem modellen kaller eiere.',
@@ -1260,12 +1262,12 @@ topic({
       const cols = H('div', { class: 'cols even', style: 'margin-top:12px' }); el.append(cols);
       const cmBox = H('div'), tBox = H('div'); cols.append(cmBox, tBox);
       const cm = ConfMat(cmBox, ['ikke-eier', 'eier']);
-      const tiles = Tiles(tBox, [['acc', 'Nøyaktighet'], ['sens', 'Sensitivitet'], ['spec', 'Spesifisitet'], ['prec', 'Presisjon'], ['f1', 'F1'], ['prof', 'Netto profitt']]);
+      const tiles = Tiles(tBox, [['acc', 'Nøyaktighet'], ['sens', 'Dekning (TPR)'], ['spec', 'Spesifisitet'], ['prec', 'Presisjon'], ['f1', 'F1'], ['prof', 'Netto profitt']]);
       tBox.append(H('p', { class: 'note', html: 'Profitten bygger på tenkte tall: hver eier vi kontakter gir 100 kr i fortjeneste, og hver ikke-eier vi kontakter koster 200 kr.' }));
       const ch = H('div', { class: 'cols even', style: 'margin-top:8px' }); el.append(ch);
       const a = H('div'), b = H('div'); ch.append(a, b);
-      const roc = new Plot(a, { w: 360, h: 300, x: [0, 1], y: [0, 1], xlab: '1 − spesifisitet', ylab: 'Sensitivitet', label: 'ROC-kurve', nx: 4, ny: 4 });
-      const gain = new Plot(b, { w: 360, h: 300, x: [0, 24], y: [0, 12], xlab: 'Antall kontaktet (sortert)', ylab: 'Kumulativt antall eiere', label: 'Kumulativ gevinst (lift)', xticks: [0, 6, 12, 18, 24], yticks: [0, 4, 8, 12] });
+      const roc = new Plot(a, { w: 360, h: 300, x: [0, 1], y: [0, 1], xlab: '1 − spesifisitet', ylab: 'Dekning (TPR)', label: 'ROC-kurve', nx: 4, ny: 4 });
+      const gain = new Plot(b, { w: 360, h: 300, x: [0, 24], y: [0, 12], xlab: 'Antall kontaktet (sortert)', ylab: 'Kumulativt antall eiere', label: 'Lift chart', xticks: [0, 6, 12, 18, 24], yticks: [0, 4, 8, 12] });
       for (const [pl, xs, ys, xm, ym] of [[roc, FPk.map(v => v / N), TPk.map(v => v / P), 1, 1], [gain, range(25), TPk, 24, 12]]) {
         S('line', { x1: pl.x(0), y1: pl.y(0), x2: pl.x(xm), y2: pl.y(ym), class: 's-mut', 'stroke-dasharray': '4 4' }, pl.gData);
         S('path', { d: pathOf(xs.map((x, i) => [pl.x(x), pl.y(ys[i])])), fill: 'none', class: 's-c2', 'stroke-width': 2.5 }, pl.gData);
@@ -1290,11 +1292,11 @@ topic({
       draw();
     },
     tryit: ['Trykk 0.25, 0.50 og 0.75 og sammenlign tre vanlige terskler. Nøyaktigheten blir 0.792, 0.875 og 0.750.',
-      'Følg punktene på ROC- og lift-kurven mens du drar. Begge kurvene er alle mulige terskler tegnet etter hverandre.',
+      'Følg punktene på ROC-kurven og i lift chart mens du drar. Begge kurvene er alle mulige terskler tegnet etter hverandre.',
       'Trykk «Høyest profitt». Nøyaktigheten er den samme som ved 0.5, men profitten stiger fra 700 til 800: én dyr falsk positiv byttes mot én billigere falsk negativ.']
   }, {
     title: 'Når den interessante klassen er sjelden',
-    sub: 'En kampanje sendes til 1000 kunder. Modellen fanger 80 % av dem som svarer (sensitivitet) og avviser 98 % av dem som ikke svarer (spesifisitet). En naiv modell sier at ingen svarer.',
+    sub: 'En kampanje sendes til 1000 kunder. Modellen fanger 80 % av dem som svarer (dekning) og avviser 98 % av dem som ikke svarer (spesifisitet). En naiv benchmark sier at ingen svarer.',
     build(el) {
       let pos = 10;
       const ctl = Controls(el);
@@ -1313,7 +1315,7 @@ topic({
       }
       draw();
     },
-    tryit: ['Med 10 som svarer er den naive modellen «bedre» målt i nøyaktighet (99 % mot 97,8 %). Likevel finner den ingen kunder.',
+    tryit: ['Med 10 som svarer er den naive benchmarken «bedre» målt i nøyaktighet (99 % mot 97,8 %). Likevel finner den ingen kunder.',
       'Øk antall som svarer. Når klassen blir vanligere, slår modellen den naive, og presisjonen stiger.',
       'Lift sier hvor mange ganger høyere svarandelen er i gruppen modellen velger, sammenlignet med å trekke tilfeldig.']
   }],
@@ -1323,25 +1325,25 @@ topic({
 <div class="tblwrap"><table class="tbl">
 <tr><th class="l">Mål</th><th class="l">Formel</th><th class="l">Spør</th></tr>
 <tr><td class="l">Nøyaktighet</td><td class="l">(TP + TN) / n</td><td class="l">Hvor stor andel er riktig? Feilrate = 1 − nøyaktighet.</td></tr>
-<tr><td class="l">Sensitivitet (recall, TPR)</td><td class="l">TP / (TP + FN)</td><td class="l">Hvor mange av de positive finner vi?</td></tr>
+<tr><td class="l">Dekning (TPR, recall, sensitivitet)</td><td class="l">TP / (TP + FN)</td><td class="l">Hvor mange av de positive finner vi?</td></tr>
 <tr><td class="l">Spesifisitet</td><td class="l">TN / (TN + FP)</td><td class="l">Hvor mange av de negative avviser vi riktig?</td></tr>
 <tr><td class="l">Presisjon</td><td class="l">TP / (TP + FP)</td><td class="l">Hvor mange av dem vi kaller positive, er positive?</td></tr>
-<tr><td class="l">F1</td><td class="l">2 · presisjon · sensitivitet / (presisjon + sensitivitet)</td><td class="l">Balanse mellom de to.</td></tr>
+<tr><td class="l">F1</td><td class="l">2 · presisjon · dekning / (presisjon + dekning)</td><td class="l">Balanse mellom de to.</td></tr>
 <tr><td class="l">FPR</td><td class="l">FP / (FP + TN) = 1 − spesifisitet</td><td class="l">x-aksen i ROC-kurven.</td></tr>
 </table></div>
 <h2>Terskelen</h2>
-<p>Standard terskel er 0,5, men den er et valg. Lavere terskel gir flere predikerte positive: sensitiviteten øker og spesifisiteten faller. Velg terskel ut fra hva feilene koster. Er det dyrt å gå glipp av en positiv (for eksempel svindel), velg lav terskel.</p>
+<p>Standard terskel er 0,5, men den er et valg. Lavere terskel gir flere predikerte positive: dekningen øker og spesifisiteten faller. Velg terskel ut fra hva feilene koster. Er det dyrt å gå glipp av en positiv (for eksempel svindel), velg lav terskel.</p>
 <h2>ROC, AUC og lift</h2>
 <ul>
-<li><b>ROC-kurven</b> tegner sensitivitet mot 1 − spesifisitet for alle terskler. Diagonalen er tilfeldig gjetting. <b>AUC</b> er arealet under kurven: 1 er perfekt, 0,5 er tilfeldig. AUC er også sannsynligheten for at en tilfeldig positiv får høyere propensitet enn en tilfeldig negativ.</li>
-<li><b>Kumulativ gevinst (lift chart):</b> sorter etter propensitet, gå nedover listen og tell positive. Jo høyere over diagonalen, desto bedre. Lift = andel positive i det utvalgte ÷ andel positive totalt.</li>
-<li><b>Desil-diagram:</b> lift for hver tidel av den sorterte listen. Første søyle viser hvor mye bedre de 10 % «beste» er enn snittet.</li>
+<li><b>ROC-kurven</b> tegner dekning (TPR) mot 1 − spesifisitet for alle terskler. Diagonalen er tilfeldig gjetting. <b>AUC</b> er arealet under kurven: 1 er perfekt, 0,5 er tilfeldig. AUC er også sannsynligheten for at en tilfeldig positiv får høyere propensitet enn en tilfeldig negativ.</li>
+<li><b>Lift chart:</b> sorter etter propensitet, gå nedover listen og tell positive. Jo høyere over diagonalen, desto bedre. Lift = andel positive i det utvalgte ÷ andel positive totalt.</li>
+<li><b>Decile chart:</b> lift for hver tidel av den sorterte listen. Første søyle viser hvor mye bedre de 10 % «beste» er enn snittet.</li>
 <li>ROC og AUC oppsummerer modellen over alle terskler. Lift er mer konkret når vi bare kan kontakte de øverste på listen.</li>
 </ul>
 <h2>Kostnader, nytte og sjeldne klasser</h2>
-<p>Gi hver celle i forvirringsmatrisen en verdi (nytte av TP, kostnad av FP og så videre) og velg terskelen som gir høyest forventet profitt. Lift-kurven kan tegnes med profitt på y-aksen i stedet for antall.</p>
+<p>Gi hver celle i forvirringsmatrisen en verdi (nytte av TP, kostnad av FP og så videre) og velg terskelen som gir høyest forventet profitt. Lift chart kan tegnes med profitt på y-aksen i stedet for antall.</p>
 <p>Når den positive klassen er sjelden, kan <b>oversampling</b> hjelpe: tren modellen på et utvalg der den sjeldne klassen er overrepresentert. Evaluer på data med den opprinnelige fordelingen, ellers blir målene for optimistiske.</p>
-<div class="pit"><b>Eksamensfelle: nøyaktighet med skjeve klasser</b>Med 1 % positive får en modell som alltid sier «negativ» 99 % nøyaktighet. Bruk sensitivitet, presisjon, lift eller profitt i stedet.</div>
+<div class="pit"><b>Eksamensfelle: nøyaktighet med skjeve klasser</b>Med 1 % positive får en modell som alltid sier «negativ» 99 % nøyaktighet. Bruk dekning, presisjon, lift eller profitt i stedet.</div>
 <h2>Python</h2>
 <pre><code>from mlba import classificationSummary, gainsChart, liftChart
 from sklearn.metrics import roc_curve, auc
@@ -1354,11 +1356,11 @@ fpr, tpr, _ = roc_curve(valid_y, prob)                   # FPR og TPR for alle m
 print('AUC:', auc(fpr, tpr))                             # arealet under ROC-kurven
 
 df = pd.DataFrame({'actual': valid_y, 'prob': prob})     # fasit og sannsynlighet side om side
-gainsChart(df, ranking='prob', actual='actual')          # sortert etter prob: kumulativt antall 1-ere
-liftChart(df, ranking='prob', actual='actual')           # lift per tidel (desil-diagram)
+gainsChart(df, ranking='prob', actual='actual')          # lift chart: kumulativt antall 1-ere, sortert etter prob
+liftChart(df, ranking='prob', actual='actual')           # decile chart: lift per tidel
 
 df['profit'] = df['actual'].apply(lambda x: 100 if x == 1 else -200)   # en 1-er gir +100, en 0 koster 200
-gainsChart(df, ranking='prob', actual='profit', type='regression')   # kumulativ gevinst i kroner</code></pre>`
+gainsChart(df, ranking='prob', actual='profit', type='regression')   # lift chart med profitt i kroner</code></pre>`
 });
 
 /* ---- topics/regresjon.js ---- */
@@ -1371,7 +1373,7 @@ topic({
   id: 'lineaer-regresjon', data: [['toyota']], short: 'Lineær regresjon', lecture: 'F5', tags: ['Prediksjon', 'Numerisk Y'],
   title: 'Multippel lineær regresjon',
   path: ['Veiledet læring', 'Prediksjon'],
-  lead: 'Lineær regresjon modellerer Y som et konstantledd pluss en vektet sum av forklaringsvariablene. Vektene (koeffisientene) velges slik at summen av kvadrerte residualer blir minst mulig.',
+  lead: 'Lineær regresjon modellerer responsvariabelen Y som et konstantledd pluss en vektet sum av forklaringsvariablene. Vektene (koeffisientene) velges slik at summen av kvadrerte residualer blir minst mulig.',
   figs: [{
     title: 'Minste kvadraters metode, bokstavelig talt',
     sub: '30 bruktbiler fra treningsdataene: alder i måneder mot pris i euro. Hver rute er en kvadrert residual. Minste kvadraters linje er linjen som gjør det samlede arealet av rutene minst mulig.',
@@ -1447,7 +1449,7 @@ topic({
   body: `
 <h2>Modellen</h2>
 <div class="formula"><span class="v">Y</span> = β<sub>0</sub> + β<sub>1</sub><span class="v">x</span><sub>1</sub> + β<sub>2</sub><span class="v">x</span><sub>2</sub> + … + β<sub><span class="v">p</span></sub><span class="v">x</span><sub><span class="v">p</span></sub> + ε</div>
-<p>Koeffisientene estimeres med <b>minste kvadraters metode</b>: velg b<sub>0</sub>, …, b<sub>p</sub> som minimerer SSE = Σ(<i>y</i> − <i>ŷ</i>)². Prediksjonen for en ny observasjon er <i>ŷ</i> = b<sub>0</sub> + b<sub>1</sub><i>x</i><sub>1</sub> + … + b<sub>p</sub><i>x</i><sub>p</sub>.</p>
+<p>Koeffisientene estimeres med <b>minste kvadraters metode</b>: velg b<sub>0</sub>, …, b<sub>p</sub> som minimerer SSE = Σ(<i>y</i> − <i>ŷ</i>)². Prediksjonen for et nytt datapunkt er <i>ŷ</i> = b<sub>0</sub> + b<sub>1</sub><i>x</i><sub>1</sub> + … + b<sub>p</sub><i>x</i><sub>p</sub>.</p>
 <h2>Tolkning av koeffisientene</h2>
 <ul>
 <li>b<sub>j</sub> er endringen i predikert Y når <i>x</i><sub>j</sub> øker med én enhet <b>og alle andre variabler holdes fast</b>.</li>
@@ -1455,13 +1457,13 @@ topic({
 <li>Størrelsen på b avhenger av enheten. Vil du sammenligne viktighet, standardiser variablene først.</li>
 </ul>
 <h2>Forklaring eller prediksjon?</h2>
-<p>Når målet er <b>forklaring</b> (statistikk), bryr vi oss om forutsetningene, standardfeil og p-verdier, og vi bruker hele datasettet. Når målet er <b>prediksjon</b> (data science), er det viktigste hvor godt modellen treffer nye data. Da partisjonerer vi og evaluerer på valideringsdataene.</p>
+<p>Når målet er <b>forklaring</b> (statistikk), bryr vi oss om forutsetningene, standardfeil og p-verdier, og vi bruker hele datasettet. Når målet er <b>prediksjon</b> (data science), er det viktigste hvor godt modellen treffer nye data. Da partisjonerer vi og evaluerer på valideringssettet.</p>
 <p>Forutsetningene for klassisk inferens er linearitet, uavhengige feil, konstant varians og normalfordelte feil. For prediksjon er det nok at modellen gir lav valideringsfeil, men brudd kan likevel gi dårligere prediksjoner.</p>
 <div class="pros">
-<div><h3>Styrker</h3><ul><li>Rask og lett å tolke</li><li>Fungerer godt med få observasjoner</li><li>Gir både prediksjon og effekt per variabel</li></ul></div>
-<div><h3>Svakheter</h3><ul><li>Fanger bare lineære sammenhenger, med mindre du lager nye variabler (x², interaksjoner)</li><li>Sensitiv for uteliggere og sterkt korrelerte variabler (multikollinearitet)</li><li>Dårlig til å ekstrapolere utenfor dataområdet</li></ul></div>
+<div><h3>Styrker</h3><ul><li>Rask og lett å tolke</li><li>Fungerer godt med få datapunkter</li><li>Gir både prediksjon og effekt per variabel</li></ul></div>
+<div><h3>Svakheter</h3><ul><li>Fanger bare lineære sammenhenger, med mindre du lager nye variabler (x², interaksjoner)</li><li>Sensitiv for utstikkere og sterkt korrelerte variabler (multikollinearitet)</li><li>Dårlig til å ekstrapolere utenfor dataområdet</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle: R² på treningsdata</b>R² øker alltid når du legger til en variabel, også når variabelen er ren støy. Sammenlign modeller med justert R², AIC eller RMSE på valideringsdata.</div>
+<div class="pit"><b>Eksamensfelle: R² på treningsdata</b>R² øker alltid når du legger til en variabel, også når variabelen er ren støy. Sammenlign modeller med justert R², AIC eller RMSE på valideringssettet.</div>
 <h2>Python</h2>
 <pre><code>from sklearn.linear_model import LinearRegression
 from mlba import regressionSummary
@@ -1480,12 +1482,12 @@ regressionSummary(y_true=valid_y, y_pred=car_lm.predict(valid_X))   # feilmål p
 });
 
 topic({
-  id: 'variabelseleksjon', data: [['toyota']], short: 'Variabelvalg', lecture: 'F5', tags: ['Prediksjon', 'Subset selection', 'AIC'],
-  title: 'Variabelvalg: uttømmende søk, forward og backward',
+  id: 'variabelseleksjon', data: [['toyota']], short: 'Subset selection', lecture: 'F5', tags: ['Prediksjon', 'Subset selection', 'AIC'],
+  title: 'Subset selection: exhaustive search, forward og backward',
   path: ['Veiledet læring', 'Prediksjon'],
-  lead: 'Flere forklaringsvariabler er ikke alltid bedre. Delmengdeseleksjon prøver ut ulike utvalg av variablene og velger det beste etter et mål som straffer kompleksitet: justert R², AIC, BIC eller feilen på valideringsdata.',
+  lead: 'Flere forklaringsvariabler er ikke alltid bedre. Subset selection prøver ut ulike utvalg av variablene og velger det beste etter et mål som straffer kompleksitet: justert R², AIC, BIC eller feilen på valideringssettet.',
   figs: [{
-    title: 'Uttømmende søk på bruktbildataene',
+    title: 'Exhaustive search på bruktbildataene',
     sub: 'Alle 2 047 modeller med 1–11 av variablene er tilpasset på treningsdataene. For hver modellstørrelse vises den beste. Justert R² skal være høy, AIC skal være lav.',
     build(el) {
       const E = DATA.toyotaExhaustive; let k = 9;
@@ -1516,17 +1518,17 @@ topic({
     },
     tryit: ['Fra 1 til 4 variabler stiger justert R² kraftig. Etter rundt 6 variabler skjer nesten ingenting.',
       'Den beste modellen målt med både justert R² og AIC har 9 variabler (grønt punkt). Doors og Met_Color faller ut.',
-      'Her kommer forward, backward og uttømmende søk til samme modell. Det er ikke garantert generelt.']
+      'Her kommer forward, backward og exhaustive search til samme modell. Det er ikke garantert generelt.']
   }, {
     title: 'Hvor mange modeller må vi prøve?',
-    sub: 'Uttømmende søk prøver alle delmengder av p variabler. Forward og backward prøver høyst 1 + p(p + 1)/2 modeller.',
+    sub: 'Exhaustive search prøver alle delmengder av p variabler. Forward og backward prøver høyst 1 + p(p + 1)/2 modeller.',
     build(el) {
       let p = 11;
       const ctl = Controls(el);
       Slider(ctl, { label: 'Antall kandidatvariabler p', min: 1, max: 40, value: p, oninput: v => { p = v; draw(); } });
       const plot = new Plot(el, { w: 760, h: 250, x: [1, 40], y: [0, 12.5], yticks: [0, 3, 6, 9, 12], yfmt: v => ({ 0: '1', 3: '1 000', 6: '1 mill.', 9: '1 mrd.', 12: '10¹²' })[v], xlab: 'p', ylab: 'Antall modeller (log)', label: 'Antall modeller mot p' });
       const g = plot.layer();
-      const tiles = Tiles(el, [['ex', 'Uttømmende: 2^p'], ['st', 'Forward/backward: maks 1 + p(p+1)/2'], ['t', 'Tid ved 1 ms per modell (uttømmende)']]);
+      const tiles = Tiles(el, [['ex', 'Exhaustive: 2^p'], ['st', 'Forward/backward: maks 1 + p(p+1)/2'], ['t', 'Tid ved 1 ms per modell (exhaustive)']]);
       const ps = range(40, i => i + 1);
       S('path', { d: pathOf(ps.map(q => [plot.x(q), plot.y(Math.min(12.5, q * Math.log10(2)))])), fill: 'none', class: 's-c0', 'stroke-width': 2.5 }, plot.gData);
       S('path', { d: pathOf(ps.map(q => [plot.x(q), plot.y(Math.log10(1 + q * (q + 1) / 2))])), fill: 'none', class: 's-c1', 'stroke-width': 2.5 }, plot.gData);
@@ -1538,7 +1540,7 @@ topic({
         const sec = ex / 1000; tiles.set('t', sec < 60 ? fx(sec, 1) + ' sek' : sec < 3600 ? fx(sec / 60, 1) + ' min' : sec < 86400 * 2 ? fx(sec / 3600, 1) + ' timer' : sec < 3.15e7 * 2 ? fint(sec / 86400) + ' døgn' : fint(sec / 3.15e7) + ' år');
       }
       draw();
-      el.append(H('p', { class: 'note', html: '<b style="color:var(--c0)">Uttømmende søk</b> dobles for hver ny variabel. <b style="color:var(--c1)">Forward og backward</b> vokser bare kvadratisk.' }));
+      el.append(H('p', { class: 'note', html: '<b style="color:var(--c0)">Exhaustive search</b> dobles for hver ny variabel. <b style="color:var(--c1)">Forward og backward</b> vokser bare kvadratisk.' }));
     }
   }],
   body: `
@@ -1548,9 +1550,9 @@ topic({
 <li>Variabler som nesten bare bidrar med støy, øker variansen i prediksjonene.</li>
 <li>Sterkt korrelerte variabler (multikollinearitet) gir ustabile koeffisienter.</li>
 </ul>
-<h2>Delmengdeseleksjon (subset selection)</h2>
+<h2>Subset selection (valg av variabler)</h2>
 <ul>
-<li><b>Uttømmende søk:</b> prøv alle 2<sup>p</sup> − 1 kombinasjoner og velg den beste etter justert R², AIC eller valideringsfeil. Garantert best, men umulig for store p.</li>
+<li><b>Exhaustive search:</b> prøv alle 2<sup>p</sup> − 1 kombinasjoner og velg den beste etter justert R², AIC eller valideringsfeil. Garantert best, men umulig for store p.</li>
 <li><b>Forward selection:</b> start uten variabler. Legg til den som forbedrer modellen mest, til ingen forbedrer den. Høyst 1 + p(p + 1)/2 modeller.</li>
 <li><b>Backward elimination:</b> start med alle. Fjern den minst nyttige, til fjerning gjør modellen dårligere.</li>
 <li><b>Stepwise:</b> som forward, men en variabel som er lagt til, kan fjernes igjen senere.</li>
@@ -1559,15 +1561,15 @@ topic({
 <p>Vanlig R² øker alltid når en variabel legges til, også når variabelen er ren støy. Derfor brukes mål som straffer antall variabler:</p>
 <div class="formula">Justert R² = 1 − (1 − R²) · (<span class="v">n</span> − 1) / (<span class="v">n</span> − <span class="v">p</span> − 1)<br>AIC = <span class="v">n</span> · ln(SSE / <span class="v">n</span>) + <span class="v">n</span> · (1 + ln 2π) + 2(<span class="v">p</span> + 1)<br>BIC = <span class="v">n</span> · ln(SSE / <span class="v">n</span>) + <span class="v">n</span> · (1 + ln 2π) + ln(<span class="v">n</span>) · (<span class="v">p</span> + 1)</div>
 <ul>
-<li><i>n</i> er antall observasjoner og <i>p</i> antall forklaringsvariabler. <i>p</i> + 1 teller med konstantleddet.</li>
+<li><i>n</i> er antall datapunkter og <i>p</i> antall forklaringsvariabler. <i>p</i> + 1 teller med konstantleddet.</li>
 <li><b>AIC</b> (Akaikes informasjonskriterium) har to deler. Første ledd blir lavere jo bedre modellen passer dataene (lavere SSE). Siste ledd er en straff på 2 per parameter. <b>Lavere AIC er bedre.</b> Selve tallet betyr ingenting alene; det er forskjellen mellom modeller på de samme dataene som teller.</li>
 <li><b>BIC</b> (bayesiansk informasjonskriterium) straffer med ln(<i>n</i>) per parameter i stedet for 2. Allerede fra <i>n</i> = 8 er ln(<i>n</i>) større enn 2, så BIC foretrekker enklere modeller enn AIC.</li>
 <li>Midtleddet <i>n</i> · (1 + ln 2π) er likt for alle modeller på de samme dataene, så det påvirker ikke hvilken modell som vinner.</li>
-<li>Det tryggeste målet er fortsatt feilen på valideringsdata, for eksempel RMSE.</li>
+<li>Det tryggeste målet er fortsatt feilen på valideringssettet, for eksempel RMSE.</li>
 </ul>
-<div class="pit"><b>Eksamensfelle: R² på treningsdata</b>R² stiger alltid med flere variabler. Sammenlign modeller med justert R², AIC, BIC eller RMSE på valideringsdata.</div>
+<div class="pit"><b>Eksamensfelle: R² på treningsdata</b>R² stiger alltid med flere variabler. Sammenlign modeller med justert R², AIC, BIC eller RMSE på valideringssettet.</div>
 <h2>Alternativet: krymp i stedet for å velge</h2>
-<p>I stedet for å slå variabler helt av eller på kan vi beholde alle og straffe store koeffisienter. Det kalles regularisering, og de vanligste variantene er ridge, lasso og elastic net. Lasso gjør i tillegg variabelvalg automatisk ved å sette noen koeffisienter til null. Se <a href="#regularisering">siden om regularisering</a>.</p>
+<p>I stedet for å slå variabler helt av eller på kan vi beholde alle og straffe store koeffisienter. Det kalles regularisering, og de vanligste variantene er ridge, lasso og elastic net. Lasso velger i tillegg variabler automatisk ved å sette noen koeffisienter til null. Se <a href="#regularisering">siden om regularisering</a>.</p>
 <h2>Python</h2>
 <pre><code>from mlba import forward_selection, backward_elimination, AIC_score
 from sklearn.linear_model import LinearRegression
@@ -1684,7 +1686,7 @@ topic({
 <p>Modellen gir en propensitet <i>p</i>. Med terskel 0,5 blir <i>p</i> &gt; 0,5 klassifisert som 1. Terskelen kan flyttes etter hva feilene koster. Se <a href="#evaluering-klassifikasjon">evaluering av klassifikasjon</a>.</p>
 <div class="pros">
 <div><h3>Styrker</h3><ul><li>Gir sannsynligheter, ikke bare klasser</li><li>Koeffisientene kan tolkes som oddsratioer</li><li>Rask, og fungerer bra med få data</li></ul></div>
-<div><h3>Svakheter</h3><ul><li>Lineær beslutningsgrense i X</li><li>Krever dummyer og omforming for ikke-lineære mønstre</li><li>Sensitiv for sterkt korrelerte variabler</li></ul></div>
+<div><h3>Svakheter</h3><ul><li>Lineær klassifikasjonsgrense i X</li><li>Krever dummyer og omforming for ikke-lineære mønstre</li><li>Sensitiv for sterkt korrelerte variabler</li></ul></div>
 </div>
 <div class="pit"><b>Eksamensfelle: odds er ikke sannsynlighet</b>Odds = 3 betyr p = 0,75, ikke 3 %. Og e<sup>b</sup> = 1,5 betyr at <i>oddsen</i> øker med 50 %, ikke sannsynligheten.</div>
 <div class="pit"><b>Eksamensfelle: regn baklengs</b>Får du en logit, regn odds = e<sup>logit</sup> og så p = odds / (1 + odds). Logit = 0 gir alltid p = 0,5.</div>
@@ -1819,7 +1821,7 @@ topic({
       b.append(H('p', { class: 'note', html: 'Den tynne streken på hver søyle er koeffisienten uten straff.' }));
       const cv = new Plot(el, { w: 760, h: 250, x: [0, 1], y: [1300, 3800], xlab: 'log₁₀(α)', ylab: 'CV-RMSE (€)', label: 'Kryssvalideringsfeil mot straff' });
       const gC = cv.layer(), gCm = cv.layer();
-      const tiles = Tiles(el, [['nz', 'Variabler ≠ 0'], ['cv', 'CV-RMSE ± SE'], ['va', 'RMSE på valideringsdata'], ['ols', 'RMSE uten straff']]);
+      const tiles = Tiles(el, [['nz', 'Variabler ≠ 0'], ['cv', 'CV-RMSE ± SE'], ['va', 'RMSE på valideringssettet'], ['ols', 'RMSE uten straff']]);
       el.append(H('p', { class: 'note', html: '<b style="color:var(--good)">Grønn</b>: α med lavest CV-feil. <b style="color:var(--accent)">Blå</b>: 1-SE-regelen, den største α der CV-feilen er innenfor ett standardavvik fra den laveste. Merk at α i <code>Ridge</code> og α i <code>Lasso</code>/<code>ElasticNet</code> ikke er på samme skala i scikit-learn.' }));
       function draw(newMode) {
         const path = P[mode], lx = path.map(d => Math.log10(d.a)), { mi, one } = best(path);
@@ -1846,7 +1848,7 @@ topic({
     tryit: ['Trykk «Minste CV-feil» for lasso. Det beste er nesten ingen straff: med 600 biler og bare 11 variabler er det lite å tjene på å krympe.', 'Trykk «1-SE-regelen». Lassoen beholder bare fire variabler, mens CV-feilen er nesten like lav. En enklere modell som er nesten like god, er ofte å foretrekke.', 'Bytt til ridge. Kurvene går mot null, men ingen blir nøyaktig null.', 'Elastic net beholder alle variablene mye lenger enn lasso, fordi ridge-delen krymper alt samtidig.']
   }, {
     title: 'Korrelerte variabler: lasso velger, ridge deler',
-    sub: 'Simulerte data: 200 observasjoner der y = x₁ + x₂ + støy, og x₁ og x₂ er korrelerte. Begge variablene er like viktige. Se hvordan de tre metodene fordeler vekten mellom dem når straffen øker.',
+    sub: 'Simulerte data: 200 datapunkter der y = x₁ + x₂ + støy, og x₁ og x₂ er korrelerte. Begge variablene er like viktige. Se hvordan de tre metodene fordeler vekten mellom dem når straffen øker.',
     build(el) {
       let rho = 0.97, li = 30;
       const lams = range(61, i => Math.pow(10, -2.5 + i * 3.2 / 60));
@@ -1897,12 +1899,12 @@ topic({
       const a = H('div'), b = H('div'); cols.append(a, b);
       const bars = S('svg', { viewBox: '0 0 360 300', class: 'plot', role: 'img', 'aria-label': 'Koeffisienter i logistisk regresjon' }); a.append(bars);
       a.append(H('p', { class: 'note', html: 'Koeffisientene er i logit per standardavvik. Den tynne streken er koeffisienten uten straff.' }));
-      const pa = new Plot(b, { w: 380, h: 250, x: [-3, 1], y: [0.89, 0.96], xticks: [-3, -2, -1, 0, 1], xlab: 'log₁₀(C)', ylab: 'Treffsikkerhet (validering)', label: 'Treffsikkerhet mot C', yfmt: v => fx(100 * v, 0) + ' %' });
+      const pa = new Plot(b, { w: 380, h: 250, x: [-3, 1], y: [0.89, 0.96], xticks: [-3, -2, -1, 0, 1], xlab: 'log₁₀(C)', ylab: 'Nøyaktighet (validering)', label: 'Nøyaktighet mot C', yfmt: v => fx(100 * v, 0) + ' %' });
       for (const [k, cl] of [['l1acc', 'c0'], ['l2acc', 'c4']]) S('path', { d: pathOf(L.map(d => [pa.x(Math.log10(d.C)), pa.y(d[k])])), fill: 'none', class: 's-' + cl, 'stroke-width': 2.2 }, pa.gData);
       S('line', { x1: pa.x(-3), x2: pa.x(1), y1: pa.y(0.9035), y2: pa.y(0.9035), class: 's-mut', 'stroke-dasharray': '5 4' }, pa.gData);
       S('text', { x: pa.x(0.95), y: pa.y(0.9035) - 6, 'text-anchor': 'end', text: 'alltid «nei»: 90,35 %', style: 'font-size:11px' }, pa.gData);
       const mk = S('circle', { r: 7, class: 'f-hl s-ink' }, pa.gTop);
-      const tiles = Tiles(b, [['c', 'C'], ['lam', 'λ = 1/C'], ['nz', 'Variabler ≠ 0'], ['acc', 'Treffsikkerhet']]);
+      const tiles = Tiles(b, [['c', 'C'], ['lam', 'λ = 1/C'], ['nz', 'Variabler ≠ 0'], ['acc', 'Nøyaktighet']]);
       b.append(H('p', { class: 'note', html: 'Linjer: <b style="color:var(--c0)">L1</b> og <b style="color:var(--c4)">L2</b>.' }));
       function draw() {
         const d = L[idx], coef = noPen ? nop.coef : d[pen], acc = noPen ? nop.acc : d[pen + 'acc'];
@@ -1913,17 +1915,17 @@ topic({
       }
       draw();
     },
-    tryit: ['Velg L1 og dra C helt ned. Ved C = 0,001 er alle koeffisientene null, og modellen sier «nei» til alle. Det gir 90,35 % treffsikkerhet, fordi bare 9,6 % takker ja.', 'Øk C gradvis med L1. Income kommer inn først, så CD Account, Education og CCAvg. Det er variablene lassoen anser som viktigst.', 'Trykk «Ingen straff». Det er dette læreboka gjør med C = 1e42: λ blir så liten at det i praksis er vanlig logistisk regresjon.']
+    tryit: ['Velg L1 og dra C helt ned. Ved C = 0,001 er alle koeffisientene null, og modellen sier «nei» til alle. Det gir 90,35 % nøyaktighet, fordi bare 9,6 % takker ja.', 'Øk C gradvis med L1. Income kommer inn først, så CD Account, Education og CCAvg. Det er variablene lassoen anser som viktigst.', 'Trykk «Ingen straff». Det er dette læreboka gjør med C = 1e42: λ blir så liten at det i praksis er vanlig logistisk regresjon.']
   }],
   body: `
 <h2>Hvorfor straffe store koeffisienter?</h2>
-<p>Minste kvadrater velger koeffisientene som passer treningsdataene best. Med mange variabler, sterkt korrelerte variabler eller få observasjoner per variabel blir koeffisientene ustabile: små endringer i dataene gir store utslag. Regularisering trekker koeffisientene mot null. Det gir litt mer bias, men mye mindre varians, og bedre prediksjoner på nye data når variansen var problemet.</p>
+<p>Minste kvadrater velger koeffisientene som passer treningsdataene best. Med mange variabler, sterkt korrelerte variabler eller få datapunkter per variabel blir koeffisientene ustabile: små endringer i dataene gir store utslag. Regularisering trekker koeffisientene mot null. Det gir litt mer bias, men mye mindre varians, og bedre prediksjoner på nye data når variansen var problemet.</p>
 <h2>De tre straffene</h2>
 <div class="formula">Ridge (L2): minimer SSE + λ Σ β<sub>j</sub>²<br>Lasso (L1): minimer SSE + λ Σ |β<sub>j</sub>|<br>Elastic net: minimer SSE + λ [<span class="v">r</span> Σ |β<sub>j</sub>| + (1 − <span class="v">r</span>)/2 · Σ β<sub>j</sub>²]</div>
 <ul>
 <li><b>λ = 0</b> gir vanlig minste kvadrater. <b>Når λ blir svært stor</b>, går alle koeffisientene mot null, og modellen predikerer bare gjennomsnittet av Y.</li>
 <li><b>Ridge</b> krymper alle koeffisientene, men setter ingen til null. Den deler vekten mellom korrelerte variabler.</li>
-<li><b>Lasso</b> kan sette koeffisienter til nøyaktig null, og gjør dermed variabelvalg. Blant sterkt korrelerte variabler velger den gjerne én og dropper resten.</li>
+<li><b>Lasso</b> kan sette koeffisienter til nøyaktig null, og velger dermed variabler. Blant sterkt korrelerte variabler velger den gjerne én og dropper resten.</li>
 <li><b>Elastic net</b> blander de to. <span class="v">r</span> (<code>l1_ratio</code>) styrer blandingen: 1 er lasso, 0 er ridge. Den velger variabler, men holder korrelerte variabler sammen.</li>
 <li>Konstantleddet β<sub>0</sub> straffes ikke.</li>
 </ul>
@@ -1931,7 +1933,7 @@ topic({
 <ol>
 <li><b>Standardiser</b> forklaringsvariablene (z-score, tilpasset på treningsdataene). Ellers avhenger straffen av måleenheten: en koeffisient for kilometer ville vært billig, en for antall dører dyr.</li>
 <li><b>Velg λ med kryssvalidering</b> (<code>RidgeCV</code>, <code>LassoCV</code>, <code>ElasticNetCV</code>). Enten λ med lavest CV-feil, eller med <b>1-SE-regelen</b>: den største λ der CV-feilen er innenfor ett standardavvik fra den laveste. Den gir en enklere modell som er omtrent like god.</li>
-<li><b>Evaluer</b> den valgte modellen på valideringsdata eller testdata som ikke ble brukt til å velge λ.</li>
+<li><b>Evaluer</b> den valgte modellen på valideringssettet eller et testsett som ikke ble brukt til å velge λ.</li>
 </ol>
 <h2>Variantene du bør kjenne</h2>
 <div class="tblwrap"><table class="tbl">
@@ -1940,11 +1942,11 @@ topic({
 <tr><td class="l">Lasso</td><td class="l">L1</td><td class="l"><code>Lasso(alpha=…)</code>, <code>LassoCV</code></td><td class="l">Ja</td></tr>
 <tr><td class="l">Elastic net</td><td class="l">L1 + L2</td><td class="l"><code>ElasticNet(alpha=…, l1_ratio=…)</code>, <code>ElasticNetCV</code></td><td class="l">Ja, men beholder grupper av korrelerte variabler</td></tr>
 <tr><td class="l">Regularisert logistisk regresjon</td><td class="l">L1, L2 eller begge</td><td class="l"><code>LogisticRegression(penalty='l1', C=…)</code>, der C = 1/λ</td><td class="l">Med L1: ja</td></tr>
-<tr><td class="l">Vektstraff i nevrale nett (weight decay)</td><td class="l">L2</td><td class="l">For eksempel <code>kernel_regularizer</code> i Keras</td><td class="l">Nei</td></tr>
+<tr><td class="l">L2-regularisering i nevrale nettverk (weight decay)</td><td class="l">L2</td><td class="l">For eksempel <code>kernel_regularizer</code> i Keras</td><td class="l">Nei</td></tr>
 </table></div>
 <p>scikit-learn kaller straffen <code>alpha</code> i <code>Ridge</code>, <code>Lasso</code> og <code>ElasticNet</code>. I <code>Lasso</code> og <code>ElasticNet</code> er SSE delt på 2<i>n</i>, i <code>Ridge</code> ikke. Derfor kan ikke tallverdiene sammenlignes direkte mellom klassene. I <code>LogisticRegression</code> heter det <code>C</code>, og det virker motsatt vei: liten C er sterk straff. Standardverdien er <code>C=1.0</code> med L2-straff, så logistisk regresjon i scikit-learn er litt regularisert hvis du ikke endrer C.</p>
 <div class="pros">
-<div><h3>Styrker</h3><ul><li>Bedre prediksjoner når det er mange eller korrelerte variabler</li><li>Lasso og elastic net gjør variabelvalg automatisk</li><li>Fungerer også når det er flere variabler enn observasjoner</li></ul></div>
+<div><h3>Styrker</h3><ul><li>Bedre prediksjoner når det er mange eller korrelerte variabler</li><li>Lasso og elastic net velger variabler automatisk</li><li>Fungerer også når det er flere variabler enn datapunkter</li></ul></div>
 <div><h3>Svakheter</h3><ul><li>Koeffisientene er bevisst skjeve mot null og kan ikke tolkes som vanlige effekter</li><li>Krever standardisering og valg av λ</li><li>Lassoens valg blant korrelerte variabler kan være tilfeldig</li></ul></div>
 </div>
 <div class="pit"><b>Eksamensfelle: retningen på straffen</b>Større λ (<code>alpha</code>) betyr sterkere straff og enklere modell. Større C betyr <i>svakere</i> straff. Og det er lasso, ikke ridge, som kan gi koeffisienter lik 0.</div>
@@ -1979,9 +1981,9 @@ logit_plain = LogisticRegression(penalty='l2', C=1e42, solver='liblinear')</code
 
 topic({
   id: 'knn', data: [['mowers'], ['toyota', ['Price', 'Age_08_04']]], short: 'k-NN', lecture: 'F6', tags: ['Klassifikasjon', 'Prediksjon', 'Avstander'],
-  title: 'k nærmeste naboer (k-NN)',
+  title: 'k-nærmeste naboer (k-NN)',
   path: ['Veiledet læring', 'Klassifikasjon og prediksjon'],
-  lead: 'k-NN finner de k treningspunktene som ligner mest på et nytt punkt og lar dem stemme. For tall tar vi gjennomsnittet av naboenes Y. Det finnes ingen modell å tilpasse; hele treningssettet er modellen.',
+  lead: 'k-NN finner de k treningspunktene som ligner mest på et nytt punkt og lar dem stemme. For en numerisk responsvariabel tar vi gjennomsnittet av naboenes Y. Det finnes ingen modell å tilpasse; hele treningssettet er modellen.',
   figs: [{
     title: 'Naboene stemmer',
     sub: 'Sitteklipperdataene: 24 husholdninger, 12 eiere og 12 ikke-eiere. Avstandene regnes på standardiserte variabler (z-score), men aksene viser vanlige enheter. Klikk eller dra for å flytte den nye husholdningen.',
@@ -2073,13 +2075,13 @@ topic({
 <ul>
 <li>Liten k: fleksibel modell som følger støy. Lav bias, høy varians.</li>
 <li>Stor k: glatt modell som overser lokale mønstre. Høy bias, lav varians. k = n gir alltid den største klassen, som er den naive benchmarken.</li>
-<li>Velg k med lavest feil på valideringsdata eller med kryssvalidering. Bruk et oddetall ved to klasser, så unngår du uavgjort.</li>
+<li>Velg k med lavest feil på valideringssettet eller med kryssvalidering. Bruk et oddetall ved to klasser, så unngår du uavgjort.</li>
 </ul>
 <div class="pros">
 <div><h3>Styrker</h3><ul><li>Enkel idé, ingen antakelser om formen på sammenhengen</li><li>Fanger kompliserte, lokale mønstre når det er nok data</li><li>Samme metode for klassifikasjon og prediksjon</li></ul></div>
 <div><h3>Svakheter</h3><ul><li>Treg prediksjon: avstanden til alle treningspunkter må regnes ut</li><li>Dimensjonenes forbannelse: med mange variabler blir alle punkter «langt unna»</li><li>Krever skalering, og gir ingen tolkbare koeffisienter</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle: glemt standardisering</b>Uten skalering bestemmer variabelen med størst tall avstanden. I sitteklipperdataene ville inntekt (33–110) dominert helt over tomtestørrelse (14–24). Se figuren på <a href="#dataforberedelse">dataforberedelse</a>.</div>
+<div class="pit"><b>Eksamensfelle: glemt standardisering</b>Uten skalering bestemmer variabelen med størst tall avstanden. I sitteklipperdataene ville inntekt (33–110) dominert helt over tomtestørrelse (14–24). Se figuren på <a href="#dataforberedelse">preprosessering</a>.</div>
 <div class="pit"><b>Eksamensfelle: regn for hånd</b>Typisk oppgave: gitt standardiserte verdier, regn avstanden til noen punkter, finn de k nærmeste og stem. Husk kvadratroten, og husk at rangeringen ikke endres om du dropper den.</div>
 <h2>Python</h2>
 <pre><code>from sklearn.neighbors import KNeighborsClassifier
@@ -2204,7 +2206,7 @@ classificationSummary(y_true=valid_y, y_pred=delays_nb.predict(valid_X))   # for
 });
 
 /* ---- topics/traer.js ---- */
-/* Beslutningstrær og ensembler. Inneholder en liten CART-implementasjon (to forklaringsvariabler). */
+/* Desisjonstrær og ensembler. Inneholder en liten CART-implementasjon (to forklaringsvariabler). */
 
 function impurity(c1, n, crit) {
   if (!n) return 0; const p = c1 / n;
@@ -2252,7 +2254,7 @@ function drawTree(wrap, root, d, names, path, fmtT) {
   const Hh = (depthMax + 1) * lh + 10, pos = new Map();
   leaves.forEach((l, i) => pos.set(l, [10 + lw * (i + 0.5), 0]));
   (function place(nd) { if (pos.has(nd)) { pos.get(nd)[1] = 8 + nd.depth * lh; return pos.get(nd); } const a = place(nd.L), b = place(nd.R); const p = [(a[0] + b[0]) / 2, 8 + nd.depth * lh]; pos.set(nd, p); return p; })(root);
-  const svg = S('svg', { viewBox: `0 0 ${W} ${Hh}`, width: W, class: 'plot', style: 'max-width:none;margin:0 auto;width:' + W + 'px', role: 'img', 'aria-label': 'Beslutningstreet' });
+  const svg = S('svg', { viewBox: `0 0 ${W} ${Hh}`, width: W, class: 'plot', style: 'max-width:none;margin:0 auto;width:' + W + 'px', role: 'img', 'aria-label': 'Desisjonstreet' });
   const on = new Set(path || []);
   for (const [nd, p] of pos) if (!(nd.leaf || nd.depth >= d)) for (const [ch, lab] of [[nd.L, 'ja'], [nd.R, 'nei']]) {
     const q = pos.get(ch); S('line', { x1: p[0], y1: p[1] + 40, x2: q[0], y2: q[1], class: on.has(ch) ? 's-acc' : 's-mut', 'stroke-width': on.has(ch) ? 3 : 1.3 }, svg);
@@ -2272,10 +2274,10 @@ function synth2D(seed, n, flip) {
 }
 
 topic({
-  id: 'beslutningstraer', data: [['mowers']], short: 'Beslutningstrær', lecture: 'F7', tags: ['Klassifikasjon', 'Prediksjon', 'Gini og entropi'],
-  title: 'Beslutningstrær',
+  id: 'beslutningstraer', data: [['mowers']], short: 'Desisjonstrær', lecture: 'F7', tags: ['Klassifikasjon', 'Prediksjon', 'Gini og entropi'],
+  title: 'Desisjonstrær',
   path: ['Veiledet læring', 'Klassifikasjon og prediksjon'],
-  lead: 'Et beslutningstre deler dataene i rektangler med enkle ja/nei-regler, én variabel om gangen. Hver splitt velges slik at gruppene blir så rene som mulig. Resultatet er regler som er lette å lese.',
+  lead: 'Et desisjonstre deler dataene i rektangler med enkle ja/nei-regler, én variabel om gangen. Hver splitt velges slik at gruppene blir så rene som mulig. Resultatet er regler som er lette å lese.',
   figs: [{
     title: 'Finn den beste første splitten',
     sub: 'Sitteklipperdataene: 24 husholdninger, 12 eiere og 12 ikke-eiere. Velg variabel og flytt splitten. Rent betyr at en gruppe bare har én klasse.',
@@ -2334,7 +2336,7 @@ topic({
       const gR = plot.layer(), gP = plot.layer(), gQ = plot.layer();
       R.forEach(r => S('circle', { cx: plot.x(r[0]), cy: plot.y(r[1]), r: 6, class: (r[2] ? 'f-c1' : 'f-c0') + ' s-surf', 'stroke-width': 1.5 }, gP));
       const qS = S('polygon', { class: 'f-hl s-ink' }, gQ);
-      const tiles = Tiles(b, [['lv', 'Antall blader'], ['acc', 'Treffsikkerhet på treningsdata'], ['res', 'Ny husholdning']]);
+      const tiles = Tiles(b, [['lv', 'Antall terminalnoder'], ['acc', 'Nøyaktighet på treningsdata'], ['res', 'Ny husholdning']]);
       const tw = H('div', { style: 'overflow-x:auto;margin-top:10px' }); el.append(tw);
       clickMove(plot, p => { q = [clamp(p.x, 26, 119), clamp(p.y, 13.2, 24.8)]; draw(); });
       function draw() {
@@ -2351,9 +2353,9 @@ topic({
       }
       draw();
     },
-    tryit: ['Øk dybden én og én. Hver splitt deler et rektangel i to. Ved dybde 4 er alle blader rene, og treffsikkerheten på treningsdata er 100 %.',
-      'Plasser stjerna og følg den uthevede veien ned i treet. Det er akkurat det du gjør når du klassifiserer en ny post for hånd.',
-      'Tallene i boksene er [ikke-eier, eier]. Andelen eiere i bladet er propensiteten treet gir.']
+    tryit: ['Øk dybden én og én. Hver splitt deler et rektangel i to. Ved dybde 4 er alle terminalnoder rene, og nøyaktigheten på treningsdata er 100 %.',
+      'Plasser stjerna og følg den uthevede veien ned i treet. Det er akkurat det du gjør når du klassifiserer et nytt datapunkt for hånd.',
+      'Tallene i boksene er [ikke-eier, eier]. Andelen eiere i terminalnoden er propensiteten treet gir.']
   }, {
     title: 'Overtilpasning: hvor dypt bør treet være?',
     sub: '400 simulerte punkter der grensen er en bølge og 15 % av etikettene er tilfeldig snudd. Treet trenes på 240 punkter (fylte) og valideres på 160 (hule).',
@@ -2369,10 +2371,10 @@ topic({
       const a = H('div'), b = H('div'); cols.append(a, b);
       const plot = new Plot(a, { w: 520, h: 420, x: [0, 1], y: [0, 1], xlab: 'x₁', ylab: 'x₂', label: 'Beslutningsområder for valgt dybde' });
       const gR = plot.layer(), gP = plot.layer();
-      const p2 = new Plot(b, { w: 380, h: 260, x: [0, 17], y: [0.6, 1], xticks: [1, 4, 8, 12, 16], xlab: 'Maks dybde', ylab: 'Treffsikkerhet', label: 'Treffsikkerhet mot dybde' });
+      const p2 = new Plot(b, { w: 380, h: 260, x: [0, 17], y: [0.6, 1], xticks: [1, 4, 8, 12, 16], xlab: 'Maks dybde', ylab: 'Nøyaktighet', label: 'Nøyaktighet mot dybde' });
       for (const [k, cl] of [[1, 'c4'], [2, 'c0']]) { S('path', { d: pathOf(curve.map(c => [p2.x(c[0]), p2.y(c[k])])), fill: 'none', class: 's-' + cl, 'stroke-width': 2 }, p2.gData); curve.forEach(c => S('circle', { cx: p2.x(c[0]), cy: p2.y(c[k]), r: 2.5, class: 'f-' + cl }, p2.gData)); }
       const vl = S('line', { y1: p2.y(0.6), y2: p2.y(1), class: 's-ink', 'stroke-dasharray': '3 3' }, p2.gTop);
-      const tiles = Tiles(b, [['tr', 'Trening'], ['va', 'Validering'], ['lv', 'Antall blader']]);
+      const tiles = Tiles(b, [['tr', 'Trening'], ['va', 'Validering'], ['lv', 'Antall terminalnoder']]);
       b.append(H('p', { class: 'note', html: '<b style="color:var(--c4)">Trening</b> stiger mot 100 %. <b style="color:var(--c0)">Validering</b> topper seg og faller.' }));
       function draw() {
         clear(gR); clear(gP); const X0 = plot.x, Y0 = plot.y;
@@ -2384,47 +2386,47 @@ topic({
       }
       draw();
     },
-    tryit: ['Ved dybde 1–2 er treet for grovt til å følge bølgen.', 'Ved stor dybde lager treet små rektangler rundt enkeltpunkter som er snudd ved en tilfeldighet. Valideringen blir dårligere.', 'Maks dybde er en hyperparameter. Den velges ut fra valideringsdata, for eksempel med grid search.']
+    tryit: ['Ved dybde 1–2 er treet for grovt til å følge bølgen.', 'Ved stor dybde lager treet små rektangler rundt enkeltpunkter som er snudd ved en tilfeldighet. Valideringen blir dårligere.', 'Maks dybde er en hyperparameter. Den velges ut fra valideringssettet, for eksempel med grid search.']
   }],
   body: `
 <h2>Slik leser du et tre</h2>
 <ul>
 <li><b>Rotnoden</b> øverst inneholder alle treningsdataene. Hver <b>indre node</b> har en regel, for eksempel Income ≤ 59,7.</li>
 <li>Er regelen sann, går du til venstre (ja). Ellers går du til høyre (nei).</li>
-<li><b>Bladene</b> nederst gir klassen: flertallet av treningspunktene i bladet. Andelen i klasse 1 er propensiteten.</li>
-<li>Hver vei fra rot til blad er en regel av typen <i>HVIS Income &gt; 59,7 OG Lot_Size &gt; 19,8 SÅ eier</i>.</li>
+<li><b>Terminalnodene</b> (bladene) nederst gir klassen: majoritetsklassen blant treningspunktene i terminalnoden. Andelen i klasse 1 er propensiteten.</li>
+<li>Hver vei fra rotnoden til en terminalnode er en regel av typen <i>HVIS Income &gt; 59,7 OG Lot_Size &gt; 19,8 SÅ eier</i>.</li>
 </ul>
 <h2>Rekursiv partisjonering</h2>
 <ol>
 <li>Prøv alle mulige splitter: for hver variabel, alle midtpunkter mellom sorterte verdier.</li>
-<li>Velg splitten som gir lavest vektet urenhet i de to nye gruppene.</li>
+<li>Velg splitten som gir lavest vektet impurity i de to nye gruppene.</li>
 <li>Gjenta i hver gruppe til gruppene er rene eller en stoppregel slår inn.</li>
 </ol>
 <div class="formula">Gini = 1 − Σ <span class="v">p</span><sub><span class="v">k</span></sub>² &nbsp;&nbsp;&nbsp;&nbsp; Entropi = − Σ <span class="v">p</span><sub><span class="v">k</span></sub> log<sub>2</sub>(<span class="v">p</span><sub><span class="v">k</span></sub>)</div>
-<p>Med to klasser er Gini høyst 0,5 og entropi høyst 1, begge når klassene er 50/50. Begge er 0 i en ren gruppe. Vektet urenhet etter en splitt er (<i>n</i><sub>V</sub> · urenhet<sub>V</sub> + <i>n</i><sub>H</sub> · urenhet<sub>H</sub>) / <i>n</i>.</p>
+<p>Med to klasser er Gini høyst 0,5 og entropi høyst 1, begge når klassene er 50/50. Begge er 0 i en ren gruppe. Vektet impurity etter en splitt er (<i>n</i><sub>V</sub> · impurity<sub>V</sub> + <i>n</i><sub>H</sub> · impurity<sub>H</sub>) / <i>n</i>.</p>
 <h2>Regresjonstrær</h2>
-<p>Når Y er et tall, predikerer et blad gjennomsnittet av Y i bladet. Urenheten måles med kvadrerte avvik fra gjennomsnittet (MSE), og splitten som reduserer den mest, velges. Prediksjonen blir en trappefunksjon.</p>
-<h2>Overtilpasning og hyperparametre</h2>
+<p>Når Y er et tall, predikerer en terminalnode gjennomsnittet av Y i terminalnoden. Impurity måles med kvadrerte avvik fra gjennomsnittet (MSE), og splitten som reduserer den mest, velges. Prediksjonen blir en trappefunksjon.</p>
+<h2>Overtilpasning og hyperparametere</h2>
 <ul>
-<li>Et fullt tre (alle blader rene) har 100 % treffsikkerhet på treningsdata, men lærer støy.</li>
+<li>Et fullt tre (alle terminalnoder rene) har 100 % nøyaktighet på treningsdata, men lærer støy.</li>
 <li>Begrens treet med <code>max_depth</code>, <code>min_samples_split</code>, <code>min_samples_leaf</code> eller <code>min_impurity_decrease</code>.</li>
 <li><b>Grid search</b> prøver alle kombinasjoner i et rutenett av verdier. <b>Random search</b> prøver et tilfeldig utvalg av kombinasjoner og dekker store rom raskere.</li>
 <li>Trær er <b>ustabile</b>: små endringer i dataene kan gi et helt annet tre. Det løser ensembler.</li>
 </ul>
 <div class="pros">
-<div><h3>Styrker</h3><ul><li>Lette å forklare og bruke som regler</li><li>Trenger ikke skalering, og tåler uteliggere i X</li><li>Velger variabler automatisk og fanger interaksjoner</li></ul></div>
-<div><h3>Svakheter</h3><ul><li>Ustabile og lett overtilpasset</li><li>Grenser bare parallelle med aksene</li><li>Ofte svakere enn ensembler på treffsikkerhet</li></ul></div>
+<div><h3>Styrker</h3><ul><li>Lette å forklare og bruke som regler</li><li>Trenger ikke skalering, og tåler utstikkere i X</li><li>Velger variabler automatisk og fanger interaksjoner</li></ul></div>
+<div><h3>Svakheter</h3><ul><li>Ustabile og lett overtilpasset</li><li>Grenser bare parallelle med aksene</li><li>Ofte svakere enn ensembler på nøyaktighet</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle: urenhet for hånd</b>Gruppe med 1 eier og 7 ikke-eiere: Gini = 1 − (1/8)² − (7/8)² = 0,219. Entropi = −(1/8 · log₂(1/8) + 7/8 · log₂(7/8)) = 0,544. Husk log med grunntall 2.</div>
+<div class="pit"><b>Eksamensfelle: impurity for hånd</b>Gruppe med 1 eier og 7 ikke-eiere: Gini = 1 − (1/8)² − (7/8)² = 0,219. Entropi = −(1/8 · log₂(1/8) + 7/8 · log₂(7/8)) = 0,544. Husk log med grunntall 2.</div>
 <h2>Python</h2>
 <pre><code># train_X, train_y: bankkundedataene (Universal Bank), Y = Personal Loan
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import GridSearchCV
 from mlba import plotDecisionTree, classificationSummary
 
-full_tree = DecisionTreeClassifier(random_state=1).fit(train_X, train_y)   # vokser til alle blader er rene
+full_tree = DecisionTreeClassifier(random_state=1).fit(train_X, train_y)   # vokser til alle terminalnoder er rene
 
-# hyperparametre å prøve: 4 · 3 · 3 = 36 kombinasjoner
+# hyperparametere å prøve: 4 · 3 · 3 = 36 kombinasjoner
 param_grid = {'max_depth': [4, 6, 8, 10],
               'min_samples_split': [10, 20, 30],
               'min_impurity_decrease': [0, 0.0005, 0.001]}
@@ -2462,10 +2464,10 @@ topic({
       const minis = range(3, i => { const w = H('div'); small.append(w); const p = new Plot(w, { w: 240, h: 190, m: { t: 18, r: 6, b: 8, l: 6 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'Tre ' + (i + 1) }); S('text', { x: 8, y: 13, class: 'lbl', text: 'Tre ' + (i + 1) + ' alene', style: 'font-size:12px' }, p.gTop); return { p, g: p.layer() }; });
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const a = H('div'), b = H('div'); cols.append(a, b);
-      const plot = new Plot(a, { w: 520, h: 420, m: { t: 28, r: 10, b: 10, l: 10 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'Flertallsavstemning' });
+      const plot = new Plot(a, { w: 520, h: 420, m: { t: 28, r: 10, b: 10, l: 10 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'Majoritetsklasse' });
       const title = S('text', { x: 12, y: 18, class: 'lbl', style: 'font-size:13px;font-weight:600' }, plot.gTop);
       const gR = plot.layer(), gP = plot.layer();
-      const p2 = new Plot(b, { w: 380, h: 260, x: [0, 61], y: [0.84, 0.96], xticks: [1, 10, 20, 30, 40, 50, 60], xlab: 'Antall trær', ylab: 'Treffsikkerhet (validering)', label: 'Treffsikkerhet mot antall trær' });
+      const p2 = new Plot(b, { w: 380, h: 260, x: [0, 61], y: [0.84, 0.96], xticks: [1, 10, 20, 30, 40, 50, 60], xlab: 'Antall trær', ylab: 'Nøyaktighet (validering)', label: 'Nøyaktighet mot antall trær' });
       const gA = p2.layer(), mk2 = S('circle', { r: 6.5, class: 'f-hl s-ink' }, p2.gTop);
       const tiles = Tiles(b, [['e', 'Ensemble'], ['s', 'Ett fullt tre']]);
       b.append(H('p', { class: 'note', html: 'Stiplet linje: ett fullt tre trent på alle dataene.' }));
@@ -2484,14 +2486,14 @@ topic({
         clear(gR); clear(gP);
         regionGrid(gR, plot, (x, y) => vote(T, B, [x, y]), 56, 42, 0, 1, 0, 1);
         tr.forEach(p => S('circle', { cx: plot.x(p[0]), cy: plot.y(p[1]), r: 3.3, class: p[2] ? 'f-c1' : 'f-c0' }, gP));
-        title.textContent = `Flertallet av ${B} ${B === 1 ? 'tre' : 'trær'}`;
+        title.textContent = `Majoritetsklassen av ${B} ${B === 1 ? 'tre' : 'trær'}`;
         mk2.setAttribute('cx', p2.x(B)); mk2.setAttribute('cy', p2.y(clamp(curve[B - 1], 0.84, 0.96)));
         tiles.set('e', fpct(curve[B - 1]));
       }
       draw(true);
     },
     tryit: ['Se på de tre små trærne. Hvert av dem har kantete og ganske ulike grenser, fordi de har sett ulike bootstrap-utvalg.',
-      'Dra antall trær fra 1 til 60. Flertallsgrensen blir jevnere, og treffsikkerheten stabiliserer seg over ett enkelt tre.',
+      'Dra antall trær fra 1 til 60. Grensen for majoritetsklassen blir jevnere, og nøyaktigheten stabiliserer seg over ett enkelt tre.',
       'Bytt til random forest. Trærne blir enda mer ulike hverandre, og det er nettopp det som gjør gjennomsnittet bedre.']
   }, {
     title: 'Boosting: neste tre retter opp feilene',
@@ -2544,24 +2546,24 @@ topic({
 <li>Trekk et bootstrap-utvalg: like mange rader som i treningsdataene, med tilbakelegging. Noen rader kommer med flere ganger, andre ikke i det hele tatt.</li>
 <li>Tren et tre på utvalget.</li>
 <li>Gjenta mange ganger.</li>
-<li>Klassifikasjon: flertallsavstemning (eller snitt av propensitetene). Prediksjon: gjennomsnitt.</li>
+<li>Klassifikasjon: majoritetsklassen (eller snitt av propensitetene). Prediksjon: gjennomsnitt.</li>
 </ol>
 <h2>Random forest</h2>
-<p>Som bagging, men i hver splitt får treet bare velge blant et tilfeldig utvalg av forklaringsvariablene (<code>max_features</code>). Da blir trærne mindre like, og gjennomsnittet blir bedre. Random forest gir også et mål på <b>variabelviktighet</b>: hvor mye hver variabel reduserer urenheten, summert over alle trærne.</p>
+<p>Som bagging, men i hver splitt får treet bare velge blant et tilfeldig utvalg av forklaringsvariablene (<code>max_features</code>). Da blir trærne mindre like, og gjennomsnittet blir bedre. Random forest gir også et mål på <b>feature importance</b>: hvor mye hver variabel reduserer impurity, summert over alle trærne.</p>
 <h2>Boosting</h2>
 <ol>
 <li>Tilpass et tre.</li>
-<li>Gi postene som ble feilklassifisert, høyere vekt (eller høyere sannsynlighet for å bli trukket i neste utvalg).</li>
+<li>Gi datapunktene som ble feilklassifisert, høyere vekt (eller høyere sannsynlighet for å bli trukket i neste utvalg).</li>
 <li>Tilpass et nytt tre til de vektede dataene.</li>
 <li>Gjenta steg 2 og 3 mange ganger.</li>
 <li>Kombiner trærne med vektet avstemning, der trær med lav feil teller mest.</li>
 </ol>
 <p><b>Gradient boosting</b> (<code>GradientBoostingClassifier</code>) bruker samme idé, men hvert nye tre tilpasses restfeilene til modellen så langt. Boosting reduserer først og fremst bias, og kan overtilpasse hvis det kjører for mange runder.</p>
 <h2>Resultater på bankkundedataene</h2>
-<p><a href="#datasett-ub">Universal Bank-dataene</a> har 5 000 bankkunder, og målet er å forutsi hvem som takker ja til et lånetilbud (9,6 % gjorde det). Med alle de 11 forklaringsvariablene og 60/40-oppdeling gir de tre modellene omtrent denne treffsikkerheten på valideringsdataene: beste enkelttre fra grid search 98,15 %, random forest med 500 trær 98,20 % og gradient boosting 98,35 %. Forskjellene er små her fordi ett tre allerede gjør det svært bra, men ensemblene er sjelden dårligere.</p>
+<p><a href="#datasett-ub">Universal Bank-dataene</a> har 5 000 bankkunder, og målet er å forutsi hvem som takker ja til et lånetilbud (9,6 % gjorde det). Med alle de 11 forklaringsvariablene og 60/40-oppdeling gir de tre modellene omtrent denne nøyaktigheten på valideringssettet: beste enkelttre fra grid search 98,15 %, random forest med 500 trær 98,20 % og gradient boosting 98,35 %. Forskjellene er små her fordi ett tre allerede gjør det svært bra, men ensemblene er sjelden dårligere.</p>
 <div class="pros">
-<div><h3>Styrker</h3><ul><li>Blant de beste metodene på tabelldata</li><li>Robuste mot støy og uteliggere</li><li>Random forest er vanskelig å overtilpasse ved å legge til flere trær</li></ul></div>
-<div><h3>Svakheter</h3><ul><li>Ingen enkle regler å lese, så de blir «svarte bokser» (se <a href="#shap">SHAP</a>)</li><li>Tregere å trene og bruke enn ett tre</li><li>Boosting har flere hyperparametre (læringsrate, antall runder)</li></ul></div>
+<div><h3>Styrker</h3><ul><li>Blant de beste metodene på tabelldata</li><li>Robuste mot støy og utstikkere</li><li>Random forest er vanskelig å overtilpasse ved å legge til flere trær</li></ul></div>
+<div><h3>Svakheter</h3><ul><li>Ingen enkle regler å lese, så de blir black box-modeller (se <a href="#shap">SHAP</a>)</li><li>Tregere å trene og bruke enn ett tre</li><li>Boosting har flere hyperparametere (learning rate, antall runder)</li></ul></div>
 </div>
 <div class="pit"><b>Eksamensfelle: bagging og boosting</b>Bagging trener trærne uavhengig og parallelt, og reduserer varians. Boosting trener dem etter hverandre, der hvert tre avhenger av de forrige, og reduserer først og fremst bias.</div>
 <h2>Python</h2>
@@ -2570,7 +2572,7 @@ topic({
 rf = RandomForestClassifier(n_estimators=500, random_state=1).fit(train_X, train_y)   # 500 trær
 classificationSummary(y_true=valid_y, y_pred=rf.predict(valid_X))
 
-# variabelviktighet: hvor mye hver variabel i snitt reduserer urenheten i trærne
+# feature importance: hvor mye hver variabel i snitt reduserer impurity i trærne
 importances = pd.DataFrame({'feature': train_X.columns, 'importance': rf.feature_importances_})
 print(importances.sort_values('importance', ascending=False))   # viktigste først
 
@@ -2579,7 +2581,7 @@ classificationSummary(y_true=valid_y, y_pred=boost.predict(valid_X))</code></pre
 });
 
 /* ---- topics/nevrale.js ---- */
-/* Nevrale nett: parametre, nevron, softmax, gradient descent, trening i nettleseren, konvolusjon */
+/* Nevrale nettverk: parametere, nevron, softmax, gradient descent, trening i nettleseren, konvolusjon */
 
 function NumIn(parent, o) {
   const id = uid('n'), inp = H('input', { type: 'number', id, value: o.value, min: o.min, max: o.max, step: o.step || 1 });
@@ -2614,13 +2616,13 @@ const ACT = {
 };
 
 topic({
-  id: 'nevrale-nett', dataNote: 'Figurene bruker små, oppdiktede eksempler og <b>simulerte data</b> (to halvmåner), slik at alt kan regnes ut direkte i nettleseren.', short: 'Nevrale nett', lecture: 'F9', tags: ['Klassifikasjon', 'Prediksjon', 'Dyp læring', 'CNN'],
-  title: 'Nevrale nett og CNN',
+  id: 'nevrale-nett', dataNote: 'Figurene bruker små, oppdiktede eksempler og <b>simulerte data</b> (to halvmåner), slik at alt kan regnes ut direkte i nettleseren.', short: 'Nevrale nettverk', lecture: 'F9', tags: ['Klassifikasjon', 'Prediksjon', 'Dyplæring', 'CNN'],
+  title: 'Nevrale nettverk og CNN',
   path: ['Veiledet læring', 'Klassifikasjon og prediksjon'],
-  lead: 'Et nevralt nett er lag av enkle regneenheter. Hvert nevron tar en vektet sum av inputene, legger til en bias og sender resultatet gjennom en aktiveringsfunksjon. Vektene læres ved å gå nedover i kostnadsfunksjonen med gradient descent, og backpropagation regner ut retningen.',
+  lead: 'Et nevralt nettverk er lag av enkle regneenheter. Hvert nevron tar en vektet sum av inputene, legger til en bias og sender resultatet gjennom en aktiveringsfunksjon. Vektene læres ved å gå nedover i kostnadsfunksjonen med gradient descent, og backpropagation regner ut retningen.',
   figs: [{
-    title: 'Tell parametrene',
-    sub: 'Hvert fullt koblet lag har n<sub>inn</sub> · n<sub>ut</sub> vekter og n<sub>ut</sub> biaser. Bygg et nett og se regnestykket lag for lag.',
+    title: 'Tell parameterne',
+    sub: 'Hvert fullt koblet lag har n<sub>inn</sub> · n<sub>ut</sub> vekter og n<sub>ut</sub> biaser. Bygg et nettverk og se regnestykket lag for lag.',
     build(el) {
       let nin = 4, L = 1, hs = [6, 4, 3], nout = 3;
       const ctl = Controls(el);
@@ -2631,8 +2633,8 @@ topic({
       const svgW = H('div', { style: 'overflow-x:auto' }); el.append(svgW);
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const tw = H('div', { class: 'tblwrap' }), tb = H('div'); cols.append(tw, tb);
-      const tiles = Tiles(tb, [['tot', 'Parametre totalt'], ['w', 'Vekter'], ['b', 'Biaser']]);
-      tb.append(H('p', { class: 'note', html: 'Til sammenligning har VGG16 138 357 544 parametre.' }));
+      const tiles = Tiles(tb, [['tot', 'Parametere totalt'], ['w', 'Vekter'], ['b', 'Biaser']]);
+      tb.append(H('p', { class: 'note', html: 'Til sammenligning har VGG16 138 357 544 parametere.' }));
       function draw() {
         hsS.forEach((s, i) => { s.el.style.display = i < L ? '' : 'none'; });
         const layers = [nin, ...hs.slice(0, L), nout], W = 760, mxN = Math.min(12, Math.max(...layers)), Hh = mxN * 22 + 70, svg = S('svg', { viewBox: `0 0 ${W} ${Hh}`, class: 'plot', role: 'img', 'aria-label': 'Nettverkstegning' });
@@ -2649,7 +2651,7 @@ topic({
       }
       draw();
     },
-    tryit: ['Lag nettet 3 → 4 → 2. Du skal få (3 · 4 + 4) + (4 · 2 + 2) = 26 parametre.', 'Dobbelt så mange nevroner i et skjult lag gir omtrent dobbelt så mange vekter inn og ut av laget.', 'Input-laget har ingen parametre. Det er bare dataene.']
+    tryit: ['Lag nettverket 3 → 4 → 2. Du skal få (3 · 4 + 4) + (4 · 2 + 2) = 26 parametere.', 'Dobbelt så mange nevroner i et skjult lag gir omtrent dobbelt så mange vekter inn og ut av laget.', 'Input-laget har ingen parametere. Det er bare dataene.']
   }, {
     title: 'Ett nevron, regnet ut',
     sub: 'Et nevron regner z = w₁x₁ + w₂x₂ + b og sender z gjennom en aktiveringsfunksjon. Med sigmoid er ett nevron det samme som logistisk regresjon.',
@@ -2681,17 +2683,17 @@ topic({
       }
       draw();
     },
-    tryit: ['Bytt mellom aktiveringene med de samme tallene. Sigmoid klemmer alt til (0, 1), tanh til (−1, 1), og ReLU setter negative z til 0.', 'Uten en ikke-lineær aktivering (lineær) blir et helt nett med mange lag bare én stor lineær regresjon.']
+    tryit: ['Bytt mellom aktiveringene med de samme tallene. Sigmoid klemmer alt til (0, 1), tanh til (−1, 1), og ReLU setter negative z til 0.', 'Uten en ikke-lineær aktivering (lineær) blir et helt nettverk med mange lag bare én stor lineær regresjon.']
   }, {
-    title: 'Softmax og kryssentropi',
-    sub: 'Output-laget for tre klasser gir tre tall (logits). Softmax gjør dem om til sannsynligheter som summerer til 1. Kryssentropien er −ln(sannsynligheten for riktig klasse).',
+    title: 'Softmax og cross-entropy',
+    sub: 'Output-laget for tre klasser gir tre tall (logits). Softmax gjør dem om til sannsynligheter som summerer til 1. Cross-entropy er −ln(sannsynligheten for riktig klasse).',
     build(el) {
       const z = [2, 1, -0.5]; let tr = 0;
       const ctl = Controls(el);
       z.forEach((v, i) => Slider(ctl, { label: 'z' + '₁₂₃'[i], min: -4, max: 4, step: 0.1, value: v, fmt: x => fx(x, 1), oninput: x => { z[i] = x; draw(); } }));
       Seg(ctl, { label: 'Riktig klasse', options: [[0, 'Katt'], [1, 'Hund'], [2, 'Fugl']], value: tr, onchange: v => { tr = v; draw(); } });
       const svg = S('svg', { viewBox: '0 0 760 170', class: 'plot', role: 'img', 'aria-label': 'Softmax-sannsynligheter' }); el.append(svg);
-      const tiles = Tiles(el, [['s', 'Sum av e^z'], ['p', 'P(riktig klasse)'], ['ce', 'Kryssentropi −ln p']]);
+      const tiles = Tiles(el, [['s', 'Sum av e^z'], ['p', 'P(riktig klasse)'], ['ce', 'Cross-entropy −ln p']]);
       function draw() {
         const p = softmax(z), names = ['Katt', 'Hund', 'Fugl']; clear(svg);
         p.forEach((v, i) => { const y = 14 + i * 50;
@@ -2704,7 +2706,7 @@ topic({
       }
       draw();
     },
-    tryit: ['Øk logit for riktig klasse. Sannsynligheten nærmer seg 1 og tapet nærmer seg 0.', 'Legg til samme tall på alle tre logits. Sannsynlighetene endres ikke. Det er bare forskjellene som teller.', 'Sett riktig klasse til en som modellen gir lav sannsynlighet. Tapet blir stort. Det er dette treningen prøver å unngå.']
+    tryit: ['Øk logit for riktig klasse. Sannsynligheten nærmer seg 1 og cross-entropy nærmer seg 0.', 'Legg til samme tall på alle tre logits. Sannsynlighetene endres ikke. Det er bare forskjellene som teller.', 'Sett riktig klasse til en som modellen gir lav sannsynlighet. Cross-entropy blir stor. Det er dette treningen prøver å unngå.']
   }, {
     title: 'Gradient descent: skrittlengden avgjør',
     sub: 'En kostnadsfunksjon med én vekt w. Hvert steg går motsatt vei av stigningen: w ← w − η · L′(w). Learning rate η bestemmer skrittlengden.',
@@ -2734,8 +2736,8 @@ topic({
     },
     tryit: ['Med η = 0,1 fra w = 2,8 havner du i det lokale minimumet til høyre, ikke i det laveste punktet.', 'Prøv η = 0,01. Det går riktig vei, men svært sakte.', 'Prøv η = 0,8–1,2. Stegene blir så lange at w hopper frem og tilbake eller forsvinner ut av bildet.']
   }, {
-    title: 'Tren et lite nett i nettleseren',
-    sub: 'Simulerte data: 400 punkter, 200 til trening (fylte) og 200 til validering (hule). Vektene justeres bare ut fra treningspunktene. Nettet har to input, ett skjult lag med valgfri aktivering og sigmoid ut, og trenes med mini-batch gradient descent. Den mørke linjen er beslutningsgrensen, der nettet gir p = 0,5.',
+    title: 'Tren et lite nettverk i nettleseren',
+    sub: 'Simulerte data: 400 punkter, 200 til trening (fylte) og 200 til validering (hule). Vektene justeres bare ut fra treningspunktene. Nettverket har to input, ett skjult lag med valgfri aktivering og sigmoid ut, og trenes med mini-batch gradient descent. Den mørke linjen er klassifikasjonsgrensen, der nettverket gir p = 0,5.',
     build(el) {
       const all = fit01(moons(RNG(13), 400, 0.18)), tr = all.slice(0, 200), va = all.slice(200);
       const T = p => [2 * p[0] - 1, 2 * p[1] - 1, p[2]], trT = tr.map(T), vaT = va.map(T);
@@ -2769,14 +2771,14 @@ topic({
       Btn(ctl2, 'Nullstill', () => { stop(); reset(); draw(); });
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const a = H('div'), b = H('div'); cols.append(a, b);
-      const plot = new Plot(a, { w: 520, h: 420, m: { t: 10, r: 10, b: 10, l: 10 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'Beslutningsgrensen til nettet' });
+      const plot = new Plot(a, { w: 520, h: 420, m: { t: 10, r: 10, b: 10, l: 10 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'Klassifikasjonsgrensen til nettverket' });
       const gR = plot.layer(), gP = plot.layer(), gC = plot.layer();
       tr.forEach(p => S('circle', { cx: plot.x(p[0]), cy: plot.y(p[1]), r: 3.4, class: p[2] ? 'f-c1' : 'f-c0' }, gP));
       va.forEach(p => S('circle', { cx: plot.x(p[0]), cy: plot.y(p[1]), r: 3.4, fill: 'none', class: p[2] ? 's-c1' : 's-c0', 'stroke-width': 1.2 }, gP));
-      const p2 = new Plot(b, { w: 380, h: 240, x: [0, 50], y: [0, 0.8], xlab: 'Epoch', ylab: 'Tap (kryssentropi)', label: 'Tap mot epoch' });
+      const p2 = new Plot(b, { w: 380, h: 240, x: [0, 50], y: [0, 0.8], xlab: 'Epoch', ylab: 'Cost (cross-entropy)', label: 'Cost mot epoch' });
       const gL = p2.clipLayer();
-      const tiles = Tiles(b, [['ep', 'Epochs'], ['up', 'Vektoppdateringer'], ['ta', 'Treffsikkerhet trening'], ['va', 'Treffsikkerhet validering']]);
-      b.append(H('p', { class: 'note', html: '<b style="color:var(--c4)">Treningstap</b> og <b style="color:var(--c0)">valideringstap</b>. Én epoch = alle 200 treningspunkter én gang. Oppdateringer per epoch = 200 / batch size.' }));
+      const tiles = Tiles(b, [['ep', 'Epochs'], ['up', 'Vektoppdateringer'], ['ta', 'Nøyaktighet trening'], ['va', 'Nøyaktighet validering']]);
+      b.append(H('p', { class: 'note', html: 'Cost på <b style="color:var(--c4)">treningsdataene</b> og på <b style="color:var(--c0)">valideringssettet</b>. Én epoch = alle 200 treningspunkter én gang. Oppdateringer per epoch = 200 / batch size.' }));
       function start() { if (running) return; running = true; play.textContent = 'Pause'; const loop = () => { if (!running || !el.isConnected) { running = false; return; } const t0 = performance.now(); let n = 0; while (performance.now() - t0 < 14 && n < 8 && ep < 3000) { epoch(); n++; } draw(); if (ep >= 3000) stop(); else raf = requestAnimationFrame(loop); }; raf = requestAnimationFrame(loop); }
       function stop() { running = false; cancelAnimationFrame(raf); play.textContent = 'Start trening'; }
       onLeave(stop);
@@ -2790,7 +2792,7 @@ topic({
       }
       reset(); draw();
     },
-    tryit: ['Trykk «Start trening» med 6 nevroner. Grensen bøyer seg gradvis rundt de to halvmånene.', 'Prøv 1 skjult nevron. Da kan nettet bare lage en rett grense, som logistisk regresjon. Det gjelder alle tre aktiveringene.', 'Velg 3 nevroner og bytt aktivering. Med ReLU blir grensen noen få rette biter med skarpe knekker, og med tanh blir bøyene myke. Sigmoid kommer dit også, men trenger mange flere epochs, fordi den deriverte aldri er større enn 0,25.','Sammenlign batch size 8 og 200. Med 8 blir det 25 oppdateringer per epoch, så nettet lærer på færre epochs, men hver epoch tar lengre tid.', 'Learning rate 3 gir urolige hopp. 0,05 gir trege, men jevne kurver.']
+    tryit: ['Trykk «Start trening» med 6 nevroner. Grensen bøyer seg gradvis rundt de to halvmånene.', 'Prøv 1 skjult nevron. Da kan nettverket bare lage en rett grense, som logistisk regresjon. Det gjelder alle tre aktiveringene.', 'Velg 3 nevroner og bytt aktivering. Med ReLU blir grensen noen få rette biter med skarpe knekker, og med tanh blir bøyene myke. Sigmoid kommer dit også, men trenger mange flere epochs, fordi den deriverte aldri er større enn 0,25.','Sammenlign batch size 8 og 200. Med 8 blir det 25 oppdateringer per epoch, så nettverket lærer på færre epochs, men hver epoch tar lengre tid.', 'Learning rate 3 gir urolige hopp. 0,05 gir trege, men jevne kurver.']
   }, {
     title: 'Konvolusjon: et filter som glir over bildet',
     sub: 'Et 8 × 8 gråtonebilde av sifferet 7 og et 3 × 3-filter. I hver posisjon ganges filteret med pikslene under, og summen blir én verdi i feature map-et.',
@@ -2830,13 +2832,13 @@ topic({
     tryit: ['Velg «Loddrett kant» og trykk «Hele bildet». Store positive og negative verdier dukker opp der bildet går fra mørkt til lyst sidelengs.', 'Bytt til «Vannrett kant». Nå er det overkanten og den skrå streken som lyser.', 'Prøv stride 2: feature map-et krymper fra 6 × 6 til 3 × 3. Med padding 1 blir det 8 × 8 igjen ved stride 1.']
   }, {
     title: 'Regn ut et konvolusjonslag',
-    sub: 'Output-størrelse = (W − F + 2P) / S + 1. Parametre = (F · F · C + 1) · K: hvert av de K filtrene har F · F · C vekter og én bias.',
+    sub: 'Output-størrelse = (W − F + 2P) / S + 1. Parametere = (F · F · C + 1) · K: hvert av de K filtrene har F · F · C vekter og én bias.',
     build(el) {
       const st = { W: 224, C: 3, F: 3, S: 1, P: 1, K: 64 };
       const ctl = Controls(el);
       for (const [k, lab, mn, mx] of [['W', 'Input bredde W', 1, 1000], ['C', 'Kanaler C', 1, 512], ['F', 'Filter F', 1, 11], ['S', 'Stride S', 1, 4], ['P', 'Padding P', 0, 5], ['K', 'Antall filtre K', 1, 512]])
         NumIn(ctl, { label: lab, value: st[k], min: mn, max: mx, oninput: v => { st[k] = v; draw(); } });
-      const tiles = Tiles(el, [['o', 'Output'], ['p', 'Parametre i laget'], ['f', 'Utregning']]);
+      const tiles = Tiles(el, [['o', 'Output'], ['p', 'Parametere i laget'], ['f', 'Utregning']]);
       function draw() {
         const o = (st.W - st.F + 2 * st.P) / st.S + 1, ok = Number.isInteger(o) && o > 0;
         tiles.set('o', ok ? `${o} × ${o} × ${st.K}` : 'går ikke opp', ok ? 'hl' : 'bad');
@@ -2845,26 +2847,26 @@ topic({
       }
       draw();
     },
-    tryit: ['Startverdiene er første lag i VGG16: 224 × 224 × 64 og 1 792 parametre.', 'Sett W = 32, F = 5, S = 1, P = 0 og K = 10. Output blir 28 × 28 × 10.', 'Max pooling 2 × 2 med stride 2 er F = 2, S = 2, P = 0 uten parametre: 224 blir 112.']
+    tryit: ['Startverdiene er første lag i VGG16: 224 × 224 × 64 og 1 792 parametere.', 'Sett W = 32, F = 5, S = 1, P = 0 og K = 10. Output blir 28 × 28 × 10.', 'Max pooling 2 × 2 med stride 2 er F = 2, S = 2, P = 0 uten parametere: 224 blir 112.']
   }],
   body: `
 <h2>Fra nevron til nettverk</h2>
-<p>Ett nevron regner <i>a</i> = <i>f</i>(w<sub>1</sub>x<sub>1</sub> + … + w<sub>p</sub>x<sub>p</sub> + b). Uten aktiveringsfunksjonen er det lineær regresjon. Med sigmoid er det logistisk regresjon. Et <b>multilayer perceptron (MLP)</b> setter mange nevroner i lag: input, ett eller flere skjulte lag, og output. Det er de ikke-lineære aktiveringene i de skjulte lagene som lar nettet lære krumme sammenhenger.</p>
+<p>Ett nevron regner <i>a</i> = <i>f</i>(w<sub>1</sub>x<sub>1</sub> + … + w<sub>p</sub>x<sub>p</sub> + b). Uten aktiveringsfunksjonen er det lineær regresjon. Med sigmoid er det logistisk regresjon. Et <b>multilayer perceptron (MLP)</b> setter mange nevroner i lag: input, ett eller flere skjulte lag, og output. Det er de ikke-lineære aktiveringene i de skjulte lagene som lar nettverket lære krumme sammenhenger.</p>
 <ul>
-<li><b>Parametre</b> lærer modellen selv: alle vekter og biaser. Fullt koblet lag: n<sub>inn</sub> · n<sub>ut</sub> + n<sub>ut</sub>.</li>
-<li><b>Hyperparametre</b> velger vi: antall lag og nevroner, aktivering, learning rate, batch size, antall epochs.</li>
+<li><b>Parametere</b> lærer modellen selv: alle vekter og biaser. Fullt koblet lag: n<sub>inn</sub> · n<sub>ut</sub> + n<sub>ut</sub>.</li>
+<li><b>Hyperparametere</b> velger vi: antall lag og nevroner, aktivering, learning rate, batch size, antall epochs.</li>
 </ul>
 <h2>Output-lag og kostnadsfunksjon hører sammen</h2>
 <div class="tblwrap"><table class="tbl">
 <tr><th class="l">Oppgave</th><th class="l">Output-lag</th><th class="l">Kostnadsfunksjon</th></tr>
 <tr><td class="l">Regresjon (tall)</td><td class="l">1 nevron, lineær</td><td class="l">MSE</td></tr>
-<tr><td class="l">To klasser</td><td class="l">1 nevron, sigmoid</td><td class="l">Binær kryssentropi</td></tr>
-<tr><td class="l">Flere klasser</td><td class="l">1 nevron per klasse, softmax</td><td class="l">Kategorisk kryssentropi</td></tr>
+<tr><td class="l">To klasser</td><td class="l">1 nevron, sigmoid</td><td class="l">Binær cross-entropy</td></tr>
+<tr><td class="l">Flere klasser</td><td class="l">1 nevron per klasse, softmax</td><td class="l">Kategorisk cross-entropy</td></tr>
 </table></div>
 <h2>Trening</h2>
 <ol>
-<li><b>Forward propagation:</b> send en batch gjennom nettet og få prediksjoner.</li>
-<li><b>Tap:</b> mål hvor feil prediksjonene er med kostnadsfunksjonen.</li>
+<li><b>Forward propagation:</b> send en batch gjennom nettverket og få prediksjoner.</li>
+<li><b>Cost:</b> mål hvor feil prediksjonene er med kostnadsfunksjonen.</li>
 <li><b>Backpropagation:</b> bruk kjerneregelen bakover gjennom lagene for å finne hvor mye hver vekt bidro til feilen (gradienten).</li>
 <li><b>Gradient descent:</b> juster hver vekt litt motsatt vei av gradienten: w ← w − η · ∂L/∂w.</li>
 <li>Gjenta for alle batcher (én epoch), og så for mange epochs.</li>
@@ -2872,18 +2874,18 @@ topic({
 <div class="formula">Oppdateringer per epoch = <span class="v">n</span> / batch size &nbsp;&nbsp;&nbsp;&nbsp; Totalt = epochs · <span class="v">n</span> / batch size</div>
 <p>Learning rate er den viktigste hyperparameteren: for liten gir treg læring, for stor gir hopp og divergens. Optimizere som SGD med momentum, RMSprop og Adam er smartere varianter av gradient descent.</p>
 <h2>Overtilpasning</h2>
-<p>Store nett kan pugge treningsdataene. Følg tapet på valideringsdata: når det snur og stiger mens treningstapet faller, begynner nettet å pugge. Tiltak: stopp tidlig (early stopping), dropout, vektstraff (weight decay), flere data eller data augmentation.</p>
-<h2>Konvolusjonsnett (CNN) for bilder</h2>
+<p>Store nettverk kan pugge treningsdataene. Følg cost på valideringssettet: når den snur og stiger mens cost på treningsdataene faller, begynner nettverket å pugge. Tiltak: stopp tidlig (early stopping), dropout, L2-regularisering (weight decay), flere data eller data augmentation.</p>
+<h2>Konvolusjonsnettverk (CNN) for bilder</h2>
 <ul>
 <li>Et bilde er en tabell med tall: høyde × bredde × kanaler (3 for RGB). En MLP ville trengt enormt mange vekter og mister naboskapet mellom piksler.</li>
 <li><b>Konvolusjon:</b> små filtre (for eksempel 3 × 3) glir over bildet. Samme vekter brukes overalt, og hvert filter gir ett <b>feature map</b>. Tidlige lag finner kanter, senere lag former og objekter.</li>
 <li><b>Stride</b> er skrittlengden, <b>padding</b> er en kant av nuller. Output = (W − F + 2P) / S + 1.</li>
-<li><b>Pooling</b> (for eksempel 2 × 2 max pooling) krymper bildet og beholder de sterkeste signalene. Ingen parametre.</li>
+<li><b>Pooling</b> (for eksempel 2 × 2 max pooling) krymper bildet og beholder de sterkeste signalene. Ingen parametere.</li>
 <li>Et typisk CNN: flere blokker med konvolusjon og pooling, så fullt koblede lag og softmax til slutt.</li>
 </ul>
 <h2>VGG16 og transfer learning</h2>
-<p>VGG16 har 16 lag med vekter (13 konvolusjonslag og 3 fullt koblede), bare 3 × 3-filtre, og 138 millioner parametre trent på ImageNet med 1000 klasser. Med <b>transfer learning</b> gjenbruker vi konvolusjonsdelen som ferdig trent «ryggrad», fryser vektene og trener bare et nytt output-lag for vår egen oppgave. Det krever langt færre bilder enn å trene fra bunnen.</p>
-<div class="pit"><b>Eksamensfelle: tell parametre</b>3 input, ett skjult lag med 4 nevroner og 2 output: (3 · 4 + 4) + (4 · 2 + 2) = 26. Glem ikke biasene, og husk at input-laget ikke har parametre.</div>
+<p>VGG16 har 16 lag med vekter (13 konvolusjonslag og 3 fullt koblede), bare 3 × 3-filtre, og 138 millioner parametere trent på ImageNet med 1000 klasser. Med <b>transfer learning</b> gjenbruker vi konvolusjonsdelen som ferdig trent «ryggrad», fryser vektene og trener bare et nytt output-lag for vår egen oppgave. Det krever langt færre bilder enn å trene fra bunnen.</p>
+<div class="pit"><b>Eksamensfelle: tell parametere</b>3 input, ett skjult lag med 4 nevroner og 2 output: (3 · 4 + 4) + (4 · 2 + 2) = 26. Glem ikke biasene, og husk at input-laget ikke har parametere.</div>
 <div class="pit"><b>Eksamensfelle: iterasjoner</b>50 000 bilder, batch size 250 og 10 epochs gir 50 000 / 250 = 200 oppdateringer per epoch, altså 2 000 totalt.</div>
 <h2>Python</h2>
 <pre><code>from sklearn.neural_network import MLPClassifier               # scikit-learn, som i læreboka
@@ -2896,7 +2898,7 @@ model = keras.Sequential([                                      # lagene kobles 
     keras.layers.Input(shape=(4,)),                             # 4 features inn
     keras.layers.Dense(6, activation='relu'),                   # skjult lag: 6 nevroner med ReLU
     keras.layers.Dense(3, activation='softmax')])               # 3 klasser ut, softmax gir sannsynligheter
-# adam = gradient descent med tilpasset steglengde; tap = kryssentropi (y må være one-hot)
+# adam = gradient descent med tilpasset steglengde; loss = cross-entropy (y må være one-hot)
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 # de siste 20 % av radene holdes av til validering
 model.fit(X, y, epochs=20, batch_size=32, validation_split=0.2)
@@ -2916,7 +2918,7 @@ topic({
   lead: 'En stor språkmodell (LLM) er trent på én oppgave: å predikere neste token gitt teksten så langt. Svaret bygges ett token om gangen. Temperaturen styrer hvor tilfeldig hvert valg er.',
   figs: [{
     title: 'Fra prompt til svar i fem steg',
-    sub: 'Trykk på et steg. Tallene er en forenklet illustrasjon; ekte modeller har tusenvis av dimensjoner og milliarder av parametre.',
+    sub: 'Trykk på et steg. Tallene er en forenklet illustrasjon; ekte modeller har tusenvis av dimensjoner og milliarder av parametere.',
     build(el) {
       const steps = ['Prompt', 'Tokens', 'Embeddings', 'Transformer', 'Svar'];
       const toks = ['Forkl', 'ar', ' bias', '–', 'var', 'ians', ' i', ' én', ' set', 'ning', '.'];
@@ -3016,7 +3018,7 @@ topic({
   }],
   body: `
 <h2>Hva er generativ KI?</h2>
-<p>Generativ KI lager nytt innhold: tekst, bilder, lyd eller kode. KI er det brede feltet, maskinlæring er metoder som lærer av data, dyp læring er maskinlæring med store nevrale nett, og generativ KI er dyp læring som produserer nytt innhold. De tidligere modellene i faget har titalls eller hundretalls parametre. De største språkmodellene har hundrevis av milliarder.</p>
+<p>Generativ KI lager nytt innhold: tekst, bilder, lyd eller kode. KI er det brede feltet, maskinlæring er metoder som lærer av data, dyplæring er maskinlæring med store nevrale nettverk, og generativ KI er dyplæring som produserer nytt innhold. De tidligere modellene i faget har titalls eller hundretalls parametere. De største språkmodellene har hundrevis av milliarder.</p>
 <h2>Neste-token-prediksjon er veiledet læring</h2>
 <p>Kjerneoppgaven er å predikere neste token gitt prompten og teksten så langt, som en avansert autofullføring. Fasiten (Y) er det faktiske neste tokenet i treningsteksten, så oppgaven er veiledet, men fasiten kommer gratis fra teksten selv.</p>
 <h2>Fra prompt til svar</h2>
@@ -3030,7 +3032,7 @@ topic({
 <h2>Temperatur</h2>
 <div class="formula"><span class="v">p</span><sub><span class="v">i</span></sub> = e<sup><span class="v">z</span><sub><span class="v">i</span></sub>/<span class="v">T</span></sup> / Σ<sub><span class="v">j</span></sub> e<sup><span class="v">z</span><sub><span class="v">j</span></sub>/<span class="v">T</span></sup></div>
 <ul>
-<li><b>Lav temperatur:</b> det mest sannsynlige tokenet velges nesten alltid. Stabile, like svar. Bra for uthenting av fakta og faste formater.</li>
+<li><b>Lav temperatur:</b> det mest sannsynlige tokenet velges nesten alltid. Stabile, like svar. Bra når vi skal hente ut fakta i faste formater.</li>
 <li><b>Høy temperatur:</b> flere fortsettelser får en sjanse. Mer variasjon og kreativitet, men flere feil.</li>
 </ul>
 <h2>Bilder og flere typer input</h2>
@@ -3116,13 +3118,13 @@ topic({
   }],
   body: `
 <h2>Generere eller hente ut?</h2>
-<p>Språkmodeller kan <b>generere</b> ny tekst (utkast, oppsummeringer, kode) eller <b>hente ut</b> strukturert informasjon fra tekst (tall fra årsrapporter, kategorier fra kundemeldinger). Uthenting er nærmere klassisk maskinlæring: det finnes en fasit, og vi kan måle treffsikkerhet.</p>
+<p>Språkmodeller kan <b>generere</b> ny tekst (utkast, oppsummeringer, kode) eller <b>hente ut</b> strukturert informasjon fra tekst (tall fra årsrapporter, kategorier fra kundemeldinger). Å hente ut informasjon er nærmere klassisk maskinlæring: det finnes en fasit, og vi kan måle nøyaktighet.</p>
 <h2>Tre måter å tilpasse</h2>
 <div class="tblwrap"><table class="tbl">
 <tr><th class="l">Metode</th><th class="l">Det vi endrer</th><th class="l">Passer når</th></tr>
 <tr><td class="l">Prompting</td><td class="l">Instruksjon og kontekst</td><td class="l">Oppgaven kan forklares tydelig. Alltid første steg.</td></tr>
 <tr><td class="l">RAG (retrieval augmented generation)</td><td class="l">Kildene som hentes inn</td><td class="l">Svaret skal bygge på egne eller ferske dokumenter.</td></tr>
-<tr><td class="l">Finjustering</td><td class="l">Modellens parametre, gjennom videre trening</td><td class="l">Et fast format eller fagspråk skal læres fra mange eksempler.</td></tr>
+<tr><td class="l">Finjustering</td><td class="l">Modellens parametere gjennom videre trening</td><td class="l">Et fast format eller fagspråk skal læres fra mange eksempler.</td></tr>
 </table></div>
 <h2>RAG i fire steg</h2>
 <ol>
@@ -3132,7 +3134,7 @@ topic({
 <li>Modellen genererer et svar som kan sjekkes mot kildene.</li>
 </ol>
 <h2>Mål før du tolker</h2>
-<p>Bruker du en språkmodell til å måle noe (for eksempel tone i årsrapporter), lag en menneskelig fasit på et utvalg og mål hvor ofte modellen treffer, akkurat som med en valideringsdel. Først når målingen er god nok, gir det mening å tolke tallene økonomisk.</p>
+<p>Bruker du en språkmodell til å måle noe (for eksempel tone i årsrapporter), lag en menneskelig fasit på et utvalg og mål hvor ofte modellen treffer, akkurat som med et valideringssett. Først når målingen er god nok, gir det mening å tolke tallene økonomisk.</p>
 <h2>Etiske utfordringer</h2>
 <ul>
 <li><b>Hallusinasjon:</b> flytende og selvsikre svar som er feil. Et sikkert svar kan skjule en feil.</li>
@@ -3147,9 +3149,9 @@ topic({
 });
 
 /* ---- topics/uveiledet.js ---- */
-/* Ikke-veiledet læring: hierarkisk klynging, k-means og PCA */
+/* Uveiledet læring: hierarkisk klyngeanalyse, k-means og PCA */
 
-const LINK = { single: 'Enkel (min)', complete: 'Fullstendig (maks)', average: 'Gjennomsnitt', centroid: 'Sentroide' };
+const LINK = { single: 'Single (min)', complete: 'Complete (maks)', average: 'Average (snitt)', centroid: 'Sentroide' };
 function clusterDist(A, B, P, link) {
   if (link === 'centroid') { const ca = [mean(A.map(i => P[i][0])), mean(A.map(i => P[i][1]))], cb = [mean(B.map(i => P[i][0])), mean(B.map(i => P[i][1]))]; return dist2(ca, cb); }
   const ds = []; for (const i of A) for (const j of B) ds.push(dist2(P[i], P[j]));
@@ -3185,10 +3187,10 @@ function zUtilities() {
 }
 
 topic({
-  id: 'hierarkisk-klynging', data: [['utilities']], short: 'Hierarkisk klynging', lecture: 'F10', tags: ['Ikke-veiledet', 'Avstandsmatrise', 'Dendrogram'],
-  title: 'Hierarkisk klynging',
-  path: ['Ikke-veiledet læring', 'Klynger og PCA'],
-  lead: 'Hierarkisk klynging starter med hvert punkt som sin egen klynge, og slår sammen de to nærmeste klyngene igjen og igjen. Resultatet er et dendrogram som viser hele historien. Hvordan vi måler avstand mellom klynger (linkage), kan gi helt ulike svar.',
+  id: 'hierarkisk-klynging', data: [['utilities']], short: 'Hierarkisk klyngeanalyse', lecture: 'F10', tags: ['Uveiledet', 'Avstandsmatrise', 'Dendrogram'],
+  title: 'Hierarkisk klyngeanalyse',
+  path: ['Uveiledet læring', 'Klyngeanalyse og PCA'],
+  lead: 'Hierarkisk klyngeanalyse starter med hvert punkt som sin egen klynge, og slår sammen de to nærmeste klyngene igjen og igjen. Resultatet er et dendrogram som viser hele historien. Hvordan vi måler avstand mellom klynger (linkage), kan gi helt ulike svar.',
   figs: [{
     title: 'Steg for steg med avstandsmatrise',
     sub: 'Sju av de 22 kraftselskapene, beskrevet med årlig strømsalg (Sales) og brenselkostnad (Fuel_Cost), begge normalisert som z-score over alle 22 selskapene. Den laveste avstanden i matrisen (markert) slås sammen i neste steg.',
@@ -3221,7 +3223,7 @@ topic({
       }
       draw();
     },
-    tryit: ['Trykk «Neste» fire ganger med enkel linkage. San Diego og New England slås sammen først (0,13), så Nevada og Puget (0,49).', 'Gå til steg 5 og bytt mellom enkel og fullstendig linkage. Madison havner hos Idaho-gruppa med enkel linkage, men hos NY-gruppa med fullstendig.', 'Se på tallene i matrisen etter en sammenslåing: med enkel linkage er avstanden til den nye klyngen minimum av de to gamle avstandene, med fullstendig er den maksimum.']
+    tryit: ['Trykk «Neste» fire ganger med single linkage. San Diego og New England slås sammen først (0,13), så Nevada og Puget (0,49).', 'Gå til steg 5 og bytt mellom single og complete linkage. Madison havner hos Idaho-gruppa med single linkage, men hos NY-gruppa med complete.', 'Se på tallene i matrisen etter en sammenslåing: med single linkage er avstanden til den nye klyngen minimum av de to gamle avstandene, med complete er den maksimum.']
   }, {
     title: 'Klipp dendrogrammet',
     sub: 'Alle 22 selskapene. Der du klipper treet, bestemmer hvor mange klynger du får. Klynger som slås sammen høyt oppe, er langt fra hverandre.',
@@ -3246,7 +3248,7 @@ topic({
       }
       draw();
     },
-    tryit: ['Dra klippehøyden ned og se klyngene dele seg. Hvert hopp i antall skjer der linjen krysser en vannrett strek i dendrogrammet.', 'Sammenlign enkel og fullstendig linkage. Enkel linkage lager gjerne lange kjeder, fullstendig gir mer kompakte grupper.']
+    tryit: ['Dra klippehøyden ned og se klyngene dele seg. Hvert hopp i antall skjer der linjen krysser en vannrett strek i dendrogrammet.', 'Sammenlign single og complete linkage. Single linkage lager gjerne lange kjeder, complete gir mer kompakte grupper.']
   }, {
     title: 'Likhet for binære variabler',
     sub: 'To kunder og åtte ja/nei-variabler (har kjøpt produktet eller ikke). Trykk på en rute for å endre den.',
@@ -3275,9 +3277,9 @@ topic({
 <h2>Avstand mellom klynger (linkage)</h2>
 <div class="tblwrap"><table class="tbl">
 <tr><th class="l">Linkage</th><th class="l">Avstand mellom klynge A og B</th><th class="l">Typisk resultat</th></tr>
-<tr><td class="l">Enkel (single)</td><td class="l">Minste avstand mellom et punkt i A og et i B</td><td class="l">Lange, kjedeaktige klynger</td></tr>
-<tr><td class="l">Fullstendig (complete)</td><td class="l">Største avstand mellom et punkt i A og et i B</td><td class="l">Kompakte klynger av lik størrelse</td></tr>
-<tr><td class="l">Gjennomsnitt (average)</td><td class="l">Snitt av alle avstander mellom A og B</td><td class="l">Et kompromiss</td></tr>
+<tr><td class="l">Single linkage</td><td class="l">Minste avstand mellom et punkt i A og et i B</td><td class="l">Lange, kjedeaktige klynger</td></tr>
+<tr><td class="l">Complete linkage</td><td class="l">Største avstand mellom et punkt i A og et i B</td><td class="l">Kompakte klynger av lik størrelse</td></tr>
+<tr><td class="l">Average linkage</td><td class="l">Snitt av alle avstander mellom A og B</td><td class="l">Et kompromiss</td></tr>
 <tr><td class="l">Sentroide (centroid)</td><td class="l">Avstand mellom gjennomsnittspunktene i A og B</td><td class="l">Intuitivt, men kan gi inversjoner</td></tr>
 <tr><td class="l">Ward</td><td class="l">Økningen i variasjon innad i klyngene ved sammenslåing</td><td class="l">Kompakte klynger, ligner k-means</td></tr>
 </table></div>
@@ -3290,9 +3292,9 @@ topic({
 </ol>
 <div class="pros">
 <div><h3>Styrker</h3><ul><li>Trenger ikke velge antall klynger på forhånd</li><li>Dendrogrammet viser struktur på alle nivåer</li><li>Fungerer med alle avstandsmål</li></ul></div>
-<div><h3>Svakheter</h3><ul><li>Tregt for store datasett (avstandsmatrisen er n × n)</li><li>En sammenslåing kan aldri angres</li><li>Følsom for uteliggere og valg av linkage</li></ul></div>
+<div><h3>Svakheter</h3><ul><li>Tregt for store datasett (avstandsmatrisen er n × n)</li><li>En sammenslåing kan aldri angres</li><li>Følsom for utstikkere og valg av linkage</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle: oppdater matrisen riktig</b>Etter at A og B er slått sammen, er avstanden fra AB til C: min(d(A,C), d(B,C)) med enkel linkage, maks(d(A,C), d(B,C)) med fullstendig linkage. Med gjennomsnitt må du snitte over alle punktparene, ikke bare de to tallene.</div>
+<div class="pit"><b>Eksamensfelle: oppdater matrisen riktig</b>Etter at A og B er slått sammen, er avstanden fra AB til C: min(d(A,C), d(B,C)) med single linkage, maks(d(A,C), d(B,C)) med complete linkage. Med average må du snitte over alle punktparene, ikke bare de to tallene.</div>
 <h2>Python</h2>
 <pre><code>from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 from sklearn.metrics import pairwise
@@ -3309,9 +3311,9 @@ memb = fcluster(Z, 6, criterion='maxclust')             # kutt treet så det bli
 });
 
 topic({
-  id: 'k-means', dataNote: 'Figuren bruker <b>simulerte data</b>: 180 punkter trukket rundt fire sentre. Python-koden nederst bruker <a href="#datasett-utilities">kraftselskapdataene</a>, som i læreboka.', short: 'k-means', lecture: 'F10', tags: ['Ikke-veiledet', 'Klynging'],
-  title: 'k-means',
-  path: ['Ikke-veiledet læring', 'Klynger og PCA'],
+  id: 'k-means', dataNote: 'Figuren bruker <b>simulerte data</b>: 180 punkter trukket rundt fire sentre. Python-koden nederst bruker <a href="#datasett-utilities">kraftselskapdataene</a>, som i læreboka.', short: 'k-means', lecture: 'F10', tags: ['Uveiledet', 'Klyngeanalyse'],
+  title: 'k-means klyngeanalyse',
+  path: ['Uveiledet læring', 'Klyngeanalyse og PCA'],
   lead: 'k-means deler dataene i k klynger ved å veksle mellom to steg: tildel hvert punkt til nærmeste sentroide, og flytt hver sentroide til gjennomsnittet av punktene sine. Det gjentas til ingenting endrer seg.',
   figs: [{
     title: 'k-means steg for steg',
@@ -3336,7 +3338,7 @@ topic({
       const plot = new Plot(a, { w: 520, h: 420, m: { t: 10, r: 10, b: 10, l: 10 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'k-means' });
       const gL = plot.layer(), gP = plot.layer(), gC = plot.layer();
       const tiles = Tiles(b, [['ph', 'Neste steg'], ['it', 'Iterasjoner'], ['in', 'Inertia (sum av kvadrerte avstander)']]);
-      const p2 = new Plot(b, { w: 360, h: 220, x: [0.5, 8.5], y: [0, Math.max(...elbow) * 1.05], xticks: range(8, i => i + 1), xlab: 'k', ylab: 'Inertia (beste av 10)', label: 'Albueplott', yfmt: v => fx(v, 1) });
+      const p2 = new Plot(b, { w: 360, h: 220, x: [0.5, 8.5], y: [0, Math.max(...elbow) * 1.05], xticks: range(8, i => i + 1), xlab: 'k', ylab: 'Inertia (beste av 10)', label: 'Albueplot', yfmt: v => fx(v, 1) });
       S('path', { d: pathOf(elbow.map((v, j) => [p2.x(j + 1), p2.y(v)])), fill: 'none', class: 's-acc', 'stroke-width': 2 }, p2.gData);
       elbow.forEach((v, j) => S('circle', { cx: p2.x(j + 1), cy: p2.y(v), r: 3.5, class: 'f-acc' }, p2.gData));
       const mk = S('circle', { r: 7, fill: 'none', class: 's-hl', 'stroke-width': 3 }, p2.gTop);
@@ -3367,7 +3369,7 @@ topic({
 <p>Hvert steg kan bare redusere inertia, så algoritmen stopper alltid. Men den finner et <b>lokalt</b> minimum som avhenger av startpunktene.</p>
 <h2>Valg av k</h2>
 <ul>
-<li><b>Albueplott:</b> inertia mot k. Velg k der kurven knekker og videre økning gir lite.</li>
+<li><b>Albueplot:</b> inertia mot k. Velg k der kurven knekker og videre økning gir lite.</li>
 <li><b>Domenekunnskap:</b> hvor mange segmenter kan markedsavdelingen faktisk bruke?</li>
 <li><b>Tolkbarhet:</b> se på sentroidene (gjennomsnittsprofilene) og sjekk at klyngene gir mening.</li>
 </ul>
@@ -3376,7 +3378,7 @@ topic({
 <div><h3>k-means</h3><ul><li>Raskt, også for store datasett</li><li>Må velge k på forhånd</li><li>Gir runde, like store klynger</li><li>Resultatet avhenger av startpunktene</li></ul></div>
 <div><h3>Hierarkisk</h3><ul><li>Tregt for store datasett</li><li>Trenger ikke k på forhånd</li><li>Dendrogram viser struktur på alle nivåer</li><li>Samme resultat hver gang</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle</b>Normaliser variablene før k-means, akkurat som i k-NN og hierarkisk klynging. Og husk at k-means ikke er k-NN: k-means er ikke-veiledet klynging, k-NN er veiledet klassifikasjon.</div>
+<div class="pit"><b>Eksamensfelle</b>Normaliser variablene før k-means, akkurat som i k-NN og hierarkisk klyngeanalyse. Og husk at k-means ikke er k-NN: k-means er uveiledet klyngeanalyse, k-NN er veiledet klassifikasjon.</div>
 <h2>Python</h2>
 <pre><code># utilities_df_norm: kraftselskapdataene, normalisert som z-score
 from sklearn.cluster import KMeans
@@ -3393,10 +3395,10 @@ plt.plot(range(1, 10), inertia, marker='o')           # albueplott: velg k der k
 });
 
 topic({
-  id: 'pca', data: [['cereals']], short: 'PCA', lecture: 'F3', tags: ['Ikke-veiledet', 'Dimensjonsreduksjon'],
+  id: 'pca', data: [['cereals']], short: 'PCA', lecture: 'F3', tags: ['Uveiledet', 'Dimensjonsreduksjon'],
   title: 'Prinsipalkomponentanalyse (PCA)',
-  path: ['Ikke-veiledet læring', 'Klynger og PCA'],
-  lead: 'PCA lager nye variabler, prinsipalkomponenter, som er vektede summer av de opprinnelige. Første komponent fanger mest mulig av variansen, den neste mest av resten, og alle er ukorrelerte. Med noen få komponenter kan vi ofte beholde det meste av informasjonen.',
+  path: ['Uveiledet læring', 'Klyngeanalyse og PCA'],
+  lead: 'PCA lager nye variabler, prinsipalkomponenter, som er lineære kombinasjoner av de opprinnelige. Første komponent fanger mest mulig av variansen, den neste mest av resten, og alle er ukorrelerte. Med noen få komponenter kan vi ofte beholde det meste av informasjonen.',
   figs: [{
     title: 'Finn retningen med mest varians',
     sub: '77 frokostblandinger: kalorier og rating. Drei linja gjennom gjennomsnittspunktet. Variansen langs linja er variansen til projeksjonene (de små strekene).',
@@ -3415,9 +3417,9 @@ topic({
       const a = H('div'), b = H('div'); cols.append(a, b);
       const plot = new Plot(a, { w: 520, h: 440, x: [-1, 1], y: [-1, 1], label: 'Projeksjon på en retning' });
       const gL = plot.clipLayer(), gP = plot.layer();
-      const tiles = Tiles(b, [['v', 'Varians langs linja'], ['p', 'Andel av total varians'], ['w', 'Vekter (calories, rating)']]);
+      const tiles = Tiles(b, [['v', 'Varians langs linja'], ['p', 'Andel av total varians'], ['w', 'Ladninger (calories, rating)']]);
       const bar = S('svg', { viewBox: '0 0 360 60', class: 'plot', role: 'img', 'aria-label': 'Andel varians' }); b.append(bar);
-      b.append(H('p', { class: 'note', html: 'Linja med størst varians er PC1. Vektene er komponentene i retningsvektoren, og fortegnet kan snus uten at noe endres.' }));
+      b.append(H('p', { class: 'note', html: 'Linja med størst varians er PC1. Ladningene er komponentene i retningsvektoren, og fortegnet kan snus uten at noe endres.' }));
       function draw(newDom) {
         const D = data();
         if (newDom || !plot._d) { const s = std ? 4.4 : 64, ratio = (440 - 60) / (520 - 70); plot.o.xlab = std ? 'calories (z)' : 'calories − snitt'; plot.o.ylab = std ? 'rating (z)' : 'rating − snitt'; plot.setDomain([-s, s], [-s * ratio, s * ratio]); plot._d = 1; }
@@ -3435,7 +3437,7 @@ topic({
       }
       draw(true);
     },
-    tryit: ['Trykk «Finn PC1» på rådata. Vektene blir omtrent (−0,85, 0,53) for (calories, rating), som i læreboka, og retningen fanger 86 % av variansen. Fortegnet kan like gjerne være snudd.', 'Drei linja 90° fra PC1. Da får du PC2, som fanger resten (14 %).', 'Bytt til standardisert. Med to standardiserte variabler blir vektene alltid ±0,707: begge teller like mye, og bare korrelasjonen avgjør hvor mye PC1 fanger.']
+    tryit: ['Trykk «Finn PC1» på rådata. Ladningene blir omtrent (−0,85, 0,53) for (calories, rating), som i læreboka, og retningen fanger 86 % av variansen. Fortegnet kan like gjerne være snudd.', 'Drei linja 90° fra PC1. Da får du PC2, som fanger resten (14 %).', 'Bytt til standardisert. Med to standardiserte variabler blir ladningene alltid ±0,707: begge teller like mye, og bare korrelasjonen avgjør hvor mye PC1 fanger.']
   }, {
     title: 'Hvor mange komponenter trenger vi?',
     sub: 'PCA på alle 13 tallvariablene i frokostblandingsdataene (standardisert, 74 rader uten manglende verdier). Søylene er andelen varians hver komponent forklarer (PVE). Linja er kumulativ andel.',
@@ -3445,11 +3447,11 @@ topic({
       Slider(ctl, { label: 'Antall komponenter', min: 1, max: 13, value: m, oninput: v => { m = v; draw(); } });
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const a = H('div'), b = H('div'); cols.append(a, b);
-      const plot = new Plot(a, { w: 540, h: 300, x: [0.4, 13.6], y: [0, 1], xticks: range(13, i => i + 1), yfmt: v => Math.round(v * 100) + ' %', xlab: 'Komponent', ylab: 'Andel varians', label: 'Albueplott for PCA' });
+      const plot = new Plot(a, { w: 540, h: 300, x: [0.4, 13.6], y: [0, 1], xticks: range(13, i => i + 1), yfmt: v => Math.round(v * 100) + ' %', xlab: 'Komponent', ylab: 'Andel varians', label: 'Albueplot for PCA' });
       const g = plot.layer();
       const tiles = Tiles(b, [['c', 'Kumulativ andel'], ['r', 'Variabler redusert fra 13 til']]);
       const tw = H('div', { class: 'tblwrap', style: 'margin-top:10px' }); b.append(tw);
-      tw.append(H('table', { class: 'tbl' }, H('tr', {}, H('th', { class: 'l' }, 'Største vekter i PC1'), H('th', {}, 'Vekt')), DATA.cerealPC1.slice(0, 6).map(([c, w]) => H('tr', {}, H('td', { class: 'l' }, c), H('td', {}, fx(w, 3))))));
+      tw.append(H('table', { class: 'tbl' }, H('tr', {}, H('th', { class: 'l' }, 'Største ladninger i PC1'), H('th', {}, 'Ladning')), DATA.cerealPC1.slice(0, 6).map(([c, w]) => H('tr', {}, H('td', { class: 'l' }, c), H('td', {}, fx(w, 3))))));
       function draw() {
         clear(g); const X = plot.x, Y = plot.y; let c = 0; const cum = pve.map(v => (c += v));
         pve.forEach((v, i) => S('rect', { x: X(i + 1) - 14, y: Y(v), width: 28, height: Y(0) - Y(v), rx: 3, class: i < m ? 'f-acc' : 'f-line' }, g));
@@ -3459,15 +3461,15 @@ topic({
       }
       draw();
     },
-    tryit: ['De tre første komponentene forklarer omtrent 67 %. Albuen ligger rundt komponent 3–4.', 'Vektene i PC1 viser hva komponenten «handler om»: fiber, rating, kalium og protein drar én vei, kalorier den andre. Det ligner en sunnhetsakse.']
+    tryit: ['De tre første komponentene forklarer omtrent 67 %. Albuen ligger rundt komponent 3–4.', 'Ladningene i PC1 viser hva komponenten «handler om»: fiber, rating, kalium og protein drar én vei, kalorier den andre. Det ligner en sunnhetsakse.']
   }],
   body: `
 <h2>Kort fortalt</h2>
-<p>Med mange korrelerte variabler bærer flere av dem nesten den samme informasjonen. PCA roterer koordinatsystemet slik at den første aksen peker dit dataene varierer mest. Hver komponent er en vektet sum:</p>
+<p>Med mange korrelerte variabler bærer flere av dem nesten den samme informasjonen. PCA roterer koordinatsystemet slik at den første aksen peker dit dataene varierer mest. Hver komponent er en lineær kombinasjon:</p>
 <div class="formula"><span class="v">Z</span><sub>1</sub> = <span class="v">a</span><sub>11</sub><span class="v">x</span><sub>1</sub> + <span class="v">a</span><sub>12</sub><span class="v">x</span><sub>2</sub> + … + <span class="v">a</span><sub>1<span class="v">p</span></sub><span class="v">x</span><sub><span class="v">p</span></sub>, &nbsp;&nbsp; der <span class="v">a</span><sub>11</sub>² + … + <span class="v">a</span><sub>1<span class="v">p</span></sub>² = 1</div>
 <ul>
-<li><b>Vektene (loadings)</b> sier hvor mye hver variabel bidrar til komponenten.</li>
-<li><b>Scores</b> er verdiene til hver observasjon på de nye komponentene.</li>
+<li><b>Ladningene (loadings)</b> sier hvor mye hver variabel bidrar til komponenten.</li>
+<li><b>Scores</b> er verdiene til hvert datapunkt på de nye komponentene.</li>
 <li><b>PVE</b> (proportion of variance explained) er andelen av total varians hver komponent fanger. Summen av alle er 100 %.</li>
 <li>Komponentene er ukorrelerte med hverandre.</li>
 </ul>
@@ -3476,17 +3478,17 @@ topic({
 <h2>Bruk i data science</h2>
 <ul>
 <li><b>Dimensjonsreduksjon:</b> bruk de første komponentene som forklaringsvariabler i en modell (for eksempel regresjon eller k-NN).</li>
-<li><b>Visualisering:</b> plott de to første komponentene for å se grupper og uteliggere.</li>
-<li><b>Velg antall:</b> albueplott, eller nok komponenter til å forklare for eksempel 80–90 % av variansen.</li>
+<li><b>Visualisering:</b> plott de to første komponentene for å se grupper og utstikkere.</li>
+<li><b>Velg antall:</b> albueplot, eller nok komponenter til å forklare for eksempel 80–90 % av variansen.</li>
 <li>Ulempen er tolkning: en komponent er en blanding av mange variabler.</li>
 </ul>
-<div class="pit"><b>Eksamensfelle</b>PCA bruker ikke Y. Den er ikke-veiledet, så komponentene med mest varians er ikke nødvendigvis de som predikerer Y best.</div>
+<div class="pit"><b>Eksamensfelle</b>PCA bruker ikke Y. Den er uveiledet, så komponentene med mest varians er ikke nødvendigvis de som predikerer Y best.</div>
 <h2>Python</h2>
 <pre><code>from sklearn.decomposition import PCA
 from sklearn import preprocessing
 
 pcs = PCA(n_components=2).fit(cereals_df[['calories', 'rating']])   # PCA på to variabler, uskalert
-print(pcs.components_)                        # vektene (loadings)
+print(pcs.components_)                        # ladningene (loadings)
 print(pcs.explained_variance_ratio_)          # PVE
 
 # alle numeriske kolonner (fra kolonne 3), uten rader med manglende verdier, standardisert
@@ -3499,7 +3501,7 @@ scores = pcs.transform(preprocessing.scale(cereals_df.iloc[:, 3:].dropna(axis=0)
 });
 
 /* ---- topics/oppaa.js ---- */
-/* Legges oppå en trent modell: SHAP og konform prediksjon */
+/* Legges oppå en trent modell: SHAP og conformal prediction */
 
 topic({
   id: 'shap', data: [['toyota']], short: 'SHAP', lecture: 'F8', tags: ['Forklarbar KI', 'Modellagnostisk', 'Shapley-verdier'],
@@ -3508,7 +3510,7 @@ topic({
   lead: 'SHAP forklarer én enkelt prediksjon ved å fordele avstanden mellom prediksjonen og gjennomsnittsprediksjonen på forklaringsvariablene. Fordelingen bygger på Shapley-verdier fra spillteori: hver variabels gjennomsnittlige marginale bidrag.',
   figs: [{
     title: 'Shapley-verdier: rettferdig fordeling av en gevinst',
-    sub: 'Tre konsulenter, Ada, Bo og Cleo, kan ta et oppdrag alene eller sammen. Tallene er hva hver koalisjon kan tjene (i 1000 kr). Endre tallene og se fordelingen.',
+    sub: 'Tre konsulenter, Ada, Bo og Cleo, kan ta et oppdrag alene eller sammen. Tallene er hva hvert fellesskap kan tjene (i 1000 kr). Endre tallene og se fordelingen.',
     build(el) {
       const P = ['A', 'B', 'C'], N = { A: 'Ada', B: 'Bo', C: 'Cleo' };
       const v = { '': 0, A: 60, B: 40, C: 20, AB: 120, AC: 90, BC: 70, ABC: 160 };
@@ -3531,12 +3533,12 @@ topic({
     tryit: ['Les en rad: i rekkefølgen Bo → Ada → Cleo bidrar Ada med v(Ada + Bo) − v(Bo) = 120 − 40 = 80.', 'Shapley-verdiene summerer alltid til hva alle tre tjener sammen. Det kalles effektivitet.', 'Gjør Cleo verdiløs: sett v(Cleo) = 0, v(Ada + Cleo) = 60, v(Bo + Cleo) = 40 og v(Ada + Bo + Cleo) = 120. Da får Cleo 0. En spiller som aldri bidrar, får ingenting.']
   }, {
     title: 'Waterfall: hvorfor fikk denne bilen denne prisen?',
-    sub: 'En lineær regresjonsmodell for bruktbilpris, trent på 600 biler og brukt på biler fra valideringsdataene som den ikke har sett. For en lineær modell er SHAP-verdien φ = b · (x − gjennomsnitt av x).',
+    sub: 'En lineær regresjonsmodell for bruktbilpris, trent på 600 biler og brukt på biler fra valideringssettet som den ikke har sett. For en lineær modell er SHAP-verdien φ = b · (x − gjennomsnitt av x).',
     build(el) {
       const s = DATA.shapLinear; let ci = 0;
       const ctl = Controls(el);
       Seg(ctl, { label: 'Bil', options: s.cars.map((c, i) => [i, 'Bil ' + (i + 1)]), value: ci, onchange: v => { ci = v; draw(); } });
-      const svg = S('svg', { viewBox: '0 0 760 420', class: 'plot', role: 'img', 'aria-label': 'Waterfall-plott' }); el.append(svg);
+      const svg = S('svg', { viewBox: '0 0 760 420', class: 'plot', role: 'img', 'aria-label': 'Waterfall-plot' }); el.append(svg);
       const tiles = Tiles(el, [['b', 'E[f(X)]: snittprediksjon'], ['p', 'f(x): prediksjon for bilen'], ['a', 'Faktisk pris']]);
       function draw() {
         const c = s.cars[ci], items = s.cols.map((n, j) => [n, c.phi[j], c.x[j]]).sort((p, q) => Math.abs(q[1]) - Math.abs(p[1]));
@@ -3564,22 +3566,22 @@ topic({
   }],
   body: `
 <h2>Hvorfor forklarbar KI?</h2>
-<p>Ensembler og nevrale nett treffer godt, men er «svarte bokser». Når en modell avgjør lån, forsikring eller ansettelser, må vi kunne forklare beslutningen, oppdage skjevheter og stole på at modellen bruker fornuftige signaler.</p>
+<p>Ensembler og nevrale nettverk treffer godt, men er black box-modeller. Når en modell avgjør lån, forsikring eller ansettelser, må vi kunne forklare beslutningen, oppdage bias og stole på at modellen bruker fornuftige signaler.</p>
 <ul>
-<li><b>Global forklaring:</b> hvordan modellen oppfører seg generelt (variabelviktighet, partial dependence plot).</li>
-<li><b>Lokal forklaring:</b> hvorfor akkurat denne observasjonen fikk akkurat denne prediksjonen (SHAP-waterfall).</li>
+<li><b>Global forklaring:</b> hvordan modellen oppfører seg generelt (feature importance, partial dependence plot).</li>
+<li><b>Lokal forklaring:</b> hvorfor akkurat dette datapunktet fikk akkurat denne prediksjonen (SHAP-waterfall).</li>
 <li><b>Modellspesifikk</b> forklaring virker for én modelltype (koeffisienter, trestruktur). <b>Modellagnostisk</b> forklaring, som SHAP, virker for alle modeller.</li>
 </ul>
 <h2>Shapley-verdier</h2>
 <p>I spillteori fordeler Shapley-verdien gevinsten fra et samarbeid. Hver spiller får sitt <b>gjennomsnittlige marginale bidrag</b> over alle rekkefølger spillerne kan bli med i.</p>
 <div class="formula">φ<sub><span class="v">i</span></sub> = Σ<sub><span class="v">S</span> ⊆ <span class="v">N</span> \\ {<span class="v">i</span>}</sub> |<span class="v">S</span>|! (<span class="v">n</span> − |<span class="v">S</span>| − 1)! / <span class="v">n</span>! · [<span class="v">v</span>(<span class="v">S</span> ∪ {<span class="v">i</span>}) − <span class="v">v</span>(<span class="v">S</span>)]</div>
-<p>Med tre spillere er vektene 1/3 for den tomme koalisjonen, 1/6 for hver av de to koalisjonene med én annen spiller, og 1/3 for koalisjonen med begge de andre. Det gir samme svar som snittet over de seks rekkefølgene.</p>
+<p>Med tre spillere er vektene 1/3 for det tomme fellesskapet, 1/6 for hvert av de to fellesskapene med én annen spiller, og 1/3 for fellesskapet med begge de andre. Det gir samme svar som snittet over de seks rekkefølgene.</p>
 <h2>Fra spill til modell</h2>
 <ul>
-<li>Spillerne er forklaringsvariablene. «Gevinsten» er prediksjonen for én observasjon minus snittprediksjonen.</li>
+<li>Spillerne er forklaringsvariablene. «Gevinsten» er prediksjonen for ett datapunkt minus snittprediksjonen.</li>
 <li><b>Lokal nøyaktighet:</b> E[f(X)] + Σ φ<sub>j</sub> = f(x). Waterfall-plottet viser nettopp denne summen.</li>
 <li>For en lineær modell er φ<sub>j</sub> = b<sub>j</sub> (x<sub>j</sub> − x̄<sub>j</sub>). For andre modeller estimerer <code>shap</code> verdiene, for eksempel med spesialiserte metoder for trær.</li>
-<li><b>Beeswarm-plott</b> viser SHAP-verdiene for alle observasjoner: én rad per variabel, punktene farget etter variabelens verdi. Det gir et globalt bilde bygget av lokale forklaringer.</li>
+<li><b>Beeswarm-plot</b> viser SHAP-verdiene for alle datapunktene: én rad per variabel, punktene farget etter variabelens verdi. Det gir et globalt bilde bygget av lokale forklaringer.</li>
 </ul>
 <div class="pit"><b>Eksamensfelle</b>SHAP forklarer <i>modellen</i>, ikke virkeligheten. En stor SHAP-verdi betyr at modellen bruker variabelen mye, ikke at variabelen forårsaker utfallet.</div>
 <h2>Python</h2>
@@ -3589,7 +3591,7 @@ X100 = shap.utils.sample(X_train, 100)                     # 100 tilfeldige bakg
 explainer = shap.Explainer(model.predict, X100)            # trenger bare predict-funksjonen: modellagnostisk
 shap_values = explainer(X_valid)                           # én SHAP-verdi per rad og variabel
 
-shap.plots.waterfall(shap_values[0])                       # lokal forklaring, én observasjon
+shap.plots.waterfall(shap_values[0])                       # lokal forklaring for ett datapunkt
 shap.plots.beeswarm(shap_values)                           # global oversikt
 shap.plots.scatter(shap_values[:, 'Age_08_04'])            # SHAP mot verdien til én variabel (her bilens alder)
 
@@ -3598,13 +3600,13 @@ shap_values_rf = explainer_rf(X_valid)</code></pre>`
 });
 
 topic({
-  id: 'konform', dataNote: 'Figuren bruker <b>simulerte data</b>: en kjent kurve pluss normalfordelt støy, slik at vi kan trekke så mange nye kalibrerings- og testpunkter vi vil.', short: 'Konform prediksjon', lecture: 'F8', tags: ['Usikkerhet', 'Modellagnostisk', 'Prediksjonsintervall'],
-  title: 'Usikkerhet med konform prediksjon',
+  id: 'konform', dataNote: 'Figuren bruker <b>simulerte data</b>: en kjent kurve pluss normalfordelt støy, slik at vi kan trekke så mange nye kalibrerings- og testpunkter vi vil.', short: 'Conformal prediction', lecture: 'F8', tags: ['Usikkerhetskvantifisering', 'Modellagnostisk', 'Prediksjonsintervall'],
+  title: 'Usikkerhetskvantifisering med conformal prediction',
   path: ['Legges oppå en trent modell'],
-  lead: 'En prediksjon uten usikkerhet sier ikke hvor mye vi kan stole på den. Konform prediksjon legger et kalibrert intervall rundt prediksjonene fra en hvilken som helst modell. Split conformal bruker feilene på et eget kalibreringssett til å bestemme hvor bredt intervallet må være.',
+  lead: 'En prediksjon uten usikkerhet sier ikke hvor mye vi kan stole på den. Conformal prediction legger et kalibrert intervall rundt prediksjonene fra en hvilken som helst modell. Split conformal bruker feilene på egne kalibreringsdata til å bestemme hvor bredt intervallet må være.',
   figs: [{
     title: 'Split conformal: fra kalibreringsfeil til intervall',
-    sub: 'Simulerte data. En modell (blå kurve) er trent på egne treningsdata. Feilene på kalibreringssettet sorteres, og q̂ er den k-te minste, der k = ⌈(n + 1)(1 − α)⌉. Intervallet ŷ ± q̂ testes på 400 nye punkter.',
+    sub: 'Simulerte data. En modell (blå kurve) er trent på egne treningsdata. Feilene på kalibreringsdataene sorteres, og q̂ er den k-te minste, der k = ⌈(n + 1)(1 − α)⌉. Intervallet ŷ ± q̂ testes på 400 nye punkter.',
     build(el) {
       const f = x => 2 + 1.2 * Math.sin(1.6 * x) + 0.25 * x, noise = 0.45;
       const gen = (seed, n) => { const r = RNG(seed); return range(n, () => { const x = 6 * r(); return [x, f(x) + noise * r.n()]; }); };
@@ -3614,15 +3616,15 @@ topic({
       const qhat = (scores, a) => { const s = scores.slice().sort((p, q) => p - q), k = Math.ceil((s.length + 1) * a); return { k, q: k <= s.length ? s[k - 1] : Infinity, s }; };
       const ctl = Controls(el);
       Slider(ctl, { label: 'Kalibreringspunkter n', min: 5, max: 200, value: n, oninput: v => { n = v; draw(); } });
-      Slider(ctl, { label: 'Ønsket dekning 1 − α', min: 0.5, max: 0.99, step: 0.01, value: cov, fmt: v => fpct(v, 0), oninput: v => { cov = v; draw(); } });
-      Btn(ctl, 'Nytt kalibreringssett', () => { seed++; draw(); }, 'primary');
+      Slider(ctl, { label: 'Ønsket coverage 1 − α', min: 0.5, max: 0.99, step: 0.01, value: cov, fmt: v => fpct(v, 0), oninput: v => { cov = v; draw(); } });
+      Btn(ctl, 'Nye kalibreringsdata', () => { seed++; draw(); }, 'primary');
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const a = H('div'), c = H('div'); cols.append(a, c);
       const plot = new Plot(a, { w: 560, h: 380, x: [0, 6], y: [-0.5, 5.5], xlab: 'x', ylab: 'y', label: 'Prediksjonsintervall på testdata' });
       const gB = plot.clipLayer(), gT = plot.layer(), gC = plot.layer();
       const strip = new Plot(c, { w: 380, h: 170, m: { t: 10, r: 12, b: 40, l: 12 }, x: [0, 2], y: [0, 1], yticks: [], xlab: 'Kalibreringsfeil |y − ŷ| (sortert)', label: 'Sorterte kalibreringsfeil' });
       const gS = strip.layer();
-      const tiles = Tiles(c, [['k', 'k = ⌈(n + 1)(1 − α)⌉'], ['q', 'q̂ (feilgrense)'], ['w', 'Intervallbredde 2q̂'], ['tc', 'Dekning på disse testdataene'], ['avg', 'Forventet dekning k / (n + 1)']]);
+      const tiles = Tiles(c, [['k', 'k = ⌈(n + 1)(1 − α)⌉'], ['q', 'q̂ (feilgrense)'], ['w', 'Intervallbredde 2q̂'], ['tc', 'Coverage på disse testdataene'], ['avg', 'Forventet coverage k / (n + 1)']]);
       function draw() {
         const cal = gen(seed * 31, n), sc = cal.map(p => Math.abs(p[1] - yh(p[0]))), { k, q, s } = qhat(sc, cov);
         const X = plot.x, Y = plot.y, xs = range(121, i => i / 20);
@@ -3640,9 +3642,9 @@ topic({
         tiles.set('tc', fpct(tc)); tiles.set('avg', k > n ? '100 % (∞)' : fpct(k / (n + 1)), 'good');
       }
       draw();
-      el.append(H('p', { class: 'note', html: 'Gule punkter er kalibreringssettet. Røde testpunkter havner utenfor intervallet.' }));
+      el.append(H('p', { class: 'note', html: 'Gule punkter er kalibreringsdataene. Røde testpunkter havner utenfor intervallet.' }));
     },
-    tryit: ['Med n = 19 og 90 % dekning blir k = ⌈20 · 0,9⌉ = 18: q̂ er den nest største av 19 feil.', 'Trykk «Nytt kalibreringssett» flere ganger. Dekningen på testdataene hopper rundt 90 %. Garantien gjelder i snitt: forventet dekning er k / (n + 1), som aldri er under 1 − α.', 'Sett n = 5 og 90 %. Da blir k = 6 &gt; n, og intervallet blir uendelig bredt: for få kalibreringspunkter til å garantere ønsket dekning.', 'Øk dekningen til 99 %. Intervallet blir mye bredere. God dekning er lett å få; smale intervaller (skarphet) er det vanskelige.']
+    tryit: ['Med n = 19 og 90 % coverage blir k = ⌈20 · 0,9⌉ = 18: q̂ er den nest største av 19 feil.', 'Trykk «Nye kalibreringsdata» flere ganger. Coverage på testdataene hopper rundt 90 %. Garantien gjelder i snitt: forventet coverage er k / (n + 1), som aldri er under 1 − α.', 'Sett n = 5 og 90 %. Da blir k = 6 &gt; n, og intervallet blir uendelig bredt: for få kalibreringspunkter til å garantere ønsket coverage.', 'Øk coverage til 99 %. Intervallet blir mye bredere. Høy coverage er lett å få; smale intervaller (sharpness) er det vanskelige.']
   }],
   body: `
 <h2>To typer usikkerhet</h2>
@@ -3650,8 +3652,8 @@ topic({
 <li><b>Aleatorisk usikkerhet</b> er tilfeldig variasjon i dataene selv: to like biler selges til ulik pris. Den forsvinner ikke med mer data.</li>
 <li><b>Epistemisk usikkerhet</b> skyldes at modellen vet for lite: få data i et område eller feil modellform. Den kan reduseres med mer data og bedre modeller.</li>
 </ul>
-<h2>Godt intervall: dekning og skarphet</h2>
-<p>Et 90 %-intervall er <b>kalibrert</b> når det inneholder den sanne verdien for 90 % av nye observasjoner (dekning, coverage). Blant intervaller med riktig dekning vil vi ha de smaleste (<b>skarphet</b>). Et uendelig bredt intervall har 100 % dekning, men er ubrukelig.</p>
+<h2>Godt intervall: coverage og sharpness</h2>
+<p>Et 90 %-intervall er <b>kalibrert</b> når det inneholder den sanne verdien for 90 % av nye observasjoner (<b>coverage</b>). Blant intervaller med riktig coverage vil vi ha de smaleste (<b>sharpness</b>). Et uendelig bredt intervall har 100 % coverage, men er ubrukelig.</p>
 <h2>Split conformal steg for steg</h2>
 <ol>
 <li>Del dataene i tre: trening, kalibrering og test. Kalibreringsdataene skal ikke brukes til å trene modellen.</li>
@@ -3663,10 +3665,10 @@ topic({
 <div class="formula">Garanti: P(<span class="v">y</span><sub>ny</sub> ∈ [<span class="v">ŷ</span> − <span class="v">q̂</span>, <span class="v">ŷ</span> + <span class="v">q̂</span>]) ≥ 1 − α</div>
 <p>Garantien holder når nye observasjoner kommer fra samme fordeling som kalibreringsdataene (exchangeability), og den gjelder i snitt over mange nye observasjoner, ikke for hver enkelt. Med absoluttfeil blir intervallet like bredt overalt. Mer avanserte varianter, som conformalized quantile regression, gir bredde som varierer.</p>
 <div class="pros">
-<div><h3>Styrker</h3><ul><li>Modellagnostisk: en «wrapper» rundt hvilken som helst trent modell</li><li>Garantert dekning med få antakelser</li><li>Du velger selv dekningsgraden</li></ul></div>
+<div><h3>Styrker</h3><ul><li>Modellagnostisk: en «wrapper» rundt hvilken som helst trent modell</li><li>Garantert coverage med få antakelser</li><li>Du velger selv ønsket coverage</li></ul></div>
 <div><h3>Svakheter</h3><ul><li>Krever egne kalibreringsdata</li><li>Garantien er i snitt, ikke for hver gruppe</li><li>Med enkel score er bredden lik for alle</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle: finn q̂ for hånd</b>n = 9 kalibreringsfeil og 80 % dekning: k = ⌈10 · 0,8⌉ = 8, så q̂ er den 8. minste feilen. Husk +1 i formelen og å runde opp.</div>
+<div class="pit"><b>Eksamensfelle: finn q̂ for hånd</b>n = 9 kalibreringsfeil og 80 % coverage: k = ⌈10 · 0,8⌉ = 8, så q̂ er den 8. minste feilen. Husk +1 i formelen og å runde opp.</div>
 <h2>Python</h2>
 <pre><code>from mapie.regression import SplitConformalRegressor
 from mapie.utils import train_conformalize_test_split
@@ -3676,13 +3678,13 @@ from mapie.metrics.regression import regression_coverage_score
 (X_train, X_cal, X_test, y_train, y_cal, y_test) = train_conformalize_test_split(
     X, y, train_size=0.6, conformalize_size=0.2, test_size=0.2, random_state=1)
 
-rf_model = RandomForestRegressor(random_state=1).fit(X_train, y_train)   # trent bare på treningsdelen
+rf_model = RandomForestRegressor(random_state=1).fit(X_train, y_train)   # trent bare på treningsdataene
 
 # 90 % intervaller; prefit=True betyr at modellen allerede er trent
 mapie_model = SplitConformalRegressor(estimator=rf_model, confidence_level=0.90, prefit=True)
 mapie_model.conformalize(X_cal, y_cal)                    # feil på kalibreringsdata gir intervallbredden
 y_pred, y_interval = mapie_model.predict_interval(X_test)   # punktprediksjon og intervall
-print(regression_coverage_score(y_test, y_interval))      # andel testpunkter innenfor, bør være ca. 0,90</code></pre>`
+print(regression_coverage_score(y_test, y_interval))      # coverage: andel testpunkter innenfor, bør være ca. 0,90</code></pre>`
 });
 
 window.addEventListener('hashchange', route);

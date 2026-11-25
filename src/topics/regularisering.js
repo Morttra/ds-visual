@@ -112,7 +112,7 @@ topic({
       b.append(H('p', { class: 'note', html: 'Den tynne streken på hver søyle er koeffisienten uten straff.' }));
       const cv = new Plot(el, { w: 760, h: 250, x: [0, 1], y: [1300, 3800], xlab: 'log₁₀(α)', ylab: 'CV-RMSE (€)', label: 'Kryssvalideringsfeil mot straff' });
       const gC = cv.layer(), gCm = cv.layer();
-      const tiles = Tiles(el, [['nz', 'Variabler ≠ 0'], ['cv', 'CV-RMSE ± SE'], ['va', 'RMSE på valideringsdata'], ['ols', 'RMSE uten straff']]);
+      const tiles = Tiles(el, [['nz', 'Variabler ≠ 0'], ['cv', 'CV-RMSE ± SE'], ['va', 'RMSE på valideringssettet'], ['ols', 'RMSE uten straff']]);
       el.append(H('p', { class: 'note', html: '<b style="color:var(--good)">Grønn</b>: α med lavest CV-feil. <b style="color:var(--accent)">Blå</b>: 1-SE-regelen, den største α der CV-feilen er innenfor ett standardavvik fra den laveste. Merk at α i <code>Ridge</code> og α i <code>Lasso</code>/<code>ElasticNet</code> ikke er på samme skala i scikit-learn.' }));
       function draw(newMode) {
         const path = P[mode], lx = path.map(d => Math.log10(d.a)), { mi, one } = best(path);
@@ -139,7 +139,7 @@ topic({
     tryit: ['Trykk «Minste CV-feil» for lasso. Det beste er nesten ingen straff: med 600 biler og bare 11 variabler er det lite å tjene på å krympe.', 'Trykk «1-SE-regelen». Lassoen beholder bare fire variabler, mens CV-feilen er nesten like lav. En enklere modell som er nesten like god, er ofte å foretrekke.', 'Bytt til ridge. Kurvene går mot null, men ingen blir nøyaktig null.', 'Elastic net beholder alle variablene mye lenger enn lasso, fordi ridge-delen krymper alt samtidig.']
   }, {
     title: 'Korrelerte variabler: lasso velger, ridge deler',
-    sub: 'Simulerte data: 200 observasjoner der y = x₁ + x₂ + støy, og x₁ og x₂ er korrelerte. Begge variablene er like viktige. Se hvordan de tre metodene fordeler vekten mellom dem når straffen øker.',
+    sub: 'Simulerte data: 200 datapunkter der y = x₁ + x₂ + støy, og x₁ og x₂ er korrelerte. Begge variablene er like viktige. Se hvordan de tre metodene fordeler vekten mellom dem når straffen øker.',
     build(el) {
       let rho = 0.97, li = 30;
       const lams = range(61, i => Math.pow(10, -2.5 + i * 3.2 / 60));
@@ -190,12 +190,12 @@ topic({
       const a = H('div'), b = H('div'); cols.append(a, b);
       const bars = S('svg', { viewBox: '0 0 360 300', class: 'plot', role: 'img', 'aria-label': 'Koeffisienter i logistisk regresjon' }); a.append(bars);
       a.append(H('p', { class: 'note', html: 'Koeffisientene er i logit per standardavvik. Den tynne streken er koeffisienten uten straff.' }));
-      const pa = new Plot(b, { w: 380, h: 250, x: [-3, 1], y: [0.89, 0.96], xticks: [-3, -2, -1, 0, 1], xlab: 'log₁₀(C)', ylab: 'Treffsikkerhet (validering)', label: 'Treffsikkerhet mot C', yfmt: v => fx(100 * v, 0) + ' %' });
+      const pa = new Plot(b, { w: 380, h: 250, x: [-3, 1], y: [0.89, 0.96], xticks: [-3, -2, -1, 0, 1], xlab: 'log₁₀(C)', ylab: 'Nøyaktighet (validering)', label: 'Nøyaktighet mot C', yfmt: v => fx(100 * v, 0) + ' %' });
       for (const [k, cl] of [['l1acc', 'c0'], ['l2acc', 'c4']]) S('path', { d: pathOf(L.map(d => [pa.x(Math.log10(d.C)), pa.y(d[k])])), fill: 'none', class: 's-' + cl, 'stroke-width': 2.2 }, pa.gData);
       S('line', { x1: pa.x(-3), x2: pa.x(1), y1: pa.y(0.9035), y2: pa.y(0.9035), class: 's-mut', 'stroke-dasharray': '5 4' }, pa.gData);
       S('text', { x: pa.x(0.95), y: pa.y(0.9035) - 6, 'text-anchor': 'end', text: 'alltid «nei»: 90,35 %', style: 'font-size:11px' }, pa.gData);
       const mk = S('circle', { r: 7, class: 'f-hl s-ink' }, pa.gTop);
-      const tiles = Tiles(b, [['c', 'C'], ['lam', 'λ = 1/C'], ['nz', 'Variabler ≠ 0'], ['acc', 'Treffsikkerhet']]);
+      const tiles = Tiles(b, [['c', 'C'], ['lam', 'λ = 1/C'], ['nz', 'Variabler ≠ 0'], ['acc', 'Nøyaktighet']]);
       b.append(H('p', { class: 'note', html: 'Linjer: <b style="color:var(--c0)">L1</b> og <b style="color:var(--c4)">L2</b>.' }));
       function draw() {
         const d = L[idx], coef = noPen ? nop.coef : d[pen], acc = noPen ? nop.acc : d[pen + 'acc'];
@@ -206,17 +206,17 @@ topic({
       }
       draw();
     },
-    tryit: ['Velg L1 og dra C helt ned. Ved C = 0,001 er alle koeffisientene null, og modellen sier «nei» til alle. Det gir 90,35 % treffsikkerhet, fordi bare 9,6 % takker ja.', 'Øk C gradvis med L1. Income kommer inn først, så CD Account, Education og CCAvg. Det er variablene lassoen anser som viktigst.', 'Trykk «Ingen straff». Det er dette læreboka gjør med C = 1e42: λ blir så liten at det i praksis er vanlig logistisk regresjon.']
+    tryit: ['Velg L1 og dra C helt ned. Ved C = 0,001 er alle koeffisientene null, og modellen sier «nei» til alle. Det gir 90,35 % nøyaktighet, fordi bare 9,6 % takker ja.', 'Øk C gradvis med L1. Income kommer inn først, så CD Account, Education og CCAvg. Det er variablene lassoen anser som viktigst.', 'Trykk «Ingen straff». Det er dette læreboka gjør med C = 1e42: λ blir så liten at det i praksis er vanlig logistisk regresjon.']
   }],
   body: `
 <h2>Hvorfor straffe store koeffisienter?</h2>
-<p>Minste kvadrater velger koeffisientene som passer treningsdataene best. Med mange variabler, sterkt korrelerte variabler eller få observasjoner per variabel blir koeffisientene ustabile: små endringer i dataene gir store utslag. Regularisering trekker koeffisientene mot null. Det gir litt mer bias, men mye mindre varians, og bedre prediksjoner på nye data når variansen var problemet.</p>
+<p>Minste kvadrater velger koeffisientene som passer treningsdataene best. Med mange variabler, sterkt korrelerte variabler eller få datapunkter per variabel blir koeffisientene ustabile: små endringer i dataene gir store utslag. Regularisering trekker koeffisientene mot null. Det gir litt mer bias, men mye mindre varians, og bedre prediksjoner på nye data når variansen var problemet.</p>
 <h2>De tre straffene</h2>
 <div class="formula">Ridge (L2): minimer SSE + λ Σ β<sub>j</sub>²<br>Lasso (L1): minimer SSE + λ Σ |β<sub>j</sub>|<br>Elastic net: minimer SSE + λ [<span class="v">r</span> Σ |β<sub>j</sub>| + (1 − <span class="v">r</span>)/2 · Σ β<sub>j</sub>²]</div>
 <ul>
 <li><b>λ = 0</b> gir vanlig minste kvadrater. <b>Når λ blir svært stor</b>, går alle koeffisientene mot null, og modellen predikerer bare gjennomsnittet av Y.</li>
 <li><b>Ridge</b> krymper alle koeffisientene, men setter ingen til null. Den deler vekten mellom korrelerte variabler.</li>
-<li><b>Lasso</b> kan sette koeffisienter til nøyaktig null, og gjør dermed variabelvalg. Blant sterkt korrelerte variabler velger den gjerne én og dropper resten.</li>
+<li><b>Lasso</b> kan sette koeffisienter til nøyaktig null, og velger dermed variabler. Blant sterkt korrelerte variabler velger den gjerne én og dropper resten.</li>
 <li><b>Elastic net</b> blander de to. <span class="v">r</span> (<code>l1_ratio</code>) styrer blandingen: 1 er lasso, 0 er ridge. Den velger variabler, men holder korrelerte variabler sammen.</li>
 <li>Konstantleddet β<sub>0</sub> straffes ikke.</li>
 </ul>
@@ -224,7 +224,7 @@ topic({
 <ol>
 <li><b>Standardiser</b> forklaringsvariablene (z-score, tilpasset på treningsdataene). Ellers avhenger straffen av måleenheten: en koeffisient for kilometer ville vært billig, en for antall dører dyr.</li>
 <li><b>Velg λ med kryssvalidering</b> (<code>RidgeCV</code>, <code>LassoCV</code>, <code>ElasticNetCV</code>). Enten λ med lavest CV-feil, eller med <b>1-SE-regelen</b>: den største λ der CV-feilen er innenfor ett standardavvik fra den laveste. Den gir en enklere modell som er omtrent like god.</li>
-<li><b>Evaluer</b> den valgte modellen på valideringsdata eller testdata som ikke ble brukt til å velge λ.</li>
+<li><b>Evaluer</b> den valgte modellen på valideringssettet eller et testsett som ikke ble brukt til å velge λ.</li>
 </ol>
 <h2>Variantene du bør kjenne</h2>
 <div class="tblwrap"><table class="tbl">
@@ -233,11 +233,11 @@ topic({
 <tr><td class="l">Lasso</td><td class="l">L1</td><td class="l"><code>Lasso(alpha=…)</code>, <code>LassoCV</code></td><td class="l">Ja</td></tr>
 <tr><td class="l">Elastic net</td><td class="l">L1 + L2</td><td class="l"><code>ElasticNet(alpha=…, l1_ratio=…)</code>, <code>ElasticNetCV</code></td><td class="l">Ja, men beholder grupper av korrelerte variabler</td></tr>
 <tr><td class="l">Regularisert logistisk regresjon</td><td class="l">L1, L2 eller begge</td><td class="l"><code>LogisticRegression(penalty='l1', C=…)</code>, der C = 1/λ</td><td class="l">Med L1: ja</td></tr>
-<tr><td class="l">Vektstraff i nevrale nett (weight decay)</td><td class="l">L2</td><td class="l">For eksempel <code>kernel_regularizer</code> i Keras</td><td class="l">Nei</td></tr>
+<tr><td class="l">L2-regularisering i nevrale nettverk (weight decay)</td><td class="l">L2</td><td class="l">For eksempel <code>kernel_regularizer</code> i Keras</td><td class="l">Nei</td></tr>
 </table></div>
 <p>scikit-learn kaller straffen <code>alpha</code> i <code>Ridge</code>, <code>Lasso</code> og <code>ElasticNet</code>. I <code>Lasso</code> og <code>ElasticNet</code> er SSE delt på 2<i>n</i>, i <code>Ridge</code> ikke. Derfor kan ikke tallverdiene sammenlignes direkte mellom klassene. I <code>LogisticRegression</code> heter det <code>C</code>, og det virker motsatt vei: liten C er sterk straff. Standardverdien er <code>C=1.0</code> med L2-straff, så logistisk regresjon i scikit-learn er litt regularisert hvis du ikke endrer C.</p>
 <div class="pros">
-<div><h3>Styrker</h3><ul><li>Bedre prediksjoner når det er mange eller korrelerte variabler</li><li>Lasso og elastic net gjør variabelvalg automatisk</li><li>Fungerer også når det er flere variabler enn observasjoner</li></ul></div>
+<div><h3>Styrker</h3><ul><li>Bedre prediksjoner når det er mange eller korrelerte variabler</li><li>Lasso og elastic net velger variabler automatisk</li><li>Fungerer også når det er flere variabler enn datapunkter</li></ul></div>
 <div><h3>Svakheter</h3><ul><li>Koeffisientene er bevisst skjeve mot null og kan ikke tolkes som vanlige effekter</li><li>Krever standardisering og valg av λ</li><li>Lassoens valg blant korrelerte variabler kan være tilfeldig</li></ul></div>
 </div>
 <div class="pit"><b>Eksamensfelle: retningen på straffen</b>Større λ (<code>alpha</code>) betyr sterkere straff og enklere modell. Større C betyr <i>svakere</i> straff. Og det er lasso, ikke ridge, som kan gi koeffisienter lik 0.</div>

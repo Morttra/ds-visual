@@ -1,10 +1,10 @@
-/* Grunnmur: dataforberedelse, bias–varians, evaluering av prediksjon og klassifikasjon */
+/* Grunnmur: preprosessering, bias–varians, evaluering av prediksjon og klassifikasjon */
 
 topic({
-  id: 'dataforberedelse', data: [['mowers'], ['toyota', ['Price', 'Fuel_Type']]], short: 'Dataforberedelse', lecture: 'F2–F3', tags: ['Grunnmur', 'Brukes før alle modeller'],
-  title: 'Dataforberedelse og skalering',
+  id: 'dataforberedelse', data: [['mowers'], ['toyota', ['Price', 'Fuel_Type']]], short: 'Preprosessering', lecture: 'F2–F3', tags: ['Grunnmur', 'Brukes før alle modeller'],
+  title: 'Preprosessering og skalering',
   path: ['Grunnmur'],
-  lead: 'Før vi modellerer, må dataene i riktig form. Kategorier blir til dummyvariabler, manglende verdier og uteliggere må håndteres, og variabler på ulik skala gjøres sammenlignbare.',
+  lead: 'Før vi modellerer, må dataene i riktig form. Kategorier blir til dummyvariabler, manglende verdier og utstikkere må håndteres, og variabler på ulik skala gjøres sammenlignbare.',
   figs: [{
     title: 'Skalering endrer hvem som er nærmest',
     sub: 'De 24 husholdningene i sitteklipperdataene og en ny husholdning (stjerna) med inntekt 60 og tomt 20. Ringen markerer alt som ligger like nær som den k-te naboen. Med k = 3 bestemmer de tre nærmeste naboene om den nye husholdningen klassifiseres som eier. Dra stjerna for å flytte den.',
@@ -23,7 +23,7 @@ topic({
       Slider(ctl, { label: 'Antall naboer k', min: 1, max: 9, value: 3, oninput: v => { k = v; draw(); } });
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const left = H('div'), right = H('div'); cols.append(left, right);
-      const plot = new Plot(left, { w: 560, h: 430, label: 'Spredningsplott av husholdningene med ny husholdning og nærmeste naboer' });
+      const plot = new Plot(left, { w: 560, h: 430, label: 'Spredningsplot av husholdningene med ny husholdning og nærmeste naboer' });
       const gRing = plot.layer(), gLines = plot.layer(), gPts = plot.layer(), gQ = plot.layer();
       const tiles = Tiles(right, [['pred', 'Klasse ved flertall'], ['share', 'Andel av avstanden fra Income']]);
       const tw = H('div', { class: 'tblwrap', style: 'margin-top:10px' }); right.append(tw);
@@ -59,16 +59,16 @@ topic({
       'Bytt til z-score. Nå bidrar begge variablene omtrent like mye, og naboene blir andre husholdninger.',
       'Sammenlign z-score og min–maks. De gir nesten samme naboer, men min–maks er følsom for ett ekstremt punkt.']
   }, {
-    title: 'Uteliggere med 1,5 · IQR-regelen',
-    sub: 'Kjørelengde for 20 tenkte bruktbiler (oppdiktede tall). Boksen går fra Q1 til Q3, og grensene ligger 1,5 · IQR utenfor boksen. Flytt den siste bilen og se når den blir en uteligger.',
+    title: 'Utstikkere med 1,5 · IQR-regelen',
+    sub: 'Kjørelengde for 20 tenkte bruktbiler (oppdiktede tall). Boksen går fra Q1 til Q3, og grensene ligger 1,5 · IQR utenfor boksen. Flytt den siste bilen og se når den blir en utstikker.',
     build(el) {
       const base = [18, 25, 31, 36, 40, 44, 47, 51, 55, 58, 62, 66, 71, 75, 80, 86, 93, 101, 112];
       let extra = 190;
       const ctl = Controls(el);
       Slider(ctl, { label: 'Kjørelengde for bil nr. 20', min: 0, max: 260, step: 1, value: extra, fmt: v => v + ' tkm', oninput: v => { extra = v; draw(); } });
-      const plot = new Plot(el, { w: 760, h: 210, m: { t: 10, b: 44, l: 20, r: 20 }, x: [0, 270], y: [0, 1], yticks: [], xlab: 'Kjørelengde (1000 km)', grid: true, label: 'Boksplott av kjørelengde' });
+      const plot = new Plot(el, { w: 760, h: 210, m: { t: 10, b: 44, l: 20, r: 20 }, x: [0, 270], y: [0, 1], yticks: [], xlab: 'Kjørelengde (1000 km)', grid: true, label: 'Boksplot av kjørelengde' });
       const g = plot.layer();
-      const tiles = Tiles(el, [['q1', 'Q1'], ['md', 'Median'], ['q3', 'Q3'], ['iqr', 'IQR = Q3 − Q1'], ['lo', 'Nedre grense'], ['hi', 'Øvre grense'], ['n', 'Uteliggere']]);
+      const tiles = Tiles(el, [['q1', 'Q1'], ['md', 'Median'], ['q3', 'Q3'], ['iqr', 'IQR = Q3 − Q1'], ['lo', 'Nedre grense'], ['hi', 'Øvre grense'], ['n', 'Utstikkere']]);
       const jit = base.map((_, i) => 0.18 + 0.12 * ((i * 7) % 5) / 4);
       function draw() {
         const all = base.concat([extra]), s = all.slice().sort((a, b) => a - b);
@@ -88,7 +88,7 @@ topic({
       draw();
     },
     tryit: ['Dra bil nr. 20 sakte oppover. Legg merke til at Q1 og Q3 nesten ikke flytter seg: kvartiler er robuste mot ett ekstremt punkt.',
-      'Finn verdien der bilen akkurat blir en uteligger. Sjekk at den er lik Q3 + 1,5 · IQR.']
+      'Finn verdien der bilen akkurat blir en utstikker. Sjekk at den er lik Q3 + 1,5 · IQR.']
   }, {
     title: 'Kategorier blir til dummyvariabler',
     sub: 'Drivstofftypen i bruktbildataene har tre kategorier: Petrol (bensin), Diesel og CNG (naturgass). <code>pd.get_dummies</code> lager én 0/1-kolonne per kategori. Med <code>drop_first=True</code> forsvinner den første (CNG), som da blir referansekategori.',
@@ -113,7 +113,7 @@ topic({
   }],
   body: `
 <h2>Kort fortalt</h2>
-<p>Steget «utforsk, vask og preprosesser» i dataanalyseprosessen tar ofte mer tid enn selve modelleringen. Målet er at hver variabel har en form modellen kan bruke, uten at vi lekker informasjon fra valideringsdataene inn i treningen.</p>
+<p>Steget «utforsk, vask og preprosesser» i dataanalyseprosessen tar ofte mer tid enn selve modelleringen. Målet er at hver variabel har en form modellen kan bruke, uten at vi lekker informasjon fra valideringssettet inn i treningen.</p>
 <h2>Variabeltyper</h2>
 <ul>
 <li><b>Numeriske:</b> kontinuerlige (inntekt, pris) eller heltall (antall barn).</li>
@@ -129,12 +129,12 @@ topic({
 <li><b>Imputer:</b> erstatt med median eller gjennomsnitt (numerisk), eller den vanligste kategorien. Beregn erstatningsverdien på treningsdataene.</li>
 <li><b>Tenk på hvorfor det mangler.</b> Mangler som henger sammen med Y, kan selv være informative. Da kan en egen indikatorvariabel hjelpe.</li>
 </ul>
-<h2>Uteliggere</h2>
-<p>Regelen i boksplottet: en verdi er uteligger hvis den ligger under Q1 − 1,5 · IQR eller over Q3 + 1,5 · IQR, der IQR = Q3 − Q1. En annen tommelfingerregel er |z| &gt; 3. En uteligger er et flagg, ikke en dom. Sjekk om verdien er en registreringsfeil (rett eller fjern) eller en ekte, sjelden observasjon (behold, og vurder en robust metode).</p>
+<h2>Utstikkere</h2>
+<p>Regelen i boksplottet: en verdi er utstikker hvis den ligger under Q1 − 1,5 · IQR eller over Q3 + 1,5 · IQR, der IQR = Q3 − Q1. En annen tommelfingerregel er |z| &gt; 3. En utstikker er et flagg, ikke en dom. Sjekk om verdien er en registreringsfeil (rett eller fjern) eller et ekte, sjeldent datapunkt (behold, og vurder en robust metode).</p>
 <h2>Skalering</h2>
 <div class="formula">z-score: <span class="v">z</span> = (<span class="v">x</span> − <span class="v">x̄</span>) / <span class="v">s</span> &nbsp;&nbsp;&nbsp; min–maks: <span class="v">x</span>* = (<span class="v">x</span> − min) / (maks − min)</div>
-<p>Skalering trengs for alle metoder som bruker <b>avstander eller like store straffer</b> på tvers av variabler: k-NN, klynging, PCA, nevrale nett, og ridge og lasso. Trær trenger det ikke, fordi en splitt bare bryr seg om rekkefølgen av verdiene. Vanlig lineær regresjon gir samme prediksjoner med og uten skalering. Bare tallene på koeffisientene endres.</p>
-<div class="pit"><b>Eksamensfelle: lekkasje</b>Gjennomsnitt, standardavvik, min og maks skal beregnes på <i>treningsdataene</i> og så brukes på valideringsdataene. Skalerer du med hele datasettet, har valideringsdataene påvirket modellen.</div>
+<p>Skalering trengs for alle metoder som bruker <b>avstander eller like store straffer</b> på tvers av variabler: k-NN, klyngeanalyse, PCA, nevrale nettverk, og ridge og lasso. Trær trenger det ikke, fordi en splitt bare bryr seg om rekkefølgen av verdiene. Vanlig lineær regresjon gir samme prediksjoner med og uten skalering. Bare tallene på koeffisientene endres.</p>
+<div class="pit"><b>Eksamensfelle: lekkasje</b>Gjennomsnitt, standardavvik, min og maks skal beregnes på <i>treningsdataene</i> og så brukes på valideringssettet. Skalerer du med hele datasettet, har valideringssettet påvirket modellen.</div>
 <div class="pit"><b>Eksamensfelle: z-score i pandas og scikit-learn</b><code>df.std()</code> i pandas deler på <i>n</i> − 1, mens <code>StandardScaler</code> deler på <i>n</i>. Tallene blir litt forskjellige, men tolkningen er den samme.</div>
 <h2>Python</h2>
 <pre><code>import pandas as pd
@@ -152,7 +152,7 @@ valid_Z = scaler.transform(valid_X)                     # samme snitt og standar
 
 q1, q3 = df['KM'].quantile([0.25, 0.75])                # 1. og 3. kvartil (1,5 · IQR-regelen)
 iqr = q3 - q1                                           # kvartilbredden
-uteliggere = df[(df['KM'] &lt; q1 - 1.5*iqr) | (df['KM'] &gt; q3 + 1.5*iqr)]   # rader utenfor grensene</code></pre>`
+utstikkere = df[(df['KM'] &lt; q1 - 1.5*iqr) | (df['KM'] &gt; q3 + 1.5*iqr)]   # rader utenfor grensene</code></pre>`
 });
 
 topic({
@@ -214,14 +214,14 @@ topic({
       'Velg «8 utvalg». Ved høy grad spriker kurvene fra ulike treningssett. Det er varians. Den tykke kurven er snittet av dem.']
   }, {
     title: 'Valideringssett, k-fold og tidsrekker',
-    sub: 'Hver rad er én runde. 20 observasjoner er fordelt på trening og validering. Til slutt snitter vi feilen over rundene.',
+    sub: 'Hver rad er én runde. 20 datapunkter er fordelt på trening og validering. Til slutt snitter vi feilen over rundene.',
     build(el) {
       const n = 20; let mode = 'kfold', k = 5;
       const ctl = Controls(el);
       Seg(ctl, { label: 'Metode', options: [['hold', 'Valideringssett'], ['kfold', 'k-fold'], ['loo', 'LOOCV'], ['ts', 'Tidsrekke']], value: mode, onchange: v => { mode = v; draw(); } });
       const ks = Slider(ctl, { label: 'k', min: 2, max: 10, value: k, oninput: v => { k = v; draw(); } });
       const svgWrap = H('div', { style: 'overflow-x:auto' }); el.append(svgWrap);
-      const tiles = Tiles(el, [['m', 'Modeller som trenes'], ['v', 'Validering per runde'], ['u', 'Hver observasjon valideres']]);
+      const tiles = Tiles(el, [['m', 'Modeller som trenes'], ['v', 'Validering per runde'], ['u', 'Hvert datapunkt valideres']]);
       function folds() {
         if (mode === 'hold') return [range(n, i => i >= 12 ? 'v' : 't')];
         if (mode === 'loo') return range(n, r => range(n, i => i === r ? 'v' : 't'));
@@ -247,7 +247,7 @@ topic({
       draw();
       el.append(H('p', { class: 'note', html: '<b style="color:var(--c4)">Blå</b> = trening, <b style="color:var(--c0)">oransje</b> = validering, grå = ikke brukt i runden (fremtiden i en tidsrekke).' }));
     },
-    tryit: ['Sammenlign valideringssett og k-fold: med k-fold blir alle observasjonene brukt til validering én gang, så anslaget blir mer stabilt.',
+    tryit: ['Sammenlign valideringssett og k-fold: med k-fold blir alle datapunktene brukt til validering én gang, så anslaget blir mer stabilt.',
       'LOOCV er k-fold med k = n. Det gir mange modeller å trene, men nesten all data i hver runde.',
       'I en tidsrekke trener vi aldri på fremtiden. Valideringsblokken ligger alltid etter treningsdataene.']
   }],
@@ -260,11 +260,11 @@ topic({
 <li><b>Varians:</b> modellen er så fleksibel at den følger støyen i akkurat dette treningssettet. Et annet treningssett ville gitt en helt annen modell. Treningsfeilen er lav og valideringsfeilen høy. Det kalles overtilpasning.</li>
 </ul>
 <div class="formula">Forventet feil på nye data = bias² + varians + irreduserbar støy</div>
-<p>Kompleksiteten styres av hyperparametre: polynomgrad, k i k-NN, maks dybde i trær, λ i ridge og lasso, antall nevroner og epoker. Vi velger verdien med lavest valideringsfeil.</p>
+<p>Kompleksiteten styres av hyperparametere: polynomgrad, k i k-NN, maks dybde i trær, λ i ridge og lasso, antall nevroner og epochs. Vi velger verdien med lavest valideringsfeil.</p>
 <h2>Partisjonering</h2>
 <ul>
-<li><b>To deler (for eksempel 60/40):</b> trening og validering. Valideringssettet brukes til å sammenligne modeller og velge hyperparametre.</li>
-<li><b>Tre deler (for eksempel 50/30/20):</b> når valideringssettet brukes mye til valg, blir det også litt «brukt opp». En urørt testdel gir et ærlig anslag på slutten.</li>
+<li><b>To deler (for eksempel 60/40):</b> trening og validering. Valideringssettet brukes til å sammenligne modeller og velge hyperparametere.</li>
+<li><b>Tre deler (for eksempel 50/30/20):</b> når valideringssettet brukes mye til valg, blir det også litt «brukt opp». Et urørt testsett gir et ærlig anslag på slutten.</li>
 <li><b>Ulempe med ett valideringssett:</b> resultatet avhenger av hvilke rader som havnet hvor, og modellen trenes på færre data.</li>
 </ul>
 <h2>Kryssvalidering</h2>
@@ -272,9 +272,9 @@ topic({
 <li><b>k-fold:</b> del dataene i k like store deler. Tren k ganger, hver gang med én del til validering. Snitt feilen. Vanlig er k = 5 eller 10.</li>
 <li><b>LOOCV</b> (leave-one-out): k = n. Lite bias, men mange modeller å trene og et ustabilt anslag.</li>
 <li><b>Tidsrekker:</b> rekkefølgen må bevares. Tren på fortiden og valider på perioden rett etter (rullerende eller voksende vindu).</li>
-<li><b>Hyperparametre:</b> kryssvalidering per kandidatverdi, for eksempel med <code>GridSearchCV</code>.</li>
+<li><b>Hyperparametere:</b> kryssvalidering per kandidatverdi, for eksempel med <code>GridSearchCV</code>.</li>
 </ul>
-<div class="pit"><b>Eksamensfelle</b>«Modellen har 99 % treffsikkerhet på treningsdata» sier lite. Spør alltid: målt på hvilke data? Og ble disse dataene brukt til å velge modellen?</div>
+<div class="pit"><b>Eksamensfelle</b>«Modellen har 99 % nøyaktighet på treningsdata» sier lite. Spør alltid: målt på hvilke data? Og ble disse dataene brukt til å velge modellen?</div>
 <h2>Python</h2>
 <pre><code>from sklearn.model_selection import train_test_split, cross_val_score, TimeSeriesSplit
 
@@ -294,7 +294,7 @@ topic({
   id: 'evaluering-prediksjon', dataNote: 'Figuren bruker <b>tenkte tall</b>: tolv oppdiktede bruktbiler med faktisk og predikert pris.', short: 'Prediksjonsmål', lecture: 'F4', tags: ['Grunnmur', 'Numerisk Y'],
   title: 'Evaluering av prediksjon',
   path: ['Grunnmur'],
-  lead: 'Når Y er et tall, måler vi hvor langt prediksjonene bommer. Ulike mål straffer ulike typer bom, og fortegnet forteller om modellen bommer systematisk.',
+  lead: 'Når responsvariabelen Y er numerisk, måler vi hvor langt prediksjonene bommer. Ulike mål straffer ulike typer bom, og fortegnet forteller om modellen bommer systematisk.',
   figs: [{
     title: 'Hva straffer hvilket mål?',
     sub: 'Tolv tenkte bruktbiler med faktisk pris (fylt) og predikert pris (hul). Feilen er e = y − ŷ, faktisk minus predikert, som i læreboka.',
@@ -302,7 +302,7 @@ topic({
       const r = RNG(11), ys = range(12, () => Math.round(7000 + 15000 * r())), base = ys.map(y => y + Math.round(1100 * r.n()));
       let bias = 0, big = false;
       const ctl = Controls(el);
-      Slider(ctl, { label: 'Legg til skjevhet', min: -3000, max: 3000, step: 100, value: 0, fmt: v => (v > 0 ? '+' : '') + fint(v) + ' €', oninput: v => { bias = v; draw(); } });
+      Slider(ctl, { label: 'Legg til bias', min: -3000, max: 3000, step: 100, value: 0, fmt: v => (v > 0 ? '+' : '') + fint(v) + ' €', oninput: v => { bias = v; draw(); } });
       Seg(ctl, { label: 'Én stor bom', options: [[false, 'Av'], [true, 'På']], value: big, onchange: v => { big = v; draw(); } });
       const plot = new Plot(el, { w: 760, h: 300, x: [0.3, 12.7], y: [0, 30000], xticks: range(12, i => i + 1), xlab: 'Bil nr.', ylab: 'Pris (€)', label: 'Faktisk og predikert pris per bil' });
       const g = plot.layer();
@@ -327,18 +327,18 @@ topic({
       draw();
       el.append(H('p', { class: 'note', html: 'Strek <b style="color:var(--c4)">blå</b> når modellen predikerer for lavt (e &gt; 0), <b style="color:var(--c0)">oransje</b> når den predikerer for høyt (e &lt; 0).' }));
     },
-    tryit: ['Dra skjevheten til +2000 €. MAE og RMSE øker, og ME blir −2000: modellen predikerer i snitt for høyt.',
+    tryit: ['Sett bias til +2000 €. MAE og RMSE øker, og ME blir −2000: modellen predikerer i snitt for høyt.',
       'Slå på «Én stor bom». RMSE hopper mye mer enn MAE fordi feilene kvadreres. MdAPE endrer seg nesten ikke.',
-      'Finn en skjevhet der ME er nær 0 men MAE er stor. Da bommer modellen begge veier, uten systematisk skjevhet.']
+      'Sett bias tilbake til 0. ME er nær 0, men MAE er fortsatt stor: modellen bommer begge veier, uten systematisk bias.']
   }],
   body: `
 <h2>Kort fortalt</h2>
-<p>For hver observasjon i valideringsdataene har vi en faktisk verdi <i>y</i> og en prediksjon <i>ŷ</i>. Feilen er <i>e</i> = <i>y</i> − <i>ŷ</i>. Prediksjonsmålene oppsummerer alle feilene i ett tall. Sammenlign alltid mot en <b>naiv benchmark</b>: å predikere gjennomsnittet ȳ av treningsdataene for alle.</p>
+<p>For hvert datapunkt i valideringssettet har vi en faktisk verdi <i>y</i> og en prediksjon <i>ŷ</i>. Feilen er <i>e</i> = <i>y</i> − <i>ŷ</i>. Prediksjonsmålene oppsummerer alle feilene i ett tall. Sammenlign alltid mot en <b>naiv benchmark</b>: å predikere gjennomsnittet ȳ av treningsdataene for alle.</p>
 <h2>Målene</h2>
 <div class="tblwrap"><table class="tbl">
 <tr><th class="l">Mål</th><th class="l">Formel</th><th class="l">Forteller</th></tr>
-<tr><td class="l">ME</td><td class="l">snitt av e</td><td class="l">Systematisk skjevhet. Positiv: predikerer for lavt.</td></tr>
-<tr><td class="l">MPE</td><td class="l">snitt av 100 · e / y</td><td class="l">Skjevhet i prosent.</td></tr>
+<tr><td class="l">ME</td><td class="l">snitt av e</td><td class="l">Om vi systematisk over- eller underpredikerer (bias). Positiv: predikerer for lavt.</td></tr>
+<tr><td class="l">MPE</td><td class="l">snitt av 100 · e / y</td><td class="l">Som ME, men i prosent.</td></tr>
 <tr><td class="l">MAE</td><td class="l">snitt av |e|</td><td class="l">Typisk størrelse på feilen, i Y-enheter.</td></tr>
 <tr><td class="l">MAPE</td><td class="l">snitt av 100 · |e / y|</td><td class="l">Typisk feil i prosent. Ubrukelig når y kan være 0.</td></tr>
 <tr><td class="l">MdAPE</td><td class="l">median av 100 · |e / y|</td><td class="l">Som MAPE, men robust mot enkeltbom.</td></tr>
@@ -346,7 +346,7 @@ topic({
 </table></div>
 <p>RMSE ≥ MAE alltid. Er RMSE mye større enn MAE, finnes det noen få store bom.</p>
 <div class="pit"><b>Eksamensfelle: fortegnet</b>Læreboka og <code>regressionSummary</code> bruker e = y − ŷ. Da betyr negativ ME at modellen predikerer for høyt i snitt. Sjekk alltid hvilken definisjon oppgaven bruker.</div>
-<div class="pit"><b>Eksamensfelle: trening eller validering?</b>Sammenlign målene på valideringsdata. Er RMSE på trening mye lavere enn på validering, er modellen trolig overtilpasset.</div>
+<div class="pit"><b>Eksamensfelle: trening eller validering?</b>Sammenlign målene på valideringssettet. Er RMSE på trening mye lavere enn på validering, er modellen trolig overtilpasset.</div>
 <h2>Python</h2>
 <pre><code>from mlba import regressionSummary
 
@@ -362,7 +362,7 @@ topic({
   id: 'evaluering-klassifikasjon', data: [['owner']], short: 'Klassifikasjonsmål', lecture: 'F4', tags: ['Grunnmur', 'Kategorisk Y'],
   title: 'Evaluering av klassifikasjon',
   path: ['Grunnmur'],
-  lead: 'En klassifikasjonsmodell gir en sannsynlighet (propensitet). Terskelen gjør den om til en klasse. Forvirringsmatrisen, ROC-kurven og lift-kurven viser hva vi tjener og taper på valget.',
+  lead: 'En klassifikasjonsmodell gir en sannsynlighet (propensitet). Terskelen gjør den om til en klasse. Forvirringsmatrisen, ROC-kurven og lift chart viser hva vi tjener og taper på valget.',
   figs: [{
     title: 'Terskel, forvirringsmatrise, ROC og lift',
     sub: 'De 24 husholdningene med ferdig utregnede propensiteter, sortert fra høyest til lavest. Alt med p &gt; terskel klassifiseres som eier. Tenk deg at vi bare kontakter dem modellen kaller eiere.',
@@ -383,12 +383,12 @@ topic({
       const cols = H('div', { class: 'cols even', style: 'margin-top:12px' }); el.append(cols);
       const cmBox = H('div'), tBox = H('div'); cols.append(cmBox, tBox);
       const cm = ConfMat(cmBox, ['ikke-eier', 'eier']);
-      const tiles = Tiles(tBox, [['acc', 'Nøyaktighet'], ['sens', 'Sensitivitet'], ['spec', 'Spesifisitet'], ['prec', 'Presisjon'], ['f1', 'F1'], ['prof', 'Netto profitt']]);
+      const tiles = Tiles(tBox, [['acc', 'Nøyaktighet'], ['sens', 'Dekning (TPR)'], ['spec', 'Spesifisitet'], ['prec', 'Presisjon'], ['f1', 'F1'], ['prof', 'Netto profitt']]);
       tBox.append(H('p', { class: 'note', html: 'Profitten bygger på tenkte tall: hver eier vi kontakter gir 100 kr i fortjeneste, og hver ikke-eier vi kontakter koster 200 kr.' }));
       const ch = H('div', { class: 'cols even', style: 'margin-top:8px' }); el.append(ch);
       const a = H('div'), b = H('div'); ch.append(a, b);
-      const roc = new Plot(a, { w: 360, h: 300, x: [0, 1], y: [0, 1], xlab: '1 − spesifisitet', ylab: 'Sensitivitet', label: 'ROC-kurve', nx: 4, ny: 4 });
-      const gain = new Plot(b, { w: 360, h: 300, x: [0, 24], y: [0, 12], xlab: 'Antall kontaktet (sortert)', ylab: 'Kumulativt antall eiere', label: 'Kumulativ gevinst (lift)', xticks: [0, 6, 12, 18, 24], yticks: [0, 4, 8, 12] });
+      const roc = new Plot(a, { w: 360, h: 300, x: [0, 1], y: [0, 1], xlab: '1 − spesifisitet', ylab: 'Dekning (TPR)', label: 'ROC-kurve', nx: 4, ny: 4 });
+      const gain = new Plot(b, { w: 360, h: 300, x: [0, 24], y: [0, 12], xlab: 'Antall kontaktet (sortert)', ylab: 'Kumulativt antall eiere', label: 'Lift chart', xticks: [0, 6, 12, 18, 24], yticks: [0, 4, 8, 12] });
       for (const [pl, xs, ys, xm, ym] of [[roc, FPk.map(v => v / N), TPk.map(v => v / P), 1, 1], [gain, range(25), TPk, 24, 12]]) {
         S('line', { x1: pl.x(0), y1: pl.y(0), x2: pl.x(xm), y2: pl.y(ym), class: 's-mut', 'stroke-dasharray': '4 4' }, pl.gData);
         S('path', { d: pathOf(xs.map((x, i) => [pl.x(x), pl.y(ys[i])])), fill: 'none', class: 's-c2', 'stroke-width': 2.5 }, pl.gData);
@@ -413,11 +413,11 @@ topic({
       draw();
     },
     tryit: ['Trykk 0.25, 0.50 og 0.75 og sammenlign tre vanlige terskler. Nøyaktigheten blir 0.792, 0.875 og 0.750.',
-      'Følg punktene på ROC- og lift-kurven mens du drar. Begge kurvene er alle mulige terskler tegnet etter hverandre.',
+      'Følg punktene på ROC-kurven og i lift chart mens du drar. Begge kurvene er alle mulige terskler tegnet etter hverandre.',
       'Trykk «Høyest profitt». Nøyaktigheten er den samme som ved 0.5, men profitten stiger fra 700 til 800: én dyr falsk positiv byttes mot én billigere falsk negativ.']
   }, {
     title: 'Når den interessante klassen er sjelden',
-    sub: 'En kampanje sendes til 1000 kunder. Modellen fanger 80 % av dem som svarer (sensitivitet) og avviser 98 % av dem som ikke svarer (spesifisitet). En naiv modell sier at ingen svarer.',
+    sub: 'En kampanje sendes til 1000 kunder. Modellen fanger 80 % av dem som svarer (dekning) og avviser 98 % av dem som ikke svarer (spesifisitet). En naiv benchmark sier at ingen svarer.',
     build(el) {
       let pos = 10;
       const ctl = Controls(el);
@@ -436,7 +436,7 @@ topic({
       }
       draw();
     },
-    tryit: ['Med 10 som svarer er den naive modellen «bedre» målt i nøyaktighet (99 % mot 97,8 %). Likevel finner den ingen kunder.',
+    tryit: ['Med 10 som svarer er den naive benchmarken «bedre» målt i nøyaktighet (99 % mot 97,8 %). Likevel finner den ingen kunder.',
       'Øk antall som svarer. Når klassen blir vanligere, slår modellen den naive, og presisjonen stiger.',
       'Lift sier hvor mange ganger høyere svarandelen er i gruppen modellen velger, sammenlignet med å trekke tilfeldig.']
   }],
@@ -446,25 +446,25 @@ topic({
 <div class="tblwrap"><table class="tbl">
 <tr><th class="l">Mål</th><th class="l">Formel</th><th class="l">Spør</th></tr>
 <tr><td class="l">Nøyaktighet</td><td class="l">(TP + TN) / n</td><td class="l">Hvor stor andel er riktig? Feilrate = 1 − nøyaktighet.</td></tr>
-<tr><td class="l">Sensitivitet (recall, TPR)</td><td class="l">TP / (TP + FN)</td><td class="l">Hvor mange av de positive finner vi?</td></tr>
+<tr><td class="l">Dekning (TPR, recall, sensitivitet)</td><td class="l">TP / (TP + FN)</td><td class="l">Hvor mange av de positive finner vi?</td></tr>
 <tr><td class="l">Spesifisitet</td><td class="l">TN / (TN + FP)</td><td class="l">Hvor mange av de negative avviser vi riktig?</td></tr>
 <tr><td class="l">Presisjon</td><td class="l">TP / (TP + FP)</td><td class="l">Hvor mange av dem vi kaller positive, er positive?</td></tr>
-<tr><td class="l">F1</td><td class="l">2 · presisjon · sensitivitet / (presisjon + sensitivitet)</td><td class="l">Balanse mellom de to.</td></tr>
+<tr><td class="l">F1</td><td class="l">2 · presisjon · dekning / (presisjon + dekning)</td><td class="l">Balanse mellom de to.</td></tr>
 <tr><td class="l">FPR</td><td class="l">FP / (FP + TN) = 1 − spesifisitet</td><td class="l">x-aksen i ROC-kurven.</td></tr>
 </table></div>
 <h2>Terskelen</h2>
-<p>Standard terskel er 0,5, men den er et valg. Lavere terskel gir flere predikerte positive: sensitiviteten øker og spesifisiteten faller. Velg terskel ut fra hva feilene koster. Er det dyrt å gå glipp av en positiv (for eksempel svindel), velg lav terskel.</p>
+<p>Standard terskel er 0,5, men den er et valg. Lavere terskel gir flere predikerte positive: dekningen øker og spesifisiteten faller. Velg terskel ut fra hva feilene koster. Er det dyrt å gå glipp av en positiv (for eksempel svindel), velg lav terskel.</p>
 <h2>ROC, AUC og lift</h2>
 <ul>
-<li><b>ROC-kurven</b> tegner sensitivitet mot 1 − spesifisitet for alle terskler. Diagonalen er tilfeldig gjetting. <b>AUC</b> er arealet under kurven: 1 er perfekt, 0,5 er tilfeldig. AUC er også sannsynligheten for at en tilfeldig positiv får høyere propensitet enn en tilfeldig negativ.</li>
-<li><b>Kumulativ gevinst (lift chart):</b> sorter etter propensitet, gå nedover listen og tell positive. Jo høyere over diagonalen, desto bedre. Lift = andel positive i det utvalgte ÷ andel positive totalt.</li>
-<li><b>Desil-diagram:</b> lift for hver tidel av den sorterte listen. Første søyle viser hvor mye bedre de 10 % «beste» er enn snittet.</li>
+<li><b>ROC-kurven</b> tegner dekning (TPR) mot 1 − spesifisitet for alle terskler. Diagonalen er tilfeldig gjetting. <b>AUC</b> er arealet under kurven: 1 er perfekt, 0,5 er tilfeldig. AUC er også sannsynligheten for at en tilfeldig positiv får høyere propensitet enn en tilfeldig negativ.</li>
+<li><b>Lift chart:</b> sorter etter propensitet, gå nedover listen og tell positive. Jo høyere over diagonalen, desto bedre. Lift = andel positive i det utvalgte ÷ andel positive totalt.</li>
+<li><b>Decile chart:</b> lift for hver tidel av den sorterte listen. Første søyle viser hvor mye bedre de 10 % «beste» er enn snittet.</li>
 <li>ROC og AUC oppsummerer modellen over alle terskler. Lift er mer konkret når vi bare kan kontakte de øverste på listen.</li>
 </ul>
 <h2>Kostnader, nytte og sjeldne klasser</h2>
-<p>Gi hver celle i forvirringsmatrisen en verdi (nytte av TP, kostnad av FP og så videre) og velg terskelen som gir høyest forventet profitt. Lift-kurven kan tegnes med profitt på y-aksen i stedet for antall.</p>
+<p>Gi hver celle i forvirringsmatrisen en verdi (nytte av TP, kostnad av FP og så videre) og velg terskelen som gir høyest forventet profitt. Lift chart kan tegnes med profitt på y-aksen i stedet for antall.</p>
 <p>Når den positive klassen er sjelden, kan <b>oversampling</b> hjelpe: tren modellen på et utvalg der den sjeldne klassen er overrepresentert. Evaluer på data med den opprinnelige fordelingen, ellers blir målene for optimistiske.</p>
-<div class="pit"><b>Eksamensfelle: nøyaktighet med skjeve klasser</b>Med 1 % positive får en modell som alltid sier «negativ» 99 % nøyaktighet. Bruk sensitivitet, presisjon, lift eller profitt i stedet.</div>
+<div class="pit"><b>Eksamensfelle: nøyaktighet med skjeve klasser</b>Med 1 % positive får en modell som alltid sier «negativ» 99 % nøyaktighet. Bruk dekning, presisjon, lift eller profitt i stedet.</div>
 <h2>Python</h2>
 <pre><code>from mlba import classificationSummary, gainsChart, liftChart
 from sklearn.metrics import roc_curve, auc
@@ -477,9 +477,9 @@ fpr, tpr, _ = roc_curve(valid_y, prob)                   # FPR og TPR for alle m
 print('AUC:', auc(fpr, tpr))                             # arealet under ROC-kurven
 
 df = pd.DataFrame({'actual': valid_y, 'prob': prob})     # fasit og sannsynlighet side om side
-gainsChart(df, ranking='prob', actual='actual')          # sortert etter prob: kumulativt antall 1-ere
-liftChart(df, ranking='prob', actual='actual')           # lift per tidel (desil-diagram)
+gainsChart(df, ranking='prob', actual='actual')          # lift chart: kumulativt antall 1-ere, sortert etter prob
+liftChart(df, ranking='prob', actual='actual')           # decile chart: lift per tidel
 
 df['profit'] = df['actual'].apply(lambda x: 100 if x == 1 else -200)   # en 1-er gir +100, en 0 koster 200
-gainsChart(df, ranking='prob', actual='profit', type='regression')   # kumulativ gevinst i kroner</code></pre>`
+gainsChart(df, ranking='prob', actual='profit', type='regression')   # lift chart med profitt i kroner</code></pre>`
 });

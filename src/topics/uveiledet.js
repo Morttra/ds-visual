@@ -1,6 +1,6 @@
-/* Ikke-veiledet læring: hierarkisk klynging, k-means og PCA */
+/* Uveiledet læring: hierarkisk klyngeanalyse, k-means og PCA */
 
-const LINK = { single: 'Enkel (min)', complete: 'Fullstendig (maks)', average: 'Gjennomsnitt', centroid: 'Sentroide' };
+const LINK = { single: 'Single (min)', complete: 'Complete (maks)', average: 'Average (snitt)', centroid: 'Sentroide' };
 function clusterDist(A, B, P, link) {
   if (link === 'centroid') { const ca = [mean(A.map(i => P[i][0])), mean(A.map(i => P[i][1]))], cb = [mean(B.map(i => P[i][0])), mean(B.map(i => P[i][1]))]; return dist2(ca, cb); }
   const ds = []; for (const i of A) for (const j of B) ds.push(dist2(P[i], P[j]));
@@ -36,10 +36,10 @@ function zUtilities() {
 }
 
 topic({
-  id: 'hierarkisk-klynging', data: [['utilities']], short: 'Hierarkisk klynging', lecture: 'F10', tags: ['Ikke-veiledet', 'Avstandsmatrise', 'Dendrogram'],
-  title: 'Hierarkisk klynging',
-  path: ['Ikke-veiledet læring', 'Klynger og PCA'],
-  lead: 'Hierarkisk klynging starter med hvert punkt som sin egen klynge, og slår sammen de to nærmeste klyngene igjen og igjen. Resultatet er et dendrogram som viser hele historien. Hvordan vi måler avstand mellom klynger (linkage), kan gi helt ulike svar.',
+  id: 'hierarkisk-klynging', data: [['utilities']], short: 'Hierarkisk klyngeanalyse', lecture: 'F10', tags: ['Uveiledet', 'Avstandsmatrise', 'Dendrogram'],
+  title: 'Hierarkisk klyngeanalyse',
+  path: ['Uveiledet læring', 'Klyngeanalyse og PCA'],
+  lead: 'Hierarkisk klyngeanalyse starter med hvert punkt som sin egen klynge, og slår sammen de to nærmeste klyngene igjen og igjen. Resultatet er et dendrogram som viser hele historien. Hvordan vi måler avstand mellom klynger (linkage), kan gi helt ulike svar.',
   figs: [{
     title: 'Steg for steg med avstandsmatrise',
     sub: 'Sju av de 22 kraftselskapene, beskrevet med årlig strømsalg (Sales) og brenselkostnad (Fuel_Cost), begge normalisert som z-score over alle 22 selskapene. Den laveste avstanden i matrisen (markert) slås sammen i neste steg.',
@@ -72,7 +72,7 @@ topic({
       }
       draw();
     },
-    tryit: ['Trykk «Neste» fire ganger med enkel linkage. San Diego og New England slås sammen først (0,13), så Nevada og Puget (0,49).', 'Gå til steg 5 og bytt mellom enkel og fullstendig linkage. Madison havner hos Idaho-gruppa med enkel linkage, men hos NY-gruppa med fullstendig.', 'Se på tallene i matrisen etter en sammenslåing: med enkel linkage er avstanden til den nye klyngen minimum av de to gamle avstandene, med fullstendig er den maksimum.']
+    tryit: ['Trykk «Neste» fire ganger med single linkage. San Diego og New England slås sammen først (0,13), så Nevada og Puget (0,49).', 'Gå til steg 5 og bytt mellom single og complete linkage. Madison havner hos Idaho-gruppa med single linkage, men hos NY-gruppa med complete.', 'Se på tallene i matrisen etter en sammenslåing: med single linkage er avstanden til den nye klyngen minimum av de to gamle avstandene, med complete er den maksimum.']
   }, {
     title: 'Klipp dendrogrammet',
     sub: 'Alle 22 selskapene. Der du klipper treet, bestemmer hvor mange klynger du får. Klynger som slås sammen høyt oppe, er langt fra hverandre.',
@@ -97,7 +97,7 @@ topic({
       }
       draw();
     },
-    tryit: ['Dra klippehøyden ned og se klyngene dele seg. Hvert hopp i antall skjer der linjen krysser en vannrett strek i dendrogrammet.', 'Sammenlign enkel og fullstendig linkage. Enkel linkage lager gjerne lange kjeder, fullstendig gir mer kompakte grupper.']
+    tryit: ['Dra klippehøyden ned og se klyngene dele seg. Hvert hopp i antall skjer der linjen krysser en vannrett strek i dendrogrammet.', 'Sammenlign single og complete linkage. Single linkage lager gjerne lange kjeder, complete gir mer kompakte grupper.']
   }, {
     title: 'Likhet for binære variabler',
     sub: 'To kunder og åtte ja/nei-variabler (har kjøpt produktet eller ikke). Trykk på en rute for å endre den.',
@@ -126,9 +126,9 @@ topic({
 <h2>Avstand mellom klynger (linkage)</h2>
 <div class="tblwrap"><table class="tbl">
 <tr><th class="l">Linkage</th><th class="l">Avstand mellom klynge A og B</th><th class="l">Typisk resultat</th></tr>
-<tr><td class="l">Enkel (single)</td><td class="l">Minste avstand mellom et punkt i A og et i B</td><td class="l">Lange, kjedeaktige klynger</td></tr>
-<tr><td class="l">Fullstendig (complete)</td><td class="l">Største avstand mellom et punkt i A og et i B</td><td class="l">Kompakte klynger av lik størrelse</td></tr>
-<tr><td class="l">Gjennomsnitt (average)</td><td class="l">Snitt av alle avstander mellom A og B</td><td class="l">Et kompromiss</td></tr>
+<tr><td class="l">Single linkage</td><td class="l">Minste avstand mellom et punkt i A og et i B</td><td class="l">Lange, kjedeaktige klynger</td></tr>
+<tr><td class="l">Complete linkage</td><td class="l">Største avstand mellom et punkt i A og et i B</td><td class="l">Kompakte klynger av lik størrelse</td></tr>
+<tr><td class="l">Average linkage</td><td class="l">Snitt av alle avstander mellom A og B</td><td class="l">Et kompromiss</td></tr>
 <tr><td class="l">Sentroide (centroid)</td><td class="l">Avstand mellom gjennomsnittspunktene i A og B</td><td class="l">Intuitivt, men kan gi inversjoner</td></tr>
 <tr><td class="l">Ward</td><td class="l">Økningen i variasjon innad i klyngene ved sammenslåing</td><td class="l">Kompakte klynger, ligner k-means</td></tr>
 </table></div>
@@ -141,9 +141,9 @@ topic({
 </ol>
 <div class="pros">
 <div><h3>Styrker</h3><ul><li>Trenger ikke velge antall klynger på forhånd</li><li>Dendrogrammet viser struktur på alle nivåer</li><li>Fungerer med alle avstandsmål</li></ul></div>
-<div><h3>Svakheter</h3><ul><li>Tregt for store datasett (avstandsmatrisen er n × n)</li><li>En sammenslåing kan aldri angres</li><li>Følsom for uteliggere og valg av linkage</li></ul></div>
+<div><h3>Svakheter</h3><ul><li>Tregt for store datasett (avstandsmatrisen er n × n)</li><li>En sammenslåing kan aldri angres</li><li>Følsom for utstikkere og valg av linkage</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle: oppdater matrisen riktig</b>Etter at A og B er slått sammen, er avstanden fra AB til C: min(d(A,C), d(B,C)) med enkel linkage, maks(d(A,C), d(B,C)) med fullstendig linkage. Med gjennomsnitt må du snitte over alle punktparene, ikke bare de to tallene.</div>
+<div class="pit"><b>Eksamensfelle: oppdater matrisen riktig</b>Etter at A og B er slått sammen, er avstanden fra AB til C: min(d(A,C), d(B,C)) med single linkage, maks(d(A,C), d(B,C)) med complete linkage. Med average må du snitte over alle punktparene, ikke bare de to tallene.</div>
 <h2>Python</h2>
 <pre><code>from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 from sklearn.metrics import pairwise
@@ -160,9 +160,9 @@ memb = fcluster(Z, 6, criterion='maxclust')             # kutt treet så det bli
 });
 
 topic({
-  id: 'k-means', dataNote: 'Figuren bruker <b>simulerte data</b>: 180 punkter trukket rundt fire sentre. Python-koden nederst bruker <a href="#datasett-utilities">kraftselskapdataene</a>, som i læreboka.', short: 'k-means', lecture: 'F10', tags: ['Ikke-veiledet', 'Klynging'],
-  title: 'k-means',
-  path: ['Ikke-veiledet læring', 'Klynger og PCA'],
+  id: 'k-means', dataNote: 'Figuren bruker <b>simulerte data</b>: 180 punkter trukket rundt fire sentre. Python-koden nederst bruker <a href="#datasett-utilities">kraftselskapdataene</a>, som i læreboka.', short: 'k-means', lecture: 'F10', tags: ['Uveiledet', 'Klyngeanalyse'],
+  title: 'k-means klyngeanalyse',
+  path: ['Uveiledet læring', 'Klyngeanalyse og PCA'],
   lead: 'k-means deler dataene i k klynger ved å veksle mellom to steg: tildel hvert punkt til nærmeste sentroide, og flytt hver sentroide til gjennomsnittet av punktene sine. Det gjentas til ingenting endrer seg.',
   figs: [{
     title: 'k-means steg for steg',
@@ -187,7 +187,7 @@ topic({
       const plot = new Plot(a, { w: 520, h: 420, m: { t: 10, r: 10, b: 10, l: 10 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'k-means' });
       const gL = plot.layer(), gP = plot.layer(), gC = plot.layer();
       const tiles = Tiles(b, [['ph', 'Neste steg'], ['it', 'Iterasjoner'], ['in', 'Inertia (sum av kvadrerte avstander)']]);
-      const p2 = new Plot(b, { w: 360, h: 220, x: [0.5, 8.5], y: [0, Math.max(...elbow) * 1.05], xticks: range(8, i => i + 1), xlab: 'k', ylab: 'Inertia (beste av 10)', label: 'Albueplott', yfmt: v => fx(v, 1) });
+      const p2 = new Plot(b, { w: 360, h: 220, x: [0.5, 8.5], y: [0, Math.max(...elbow) * 1.05], xticks: range(8, i => i + 1), xlab: 'k', ylab: 'Inertia (beste av 10)', label: 'Albueplot', yfmt: v => fx(v, 1) });
       S('path', { d: pathOf(elbow.map((v, j) => [p2.x(j + 1), p2.y(v)])), fill: 'none', class: 's-acc', 'stroke-width': 2 }, p2.gData);
       elbow.forEach((v, j) => S('circle', { cx: p2.x(j + 1), cy: p2.y(v), r: 3.5, class: 'f-acc' }, p2.gData));
       const mk = S('circle', { r: 7, fill: 'none', class: 's-hl', 'stroke-width': 3 }, p2.gTop);
@@ -218,7 +218,7 @@ topic({
 <p>Hvert steg kan bare redusere inertia, så algoritmen stopper alltid. Men den finner et <b>lokalt</b> minimum som avhenger av startpunktene.</p>
 <h2>Valg av k</h2>
 <ul>
-<li><b>Albueplott:</b> inertia mot k. Velg k der kurven knekker og videre økning gir lite.</li>
+<li><b>Albueplot:</b> inertia mot k. Velg k der kurven knekker og videre økning gir lite.</li>
 <li><b>Domenekunnskap:</b> hvor mange segmenter kan markedsavdelingen faktisk bruke?</li>
 <li><b>Tolkbarhet:</b> se på sentroidene (gjennomsnittsprofilene) og sjekk at klyngene gir mening.</li>
 </ul>
@@ -227,7 +227,7 @@ topic({
 <div><h3>k-means</h3><ul><li>Raskt, også for store datasett</li><li>Må velge k på forhånd</li><li>Gir runde, like store klynger</li><li>Resultatet avhenger av startpunktene</li></ul></div>
 <div><h3>Hierarkisk</h3><ul><li>Tregt for store datasett</li><li>Trenger ikke k på forhånd</li><li>Dendrogram viser struktur på alle nivåer</li><li>Samme resultat hver gang</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle</b>Normaliser variablene før k-means, akkurat som i k-NN og hierarkisk klynging. Og husk at k-means ikke er k-NN: k-means er ikke-veiledet klynging, k-NN er veiledet klassifikasjon.</div>
+<div class="pit"><b>Eksamensfelle</b>Normaliser variablene før k-means, akkurat som i k-NN og hierarkisk klyngeanalyse. Og husk at k-means ikke er k-NN: k-means er uveiledet klyngeanalyse, k-NN er veiledet klassifikasjon.</div>
 <h2>Python</h2>
 <pre><code># utilities_df_norm: kraftselskapdataene, normalisert som z-score
 from sklearn.cluster import KMeans
@@ -244,10 +244,10 @@ plt.plot(range(1, 10), inertia, marker='o')           # albueplott: velg k der k
 });
 
 topic({
-  id: 'pca', data: [['cereals']], short: 'PCA', lecture: 'F3', tags: ['Ikke-veiledet', 'Dimensjonsreduksjon'],
+  id: 'pca', data: [['cereals']], short: 'PCA', lecture: 'F3', tags: ['Uveiledet', 'Dimensjonsreduksjon'],
   title: 'Prinsipalkomponentanalyse (PCA)',
-  path: ['Ikke-veiledet læring', 'Klynger og PCA'],
-  lead: 'PCA lager nye variabler, prinsipalkomponenter, som er vektede summer av de opprinnelige. Første komponent fanger mest mulig av variansen, den neste mest av resten, og alle er ukorrelerte. Med noen få komponenter kan vi ofte beholde det meste av informasjonen.',
+  path: ['Uveiledet læring', 'Klyngeanalyse og PCA'],
+  lead: 'PCA lager nye variabler, prinsipalkomponenter, som er lineære kombinasjoner av de opprinnelige. Første komponent fanger mest mulig av variansen, den neste mest av resten, og alle er ukorrelerte. Med noen få komponenter kan vi ofte beholde det meste av informasjonen.',
   figs: [{
     title: 'Finn retningen med mest varians',
     sub: '77 frokostblandinger: kalorier og rating. Drei linja gjennom gjennomsnittspunktet. Variansen langs linja er variansen til projeksjonene (de små strekene).',
@@ -266,9 +266,9 @@ topic({
       const a = H('div'), b = H('div'); cols.append(a, b);
       const plot = new Plot(a, { w: 520, h: 440, x: [-1, 1], y: [-1, 1], label: 'Projeksjon på en retning' });
       const gL = plot.clipLayer(), gP = plot.layer();
-      const tiles = Tiles(b, [['v', 'Varians langs linja'], ['p', 'Andel av total varians'], ['w', 'Vekter (calories, rating)']]);
+      const tiles = Tiles(b, [['v', 'Varians langs linja'], ['p', 'Andel av total varians'], ['w', 'Ladninger (calories, rating)']]);
       const bar = S('svg', { viewBox: '0 0 360 60', class: 'plot', role: 'img', 'aria-label': 'Andel varians' }); b.append(bar);
-      b.append(H('p', { class: 'note', html: 'Linja med størst varians er PC1. Vektene er komponentene i retningsvektoren, og fortegnet kan snus uten at noe endres.' }));
+      b.append(H('p', { class: 'note', html: 'Linja med størst varians er PC1. Ladningene er komponentene i retningsvektoren, og fortegnet kan snus uten at noe endres.' }));
       function draw(newDom) {
         const D = data();
         if (newDom || !plot._d) { const s = std ? 4.4 : 64, ratio = (440 - 60) / (520 - 70); plot.o.xlab = std ? 'calories (z)' : 'calories − snitt'; plot.o.ylab = std ? 'rating (z)' : 'rating − snitt'; plot.setDomain([-s, s], [-s * ratio, s * ratio]); plot._d = 1; }
@@ -286,7 +286,7 @@ topic({
       }
       draw(true);
     },
-    tryit: ['Trykk «Finn PC1» på rådata. Vektene blir omtrent (−0,85, 0,53) for (calories, rating), som i læreboka, og retningen fanger 86 % av variansen. Fortegnet kan like gjerne være snudd.', 'Drei linja 90° fra PC1. Da får du PC2, som fanger resten (14 %).', 'Bytt til standardisert. Med to standardiserte variabler blir vektene alltid ±0,707: begge teller like mye, og bare korrelasjonen avgjør hvor mye PC1 fanger.']
+    tryit: ['Trykk «Finn PC1» på rådata. Ladningene blir omtrent (−0,85, 0,53) for (calories, rating), som i læreboka, og retningen fanger 86 % av variansen. Fortegnet kan like gjerne være snudd.', 'Drei linja 90° fra PC1. Da får du PC2, som fanger resten (14 %).', 'Bytt til standardisert. Med to standardiserte variabler blir ladningene alltid ±0,707: begge teller like mye, og bare korrelasjonen avgjør hvor mye PC1 fanger.']
   }, {
     title: 'Hvor mange komponenter trenger vi?',
     sub: 'PCA på alle 13 tallvariablene i frokostblandingsdataene (standardisert, 74 rader uten manglende verdier). Søylene er andelen varians hver komponent forklarer (PVE). Linja er kumulativ andel.',
@@ -296,11 +296,11 @@ topic({
       Slider(ctl, { label: 'Antall komponenter', min: 1, max: 13, value: m, oninput: v => { m = v; draw(); } });
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const a = H('div'), b = H('div'); cols.append(a, b);
-      const plot = new Plot(a, { w: 540, h: 300, x: [0.4, 13.6], y: [0, 1], xticks: range(13, i => i + 1), yfmt: v => Math.round(v * 100) + ' %', xlab: 'Komponent', ylab: 'Andel varians', label: 'Albueplott for PCA' });
+      const plot = new Plot(a, { w: 540, h: 300, x: [0.4, 13.6], y: [0, 1], xticks: range(13, i => i + 1), yfmt: v => Math.round(v * 100) + ' %', xlab: 'Komponent', ylab: 'Andel varians', label: 'Albueplot for PCA' });
       const g = plot.layer();
       const tiles = Tiles(b, [['c', 'Kumulativ andel'], ['r', 'Variabler redusert fra 13 til']]);
       const tw = H('div', { class: 'tblwrap', style: 'margin-top:10px' }); b.append(tw);
-      tw.append(H('table', { class: 'tbl' }, H('tr', {}, H('th', { class: 'l' }, 'Største vekter i PC1'), H('th', {}, 'Vekt')), DATA.cerealPC1.slice(0, 6).map(([c, w]) => H('tr', {}, H('td', { class: 'l' }, c), H('td', {}, fx(w, 3))))));
+      tw.append(H('table', { class: 'tbl' }, H('tr', {}, H('th', { class: 'l' }, 'Største ladninger i PC1'), H('th', {}, 'Ladning')), DATA.cerealPC1.slice(0, 6).map(([c, w]) => H('tr', {}, H('td', { class: 'l' }, c), H('td', {}, fx(w, 3))))));
       function draw() {
         clear(g); const X = plot.x, Y = plot.y; let c = 0; const cum = pve.map(v => (c += v));
         pve.forEach((v, i) => S('rect', { x: X(i + 1) - 14, y: Y(v), width: 28, height: Y(0) - Y(v), rx: 3, class: i < m ? 'f-acc' : 'f-line' }, g));
@@ -310,15 +310,15 @@ topic({
       }
       draw();
     },
-    tryit: ['De tre første komponentene forklarer omtrent 67 %. Albuen ligger rundt komponent 3–4.', 'Vektene i PC1 viser hva komponenten «handler om»: fiber, rating, kalium og protein drar én vei, kalorier den andre. Det ligner en sunnhetsakse.']
+    tryit: ['De tre første komponentene forklarer omtrent 67 %. Albuen ligger rundt komponent 3–4.', 'Ladningene i PC1 viser hva komponenten «handler om»: fiber, rating, kalium og protein drar én vei, kalorier den andre. Det ligner en sunnhetsakse.']
   }],
   body: `
 <h2>Kort fortalt</h2>
-<p>Med mange korrelerte variabler bærer flere av dem nesten den samme informasjonen. PCA roterer koordinatsystemet slik at den første aksen peker dit dataene varierer mest. Hver komponent er en vektet sum:</p>
+<p>Med mange korrelerte variabler bærer flere av dem nesten den samme informasjonen. PCA roterer koordinatsystemet slik at den første aksen peker dit dataene varierer mest. Hver komponent er en lineær kombinasjon:</p>
 <div class="formula"><span class="v">Z</span><sub>1</sub> = <span class="v">a</span><sub>11</sub><span class="v">x</span><sub>1</sub> + <span class="v">a</span><sub>12</sub><span class="v">x</span><sub>2</sub> + … + <span class="v">a</span><sub>1<span class="v">p</span></sub><span class="v">x</span><sub><span class="v">p</span></sub>, &nbsp;&nbsp; der <span class="v">a</span><sub>11</sub>² + … + <span class="v">a</span><sub>1<span class="v">p</span></sub>² = 1</div>
 <ul>
-<li><b>Vektene (loadings)</b> sier hvor mye hver variabel bidrar til komponenten.</li>
-<li><b>Scores</b> er verdiene til hver observasjon på de nye komponentene.</li>
+<li><b>Ladningene (loadings)</b> sier hvor mye hver variabel bidrar til komponenten.</li>
+<li><b>Scores</b> er verdiene til hvert datapunkt på de nye komponentene.</li>
 <li><b>PVE</b> (proportion of variance explained) er andelen av total varians hver komponent fanger. Summen av alle er 100 %.</li>
 <li>Komponentene er ukorrelerte med hverandre.</li>
 </ul>
@@ -327,17 +327,17 @@ topic({
 <h2>Bruk i data science</h2>
 <ul>
 <li><b>Dimensjonsreduksjon:</b> bruk de første komponentene som forklaringsvariabler i en modell (for eksempel regresjon eller k-NN).</li>
-<li><b>Visualisering:</b> plott de to første komponentene for å se grupper og uteliggere.</li>
-<li><b>Velg antall:</b> albueplott, eller nok komponenter til å forklare for eksempel 80–90 % av variansen.</li>
+<li><b>Visualisering:</b> plott de to første komponentene for å se grupper og utstikkere.</li>
+<li><b>Velg antall:</b> albueplot, eller nok komponenter til å forklare for eksempel 80–90 % av variansen.</li>
 <li>Ulempen er tolkning: en komponent er en blanding av mange variabler.</li>
 </ul>
-<div class="pit"><b>Eksamensfelle</b>PCA bruker ikke Y. Den er ikke-veiledet, så komponentene med mest varians er ikke nødvendigvis de som predikerer Y best.</div>
+<div class="pit"><b>Eksamensfelle</b>PCA bruker ikke Y. Den er uveiledet, så komponentene med mest varians er ikke nødvendigvis de som predikerer Y best.</div>
 <h2>Python</h2>
 <pre><code>from sklearn.decomposition import PCA
 from sklearn import preprocessing
 
 pcs = PCA(n_components=2).fit(cereals_df[['calories', 'rating']])   # PCA på to variabler, uskalert
-print(pcs.components_)                        # vektene (loadings)
+print(pcs.components_)                        # ladningene (loadings)
 print(pcs.explained_variance_ratio_)          # PVE
 
 # alle numeriske kolonner (fra kolonne 3), uten rader med manglende verdier, standardisert

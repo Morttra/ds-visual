@@ -1,4 +1,4 @@
-/* Nevrale nett: parametre, nevron, softmax, gradient descent, trening i nettleseren, konvolusjon */
+/* Nevrale nettverk: parametere, nevron, softmax, gradient descent, trening i nettleseren, konvolusjon */
 
 function NumIn(parent, o) {
   const id = uid('n'), inp = H('input', { type: 'number', id, value: o.value, min: o.min, max: o.max, step: o.step || 1 });
@@ -33,13 +33,13 @@ const ACT = {
 };
 
 topic({
-  id: 'nevrale-nett', dataNote: 'Figurene bruker små, oppdiktede eksempler og <b>simulerte data</b> (to halvmåner), slik at alt kan regnes ut direkte i nettleseren.', short: 'Nevrale nett', lecture: 'F9', tags: ['Klassifikasjon', 'Prediksjon', 'Dyp læring', 'CNN'],
-  title: 'Nevrale nett og CNN',
+  id: 'nevrale-nett', dataNote: 'Figurene bruker små, oppdiktede eksempler og <b>simulerte data</b> (to halvmåner), slik at alt kan regnes ut direkte i nettleseren.', short: 'Nevrale nettverk', lecture: 'F9', tags: ['Klassifikasjon', 'Prediksjon', 'Dyplæring', 'CNN'],
+  title: 'Nevrale nettverk og CNN',
   path: ['Veiledet læring', 'Klassifikasjon og prediksjon'],
-  lead: 'Et nevralt nett er lag av enkle regneenheter. Hvert nevron tar en vektet sum av inputene, legger til en bias og sender resultatet gjennom en aktiveringsfunksjon. Vektene læres ved å gå nedover i kostnadsfunksjonen med gradient descent, og backpropagation regner ut retningen.',
+  lead: 'Et nevralt nettverk er lag av enkle regneenheter. Hvert nevron tar en vektet sum av inputene, legger til en bias og sender resultatet gjennom en aktiveringsfunksjon. Vektene læres ved å gå nedover i kostnadsfunksjonen med gradient descent, og backpropagation regner ut retningen.',
   figs: [{
-    title: 'Tell parametrene',
-    sub: 'Hvert fullt koblet lag har n<sub>inn</sub> · n<sub>ut</sub> vekter og n<sub>ut</sub> biaser. Bygg et nett og se regnestykket lag for lag.',
+    title: 'Tell parameterne',
+    sub: 'Hvert fullt koblet lag har n<sub>inn</sub> · n<sub>ut</sub> vekter og n<sub>ut</sub> biaser. Bygg et nettverk og se regnestykket lag for lag.',
     build(el) {
       let nin = 4, L = 1, hs = [6, 4, 3], nout = 3;
       const ctl = Controls(el);
@@ -50,8 +50,8 @@ topic({
       const svgW = H('div', { style: 'overflow-x:auto' }); el.append(svgW);
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const tw = H('div', { class: 'tblwrap' }), tb = H('div'); cols.append(tw, tb);
-      const tiles = Tiles(tb, [['tot', 'Parametre totalt'], ['w', 'Vekter'], ['b', 'Biaser']]);
-      tb.append(H('p', { class: 'note', html: 'Til sammenligning har VGG16 138 357 544 parametre.' }));
+      const tiles = Tiles(tb, [['tot', 'Parametere totalt'], ['w', 'Vekter'], ['b', 'Biaser']]);
+      tb.append(H('p', { class: 'note', html: 'Til sammenligning har VGG16 138 357 544 parametere.' }));
       function draw() {
         hsS.forEach((s, i) => { s.el.style.display = i < L ? '' : 'none'; });
         const layers = [nin, ...hs.slice(0, L), nout], W = 760, mxN = Math.min(12, Math.max(...layers)), Hh = mxN * 22 + 70, svg = S('svg', { viewBox: `0 0 ${W} ${Hh}`, class: 'plot', role: 'img', 'aria-label': 'Nettverkstegning' });
@@ -68,7 +68,7 @@ topic({
       }
       draw();
     },
-    tryit: ['Lag nettet 3 → 4 → 2. Du skal få (3 · 4 + 4) + (4 · 2 + 2) = 26 parametre.', 'Dobbelt så mange nevroner i et skjult lag gir omtrent dobbelt så mange vekter inn og ut av laget.', 'Input-laget har ingen parametre. Det er bare dataene.']
+    tryit: ['Lag nettverket 3 → 4 → 2. Du skal få (3 · 4 + 4) + (4 · 2 + 2) = 26 parametere.', 'Dobbelt så mange nevroner i et skjult lag gir omtrent dobbelt så mange vekter inn og ut av laget.', 'Input-laget har ingen parametere. Det er bare dataene.']
   }, {
     title: 'Ett nevron, regnet ut',
     sub: 'Et nevron regner z = w₁x₁ + w₂x₂ + b og sender z gjennom en aktiveringsfunksjon. Med sigmoid er ett nevron det samme som logistisk regresjon.',
@@ -100,17 +100,17 @@ topic({
       }
       draw();
     },
-    tryit: ['Bytt mellom aktiveringene med de samme tallene. Sigmoid klemmer alt til (0, 1), tanh til (−1, 1), og ReLU setter negative z til 0.', 'Uten en ikke-lineær aktivering (lineær) blir et helt nett med mange lag bare én stor lineær regresjon.']
+    tryit: ['Bytt mellom aktiveringene med de samme tallene. Sigmoid klemmer alt til (0, 1), tanh til (−1, 1), og ReLU setter negative z til 0.', 'Uten en ikke-lineær aktivering (lineær) blir et helt nettverk med mange lag bare én stor lineær regresjon.']
   }, {
-    title: 'Softmax og kryssentropi',
-    sub: 'Output-laget for tre klasser gir tre tall (logits). Softmax gjør dem om til sannsynligheter som summerer til 1. Kryssentropien er −ln(sannsynligheten for riktig klasse).',
+    title: 'Softmax og cross-entropy',
+    sub: 'Output-laget for tre klasser gir tre tall (logits). Softmax gjør dem om til sannsynligheter som summerer til 1. Cross-entropy er −ln(sannsynligheten for riktig klasse).',
     build(el) {
       const z = [2, 1, -0.5]; let tr = 0;
       const ctl = Controls(el);
       z.forEach((v, i) => Slider(ctl, { label: 'z' + '₁₂₃'[i], min: -4, max: 4, step: 0.1, value: v, fmt: x => fx(x, 1), oninput: x => { z[i] = x; draw(); } }));
       Seg(ctl, { label: 'Riktig klasse', options: [[0, 'Katt'], [1, 'Hund'], [2, 'Fugl']], value: tr, onchange: v => { tr = v; draw(); } });
       const svg = S('svg', { viewBox: '0 0 760 170', class: 'plot', role: 'img', 'aria-label': 'Softmax-sannsynligheter' }); el.append(svg);
-      const tiles = Tiles(el, [['s', 'Sum av e^z'], ['p', 'P(riktig klasse)'], ['ce', 'Kryssentropi −ln p']]);
+      const tiles = Tiles(el, [['s', 'Sum av e^z'], ['p', 'P(riktig klasse)'], ['ce', 'Cross-entropy −ln p']]);
       function draw() {
         const p = softmax(z), names = ['Katt', 'Hund', 'Fugl']; clear(svg);
         p.forEach((v, i) => { const y = 14 + i * 50;
@@ -123,7 +123,7 @@ topic({
       }
       draw();
     },
-    tryit: ['Øk logit for riktig klasse. Sannsynligheten nærmer seg 1 og tapet nærmer seg 0.', 'Legg til samme tall på alle tre logits. Sannsynlighetene endres ikke. Det er bare forskjellene som teller.', 'Sett riktig klasse til en som modellen gir lav sannsynlighet. Tapet blir stort. Det er dette treningen prøver å unngå.']
+    tryit: ['Øk logit for riktig klasse. Sannsynligheten nærmer seg 1 og cross-entropy nærmer seg 0.', 'Legg til samme tall på alle tre logits. Sannsynlighetene endres ikke. Det er bare forskjellene som teller.', 'Sett riktig klasse til en som modellen gir lav sannsynlighet. Cross-entropy blir stor. Det er dette treningen prøver å unngå.']
   }, {
     title: 'Gradient descent: skrittlengden avgjør',
     sub: 'En kostnadsfunksjon med én vekt w. Hvert steg går motsatt vei av stigningen: w ← w − η · L′(w). Learning rate η bestemmer skrittlengden.',
@@ -153,8 +153,8 @@ topic({
     },
     tryit: ['Med η = 0,1 fra w = 2,8 havner du i det lokale minimumet til høyre, ikke i det laveste punktet.', 'Prøv η = 0,01. Det går riktig vei, men svært sakte.', 'Prøv η = 0,8–1,2. Stegene blir så lange at w hopper frem og tilbake eller forsvinner ut av bildet.']
   }, {
-    title: 'Tren et lite nett i nettleseren',
-    sub: 'Simulerte data: 400 punkter, 200 til trening (fylte) og 200 til validering (hule). Vektene justeres bare ut fra treningspunktene. Nettet har to input, ett skjult lag med valgfri aktivering og sigmoid ut, og trenes med mini-batch gradient descent. Den mørke linjen er beslutningsgrensen, der nettet gir p = 0,5.',
+    title: 'Tren et lite nettverk i nettleseren',
+    sub: 'Simulerte data: 400 punkter, 200 til trening (fylte) og 200 til validering (hule). Vektene justeres bare ut fra treningspunktene. Nettverket har to input, ett skjult lag med valgfri aktivering og sigmoid ut, og trenes med mini-batch gradient descent. Den mørke linjen er klassifikasjonsgrensen, der nettverket gir p = 0,5.',
     build(el) {
       const all = fit01(moons(RNG(13), 400, 0.18)), tr = all.slice(0, 200), va = all.slice(200);
       const T = p => [2 * p[0] - 1, 2 * p[1] - 1, p[2]], trT = tr.map(T), vaT = va.map(T);
@@ -188,14 +188,14 @@ topic({
       Btn(ctl2, 'Nullstill', () => { stop(); reset(); draw(); });
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const a = H('div'), b = H('div'); cols.append(a, b);
-      const plot = new Plot(a, { w: 520, h: 420, m: { t: 10, r: 10, b: 10, l: 10 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'Beslutningsgrensen til nettet' });
+      const plot = new Plot(a, { w: 520, h: 420, m: { t: 10, r: 10, b: 10, l: 10 }, x: [0, 1], y: [0, 1], xticks: [], yticks: [], grid: false, label: 'Klassifikasjonsgrensen til nettverket' });
       const gR = plot.layer(), gP = plot.layer(), gC = plot.layer();
       tr.forEach(p => S('circle', { cx: plot.x(p[0]), cy: plot.y(p[1]), r: 3.4, class: p[2] ? 'f-c1' : 'f-c0' }, gP));
       va.forEach(p => S('circle', { cx: plot.x(p[0]), cy: plot.y(p[1]), r: 3.4, fill: 'none', class: p[2] ? 's-c1' : 's-c0', 'stroke-width': 1.2 }, gP));
-      const p2 = new Plot(b, { w: 380, h: 240, x: [0, 50], y: [0, 0.8], xlab: 'Epoch', ylab: 'Tap (kryssentropi)', label: 'Tap mot epoch' });
+      const p2 = new Plot(b, { w: 380, h: 240, x: [0, 50], y: [0, 0.8], xlab: 'Epoch', ylab: 'Cost (cross-entropy)', label: 'Cost mot epoch' });
       const gL = p2.clipLayer();
-      const tiles = Tiles(b, [['ep', 'Epochs'], ['up', 'Vektoppdateringer'], ['ta', 'Treffsikkerhet trening'], ['va', 'Treffsikkerhet validering']]);
-      b.append(H('p', { class: 'note', html: '<b style="color:var(--c4)">Treningstap</b> og <b style="color:var(--c0)">valideringstap</b>. Én epoch = alle 200 treningspunkter én gang. Oppdateringer per epoch = 200 / batch size.' }));
+      const tiles = Tiles(b, [['ep', 'Epochs'], ['up', 'Vektoppdateringer'], ['ta', 'Nøyaktighet trening'], ['va', 'Nøyaktighet validering']]);
+      b.append(H('p', { class: 'note', html: 'Cost på <b style="color:var(--c4)">treningsdataene</b> og på <b style="color:var(--c0)">valideringssettet</b>. Én epoch = alle 200 treningspunkter én gang. Oppdateringer per epoch = 200 / batch size.' }));
       function start() { if (running) return; running = true; play.textContent = 'Pause'; const loop = () => { if (!running || !el.isConnected) { running = false; return; } const t0 = performance.now(); let n = 0; while (performance.now() - t0 < 14 && n < 8 && ep < 3000) { epoch(); n++; } draw(); if (ep >= 3000) stop(); else raf = requestAnimationFrame(loop); }; raf = requestAnimationFrame(loop); }
       function stop() { running = false; cancelAnimationFrame(raf); play.textContent = 'Start trening'; }
       onLeave(stop);
@@ -209,7 +209,7 @@ topic({
       }
       reset(); draw();
     },
-    tryit: ['Trykk «Start trening» med 6 nevroner. Grensen bøyer seg gradvis rundt de to halvmånene.', 'Prøv 1 skjult nevron. Da kan nettet bare lage en rett grense, som logistisk regresjon. Det gjelder alle tre aktiveringene.', 'Velg 3 nevroner og bytt aktivering. Med ReLU blir grensen noen få rette biter med skarpe knekker, og med tanh blir bøyene myke. Sigmoid kommer dit også, men trenger mange flere epochs, fordi den deriverte aldri er større enn 0,25.','Sammenlign batch size 8 og 200. Med 8 blir det 25 oppdateringer per epoch, så nettet lærer på færre epochs, men hver epoch tar lengre tid.', 'Learning rate 3 gir urolige hopp. 0,05 gir trege, men jevne kurver.']
+    tryit: ['Trykk «Start trening» med 6 nevroner. Grensen bøyer seg gradvis rundt de to halvmånene.', 'Prøv 1 skjult nevron. Da kan nettverket bare lage en rett grense, som logistisk regresjon. Det gjelder alle tre aktiveringene.', 'Velg 3 nevroner og bytt aktivering. Med ReLU blir grensen noen få rette biter med skarpe knekker, og med tanh blir bøyene myke. Sigmoid kommer dit også, men trenger mange flere epochs, fordi den deriverte aldri er større enn 0,25.','Sammenlign batch size 8 og 200. Med 8 blir det 25 oppdateringer per epoch, så nettverket lærer på færre epochs, men hver epoch tar lengre tid.', 'Learning rate 3 gir urolige hopp. 0,05 gir trege, men jevne kurver.']
   }, {
     title: 'Konvolusjon: et filter som glir over bildet',
     sub: 'Et 8 × 8 gråtonebilde av sifferet 7 og et 3 × 3-filter. I hver posisjon ganges filteret med pikslene under, og summen blir én verdi i feature map-et.',
@@ -249,13 +249,13 @@ topic({
     tryit: ['Velg «Loddrett kant» og trykk «Hele bildet». Store positive og negative verdier dukker opp der bildet går fra mørkt til lyst sidelengs.', 'Bytt til «Vannrett kant». Nå er det overkanten og den skrå streken som lyser.', 'Prøv stride 2: feature map-et krymper fra 6 × 6 til 3 × 3. Med padding 1 blir det 8 × 8 igjen ved stride 1.']
   }, {
     title: 'Regn ut et konvolusjonslag',
-    sub: 'Output-størrelse = (W − F + 2P) / S + 1. Parametre = (F · F · C + 1) · K: hvert av de K filtrene har F · F · C vekter og én bias.',
+    sub: 'Output-størrelse = (W − F + 2P) / S + 1. Parametere = (F · F · C + 1) · K: hvert av de K filtrene har F · F · C vekter og én bias.',
     build(el) {
       const st = { W: 224, C: 3, F: 3, S: 1, P: 1, K: 64 };
       const ctl = Controls(el);
       for (const [k, lab, mn, mx] of [['W', 'Input bredde W', 1, 1000], ['C', 'Kanaler C', 1, 512], ['F', 'Filter F', 1, 11], ['S', 'Stride S', 1, 4], ['P', 'Padding P', 0, 5], ['K', 'Antall filtre K', 1, 512]])
         NumIn(ctl, { label: lab, value: st[k], min: mn, max: mx, oninput: v => { st[k] = v; draw(); } });
-      const tiles = Tiles(el, [['o', 'Output'], ['p', 'Parametre i laget'], ['f', 'Utregning']]);
+      const tiles = Tiles(el, [['o', 'Output'], ['p', 'Parametere i laget'], ['f', 'Utregning']]);
       function draw() {
         const o = (st.W - st.F + 2 * st.P) / st.S + 1, ok = Number.isInteger(o) && o > 0;
         tiles.set('o', ok ? `${o} × ${o} × ${st.K}` : 'går ikke opp', ok ? 'hl' : 'bad');
@@ -264,26 +264,26 @@ topic({
       }
       draw();
     },
-    tryit: ['Startverdiene er første lag i VGG16: 224 × 224 × 64 og 1 792 parametre.', 'Sett W = 32, F = 5, S = 1, P = 0 og K = 10. Output blir 28 × 28 × 10.', 'Max pooling 2 × 2 med stride 2 er F = 2, S = 2, P = 0 uten parametre: 224 blir 112.']
+    tryit: ['Startverdiene er første lag i VGG16: 224 × 224 × 64 og 1 792 parametere.', 'Sett W = 32, F = 5, S = 1, P = 0 og K = 10. Output blir 28 × 28 × 10.', 'Max pooling 2 × 2 med stride 2 er F = 2, S = 2, P = 0 uten parametere: 224 blir 112.']
   }],
   body: `
 <h2>Fra nevron til nettverk</h2>
-<p>Ett nevron regner <i>a</i> = <i>f</i>(w<sub>1</sub>x<sub>1</sub> + … + w<sub>p</sub>x<sub>p</sub> + b). Uten aktiveringsfunksjonen er det lineær regresjon. Med sigmoid er det logistisk regresjon. Et <b>multilayer perceptron (MLP)</b> setter mange nevroner i lag: input, ett eller flere skjulte lag, og output. Det er de ikke-lineære aktiveringene i de skjulte lagene som lar nettet lære krumme sammenhenger.</p>
+<p>Ett nevron regner <i>a</i> = <i>f</i>(w<sub>1</sub>x<sub>1</sub> + … + w<sub>p</sub>x<sub>p</sub> + b). Uten aktiveringsfunksjonen er det lineær regresjon. Med sigmoid er det logistisk regresjon. Et <b>multilayer perceptron (MLP)</b> setter mange nevroner i lag: input, ett eller flere skjulte lag, og output. Det er de ikke-lineære aktiveringene i de skjulte lagene som lar nettverket lære krumme sammenhenger.</p>
 <ul>
-<li><b>Parametre</b> lærer modellen selv: alle vekter og biaser. Fullt koblet lag: n<sub>inn</sub> · n<sub>ut</sub> + n<sub>ut</sub>.</li>
-<li><b>Hyperparametre</b> velger vi: antall lag og nevroner, aktivering, learning rate, batch size, antall epochs.</li>
+<li><b>Parametere</b> lærer modellen selv: alle vekter og biaser. Fullt koblet lag: n<sub>inn</sub> · n<sub>ut</sub> + n<sub>ut</sub>.</li>
+<li><b>Hyperparametere</b> velger vi: antall lag og nevroner, aktivering, learning rate, batch size, antall epochs.</li>
 </ul>
 <h2>Output-lag og kostnadsfunksjon hører sammen</h2>
 <div class="tblwrap"><table class="tbl">
 <tr><th class="l">Oppgave</th><th class="l">Output-lag</th><th class="l">Kostnadsfunksjon</th></tr>
 <tr><td class="l">Regresjon (tall)</td><td class="l">1 nevron, lineær</td><td class="l">MSE</td></tr>
-<tr><td class="l">To klasser</td><td class="l">1 nevron, sigmoid</td><td class="l">Binær kryssentropi</td></tr>
-<tr><td class="l">Flere klasser</td><td class="l">1 nevron per klasse, softmax</td><td class="l">Kategorisk kryssentropi</td></tr>
+<tr><td class="l">To klasser</td><td class="l">1 nevron, sigmoid</td><td class="l">Binær cross-entropy</td></tr>
+<tr><td class="l">Flere klasser</td><td class="l">1 nevron per klasse, softmax</td><td class="l">Kategorisk cross-entropy</td></tr>
 </table></div>
 <h2>Trening</h2>
 <ol>
-<li><b>Forward propagation:</b> send en batch gjennom nettet og få prediksjoner.</li>
-<li><b>Tap:</b> mål hvor feil prediksjonene er med kostnadsfunksjonen.</li>
+<li><b>Forward propagation:</b> send en batch gjennom nettverket og få prediksjoner.</li>
+<li><b>Cost:</b> mål hvor feil prediksjonene er med kostnadsfunksjonen.</li>
 <li><b>Backpropagation:</b> bruk kjerneregelen bakover gjennom lagene for å finne hvor mye hver vekt bidro til feilen (gradienten).</li>
 <li><b>Gradient descent:</b> juster hver vekt litt motsatt vei av gradienten: w ← w − η · ∂L/∂w.</li>
 <li>Gjenta for alle batcher (én epoch), og så for mange epochs.</li>
@@ -291,18 +291,18 @@ topic({
 <div class="formula">Oppdateringer per epoch = <span class="v">n</span> / batch size &nbsp;&nbsp;&nbsp;&nbsp; Totalt = epochs · <span class="v">n</span> / batch size</div>
 <p>Learning rate er den viktigste hyperparameteren: for liten gir treg læring, for stor gir hopp og divergens. Optimizere som SGD med momentum, RMSprop og Adam er smartere varianter av gradient descent.</p>
 <h2>Overtilpasning</h2>
-<p>Store nett kan pugge treningsdataene. Følg tapet på valideringsdata: når det snur og stiger mens treningstapet faller, begynner nettet å pugge. Tiltak: stopp tidlig (early stopping), dropout, vektstraff (weight decay), flere data eller data augmentation.</p>
-<h2>Konvolusjonsnett (CNN) for bilder</h2>
+<p>Store nettverk kan pugge treningsdataene. Følg cost på valideringssettet: når den snur og stiger mens cost på treningsdataene faller, begynner nettverket å pugge. Tiltak: stopp tidlig (early stopping), dropout, L2-regularisering (weight decay), flere data eller data augmentation.</p>
+<h2>Konvolusjonsnettverk (CNN) for bilder</h2>
 <ul>
 <li>Et bilde er en tabell med tall: høyde × bredde × kanaler (3 for RGB). En MLP ville trengt enormt mange vekter og mister naboskapet mellom piksler.</li>
 <li><b>Konvolusjon:</b> små filtre (for eksempel 3 × 3) glir over bildet. Samme vekter brukes overalt, og hvert filter gir ett <b>feature map</b>. Tidlige lag finner kanter, senere lag former og objekter.</li>
 <li><b>Stride</b> er skrittlengden, <b>padding</b> er en kant av nuller. Output = (W − F + 2P) / S + 1.</li>
-<li><b>Pooling</b> (for eksempel 2 × 2 max pooling) krymper bildet og beholder de sterkeste signalene. Ingen parametre.</li>
+<li><b>Pooling</b> (for eksempel 2 × 2 max pooling) krymper bildet og beholder de sterkeste signalene. Ingen parametere.</li>
 <li>Et typisk CNN: flere blokker med konvolusjon og pooling, så fullt koblede lag og softmax til slutt.</li>
 </ul>
 <h2>VGG16 og transfer learning</h2>
-<p>VGG16 har 16 lag med vekter (13 konvolusjonslag og 3 fullt koblede), bare 3 × 3-filtre, og 138 millioner parametre trent på ImageNet med 1000 klasser. Med <b>transfer learning</b> gjenbruker vi konvolusjonsdelen som ferdig trent «ryggrad», fryser vektene og trener bare et nytt output-lag for vår egen oppgave. Det krever langt færre bilder enn å trene fra bunnen.</p>
-<div class="pit"><b>Eksamensfelle: tell parametre</b>3 input, ett skjult lag med 4 nevroner og 2 output: (3 · 4 + 4) + (4 · 2 + 2) = 26. Glem ikke biasene, og husk at input-laget ikke har parametre.</div>
+<p>VGG16 har 16 lag med vekter (13 konvolusjonslag og 3 fullt koblede), bare 3 × 3-filtre, og 138 millioner parametere trent på ImageNet med 1000 klasser. Med <b>transfer learning</b> gjenbruker vi konvolusjonsdelen som ferdig trent «ryggrad», fryser vektene og trener bare et nytt output-lag for vår egen oppgave. Det krever langt færre bilder enn å trene fra bunnen.</p>
+<div class="pit"><b>Eksamensfelle: tell parametere</b>3 input, ett skjult lag med 4 nevroner og 2 output: (3 · 4 + 4) + (4 · 2 + 2) = 26. Glem ikke biasene, og husk at input-laget ikke har parametere.</div>
 <div class="pit"><b>Eksamensfelle: iterasjoner</b>50 000 bilder, batch size 250 og 10 epochs gir 50 000 / 250 = 200 oppdateringer per epoch, altså 2 000 totalt.</div>
 <h2>Python</h2>
 <pre><code>from sklearn.neural_network import MLPClassifier               # scikit-learn, som i læreboka
@@ -315,7 +315,7 @@ model = keras.Sequential([                                      # lagene kobles 
     keras.layers.Input(shape=(4,)),                             # 4 features inn
     keras.layers.Dense(6, activation='relu'),                   # skjult lag: 6 nevroner med ReLU
     keras.layers.Dense(3, activation='softmax')])               # 3 klasser ut, softmax gir sannsynligheter
-# adam = gradient descent med tilpasset steglengde; tap = kryssentropi (y må være one-hot)
+# adam = gradient descent med tilpasset steglengde; loss = cross-entropy (y må være one-hot)
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 # de siste 20 % av radene holdes av til validering
 model.fit(X, y, epochs=20, batch_size=32, validation_split=0.2)

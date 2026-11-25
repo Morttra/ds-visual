@@ -7,14 +7,14 @@ const ORDER = ['dataforberedelse', 'pca', 'bias-varians', 'evaluering-prediksjon
   'shap', 'konform', 'nevrale-nett', 'hierarkisk-klynging', 'k-means', 'sprakmodeller', 'rag'];
 
 const TREE_LEAVES = {
-  klass: { title: 'Klassifikasjon', note: 'Y er kategorisk: eier eller ikke-eier, svindel eller ærlig.', color: 'var(--c1)',
-    chips: [['logistisk-regresjon', 'Logistisk regresjon'], ['knn', 'k-nærmeste naboer'], ['naiv-bayes', 'Naiv Bayes'], ['beslutningstraer', 'Klassifikasjonstrær'], ['ensembler', 'Random forest og boosting'], ['nevrale-nett', 'Nevrale nett og CNN']] },
-  pred: { title: 'Prediksjon', note: 'Y er et tall: pris, salg, boligverdi.', color: 'var(--c4)',
-    chips: [['lineaer-regresjon', 'Lineær regresjon'], ['variabelseleksjon', 'Variabelvalg og AIC'], ['regularisering', 'Ridge, lasso og elastic net'], ['knn', 'k-NN for tall'], ['beslutningstraer', 'Regresjonstrær'], ['ensembler', 'Ensembler'], ['nevrale-nett', 'Nevrale nett']] },
+  klass: { title: 'Klassifikasjon', note: 'Responsvariabelen Y er kategorisk: eier eller ikke-eier, svindel eller ærlig.', color: 'var(--c1)',
+    chips: [['logistisk-regresjon', 'Logistisk regresjon'], ['knn', 'k-nærmeste naboer'], ['naiv-bayes', 'Naiv Bayes'], ['beslutningstraer', 'Klassifikasjonstrær'], ['ensembler', 'Random forest og boosting'], ['nevrale-nett', 'Nevrale nettverk og CNN']] },
+  pred: { title: 'Prediksjon', note: 'Responsvariabelen Y er numerisk: pris, salg, boligverdi.', color: 'var(--c4)',
+    chips: [['lineaer-regresjon', 'Multippel lineær regresjon'], ['variabelseleksjon', 'Subset selection og AIC'], ['regularisering', 'Ridge, lasso og elastic net'], ['knn', 'k-nærmeste naboer'], ['beslutningstraer', 'Regresjonstrær'], ['ensembler', 'Ensembler'], ['nevrale-nett', 'Nevrale nettverk']] },
   gen: { title: 'Generativ KI', note: 'Y er neste ord eller bildebit. Modellen lager nytt innhold.', color: 'var(--c2)',
     chips: [['sprakmodeller', 'Språkmodeller og temperatur'], ['rag', 'RAG, finjustering og etikk']] },
-  uvel: { title: 'Klynger og PCA', note: 'Ingen Y. Vi ser etter grupper og mønstre i X.', color: 'var(--c0)',
-    chips: [['hierarkisk-klynging', 'Hierarkisk klynging'], ['k-means', 'k-means'], ['pca', 'PCA (prinsipalkomponenter)']] }
+  uvel: { title: 'Klyngeanalyse og PCA', note: 'Ingen Y. Vi ser etter grupper og mønstre i X.', color: 'var(--c0)',
+    chips: [['hierarkisk-klynging', 'Hierarkisk klyngeanalyse'], ['k-means', 'k-means klyngeanalyse'], ['pca', 'Prinsipalkomponent\u00ADanalyse (PCA)']] }
 };
 
 function chip(id, label) {
@@ -32,7 +32,7 @@ function renderHome(main) {
     H('section', { class: 'hero' },
       H('h1', {}, 'Pensum i Data Science, som et tre du kan klikke i'),
       H('p', {}, 'Treet starter med ett spørsmål: har vi en fasit å lære fra? Svaret leder deg til riktig familie av metoder. Trykk på en metode for å se den i aksjon. Hver side har figurer du kan dra i, og en skriftlig forklaring under.'),
-      H('p', { class: 'mini', style: 'margin-top:8px' }, 'Du trenger verken forelesningene eller datasettene. Hver side forklarer dataene den bruker, og ', H('a', { href: '#datasett' }, 'alle datasettene'), ' er samlet på én side. Forkortelser som AIC og RMSE er forklart i ', H('a', { href: '#ordliste' }, 'ordlisten'), '.')),
+      H('p', { class: 'mini', style: 'margin-top:8px' }, 'Du trenger verken forelesningene eller datasettene. Hver side forklarer dataene den bruker, og ', H('a', { href: '#datasett' }, 'alle datasettene'), ' er samlet på én side. Forkortelser og fagord som AIC, RMSE og responsvariabel er forklart i ', H('a', { href: '#ordliste' }, 'ordlisten'), '.')),
     H('div', { class: 'tree', role: 'navigation', 'aria-label': 'Metodetreet' },
       H('ul', {}, H('li', {},
         H('div', { class: 'q' }, 'Har vi en fasit (Y) å lære fra?'),
@@ -40,16 +40,16 @@ function renderHome(main) {
           H('li', {}, H('div', { class: 'branch' }, 'Ja ', H('small', {}, '· veiledet læring')),
             H('ul', {}, H('li', {}, H('div', { class: 'q' }, 'Hva slags Y?'),
               H('ul', {}, H('li', {}, leaf('klass')), H('li', {}, leaf('pred')), H('li', {}, leaf('gen')))))),
-          H('li', {}, H('div', { class: 'branch' }, 'Nei ', H('small', {}, '· ikke-veiledet læring')),
+          H('li', {}, H('div', { class: 'branch' }, 'Nei ', H('small', {}, '· uveiledet læring')),
             H('ul', {}, H('li', {}, H('div', { class: 'q' }, 'Hva vil vi finne?'),
               H('ul', {}, H('li', {}, leaf('uvel')))))))))),
     H('div', { class: 'bands' },
       H('section', { class: 'band' }, H('h2', {}, 'Legges oppå en ferdig trent modell'),
         H('p', {}, 'Virker sammen med nesten alle modellene over: forklar hvorfor modellen svarte som den gjorde, og hvor sikker den er.'),
-        H('div', { class: 'chips' }, chip('shap', 'Forklarbar KI med SHAP'), chip('konform', 'Usikkerhet med konform prediksjon'))),
+        H('div', { class: 'chips' }, chip('shap', 'Forklarbar KI med SHAP'), chip('konform', 'Usikkerhetskvantifisering med conformal prediction'))),
       H('section', { class: 'band' }, H('h2', {}, 'Grunnmuren under alle metodene'),
         H('p', {}, 'Ikke modeller, men stegene som avgjør om en modell er god. Dette går igjen på hver eksamen.'),
-        H('div', { class: 'chips' }, chip('dataforberedelse', 'Dataforberedelse og skalering'), chip('bias-varians', 'Partisjonering og bias–varians'),
+        H('div', { class: 'chips' }, chip('dataforberedelse', 'Preprosessering og skalering'), chip('bias-varians', 'Partisjonering og bias–varians'),
           chip('evaluering-prediksjon', 'Evaluering av prediksjon'), chip('evaluering-klassifikasjon', 'Evaluering av klassifikasjon'))),
       H('section', { class: 'band' }, H('h2', {}, 'Datasettene i eksemplene'),
         H('p', {}, 'Hva hvert datasett inneholder, hva en rad er, og hva vi prøver å forutsi.'),
@@ -57,7 +57,7 @@ function renderHome(main) {
     H('div', { class: 'howto' },
       H('div', {}, H('b', {}, 'Les treet ovenfra'), 'Har vi en fasit Y, og hva slags Y er det? Svarene forteller hvilken familie en metode hører til.'),
       H('div', {}, H('b', {}, 'Lek med figurene'), 'Dra i glidebrytere og punkter. Under hver figur står det hva du kan prøve og se etter.'),
-      H('div', {}, H('b', {}, 'Les forklaringen etterpå'), 'Formler, hyperparametre, styrker og svakheter, typiske eksamensfeller og Python-kode i lærebokas stil.'))
+      H('div', {}, H('b', {}, 'Les forklaringen etterpå'), 'Formler, hyperparametere, styrker og svakheter, typiske eksamensfeller og Python-kode i lærebokas stil.'))
   );
 }
 

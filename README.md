@@ -2,12 +2,13 @@
 
 **Siden:** https://morttra.github.io/ds-visual/
 
-Et klikkbart metodetre for pensum i BBAN4001 Data Science. Hver metode har en egen side med interaktive figurer øverst og en skriftlig forklaring under: kort fortalt, hvordan metoden virker, formler, hyperparametre, styrker og svakheter, typiske eksamensfeller og Python-kode i lærebokas stil.
+Et klikkbart metodetre for pensum i BBAN4001 Data Science. Hver metode har en egen side med interaktive figurer øverst og en skriftlig forklaring under: kort fortalt, hvordan metoden virker, formler, hyperparametere, styrker og svakheter, typiske eksamensfeller og Python-kode i lærebokas stil.
 
 Siden skal kunne leses uten forelesningene og uten datasettene:
 
 - Øverst på hver temaside forklarer et «Om dataene»-kort hva datasettet er, hva en rad er, hva vi prøver å forutsi og hva variablene betyr, med eksempelrader.
 - [Datasettene](https://morttra.github.io/ds-visual/#datasett) samler alle de sju datasettene på én side.
+- Fagordene følger forelesningene, for eksempel desisjonstre, utstikker, dekning, subset selection og conformal prediction. Der læreboka eller andre kilder bruker et annet ord, står det i ordlisten.
 - [Ordlisten](https://morttra.github.io/ds-visual/#ordliste) forklarer over 90 forkortelser og begreper, med formel der det passer. Første gang en forkortelse som AIC eller RMSE står på en temaside, lenkes den til ordlisten, og det fulle navnet vises når du holder musepekeren over.
 
 Uoffisiell studiehjelp, ikke laget av faglærer. Sjekk alltid mot forelesningene og læreboka.
@@ -18,24 +19,24 @@ Enkeltsider kan deles direkte med lenkene under.
 
 | Tema | Lenke | Forelesning |
 |---|---|---|
-| Dataforberedelse og skalering | [`#dataforberedelse`](https://morttra.github.io/ds-visual/#dataforberedelse) | F2–F3 |
+| Preprosessering og skalering | [`#dataforberedelse`](https://morttra.github.io/ds-visual/#dataforberedelse) | F2–F3 |
 | Prinsipalkomponentanalyse (PCA) | [`#pca`](https://morttra.github.io/ds-visual/#pca) | F3 |
 | Partisjonering og bias–varians | [`#bias-varians`](https://morttra.github.io/ds-visual/#bias-varians) | F4 |
 | Evaluering av prediksjon | [`#evaluering-prediksjon`](https://morttra.github.io/ds-visual/#evaluering-prediksjon) | F4 |
 | Evaluering av klassifikasjon | [`#evaluering-klassifikasjon`](https://morttra.github.io/ds-visual/#evaluering-klassifikasjon) | F4 |
 | Multippel lineær regresjon | [`#lineaer-regresjon`](https://morttra.github.io/ds-visual/#lineaer-regresjon) | F5 |
-| Variabelvalg: uttømmende søk, forward og backward | [`#variabelseleksjon`](https://morttra.github.io/ds-visual/#variabelseleksjon) | F5 |
+| Subset selection: exhaustive search, forward og backward | [`#variabelseleksjon`](https://morttra.github.io/ds-visual/#variabelseleksjon) | F5 |
 | Regularisering: ridge, lasso og elastic net | [`#regularisering`](https://morttra.github.io/ds-visual/#regularisering) | F5 |
 | Logistisk regresjon | [`#logistisk-regresjon`](https://morttra.github.io/ds-visual/#logistisk-regresjon) | F5 |
-| k nærmeste naboer (k-NN) | [`#knn`](https://morttra.github.io/ds-visual/#knn) | F6 |
+| k-nærmeste naboer (k-NN) | [`#knn`](https://morttra.github.io/ds-visual/#knn) | F6 |
 | Naiv Bayes | [`#naiv-bayes`](https://morttra.github.io/ds-visual/#naiv-bayes) | F6 |
-| Beslutningstrær | [`#beslutningstraer`](https://morttra.github.io/ds-visual/#beslutningstraer) | F7 |
+| Desisjonstrær | [`#beslutningstraer`](https://morttra.github.io/ds-visual/#beslutningstraer) | F7 |
 | Ensembler: bagging, random forest og boosting | [`#ensembler`](https://morttra.github.io/ds-visual/#ensembler) | F7 |
 | Forklarbar KI med SHAP | [`#shap`](https://morttra.github.io/ds-visual/#shap) | F8 |
-| Usikkerhet med konform prediksjon | [`#konform`](https://morttra.github.io/ds-visual/#konform) | F8 |
-| Nevrale nett og CNN | [`#nevrale-nett`](https://morttra.github.io/ds-visual/#nevrale-nett) | F9 |
-| Hierarkisk klynging | [`#hierarkisk-klynging`](https://morttra.github.io/ds-visual/#hierarkisk-klynging) | F10 |
-| k-means | [`#k-means`](https://morttra.github.io/ds-visual/#k-means) | F10 |
+| Usikkerhetskvantifisering med conformal prediction | [`#konform`](https://morttra.github.io/ds-visual/#konform) | F8 |
+| Nevrale nettverk og CNN | [`#nevrale-nett`](https://morttra.github.io/ds-visual/#nevrale-nett) | F9 |
+| Hierarkisk klyngeanalyse | [`#hierarkisk-klynging`](https://morttra.github.io/ds-visual/#hierarkisk-klynging) | F10 |
+| k-means klyngeanalyse | [`#k-means`](https://morttra.github.io/ds-visual/#k-means) | F10 |
 | Store språkmodeller og temperatur | [`#sprakmodeller`](https://morttra.github.io/ds-visual/#sprakmodeller) | F11 |
 | Prompting, RAG, finjustering og etikk | [`#rag`](https://morttra.github.io/ds-visual/#rag) | F11 |
 | Datasettene | [`#datasett`](https://morttra.github.io/ds-visual/#datasett) | – |

@@ -2,9 +2,9 @@
 
 topic({
   id: 'knn', data: [['mowers'], ['toyota', ['Price', 'Age_08_04']]], short: 'k-NN', lecture: 'F6', tags: ['Klassifikasjon', 'Prediksjon', 'Avstander'],
-  title: 'k nærmeste naboer (k-NN)',
+  title: 'k-nærmeste naboer (k-NN)',
   path: ['Veiledet læring', 'Klassifikasjon og prediksjon'],
-  lead: 'k-NN finner de k treningspunktene som ligner mest på et nytt punkt og lar dem stemme. For tall tar vi gjennomsnittet av naboenes Y. Det finnes ingen modell å tilpasse; hele treningssettet er modellen.',
+  lead: 'k-NN finner de k treningspunktene som ligner mest på et nytt punkt og lar dem stemme. For en numerisk responsvariabel tar vi gjennomsnittet av naboenes Y. Det finnes ingen modell å tilpasse; hele treningssettet er modellen.',
   figs: [{
     title: 'Naboene stemmer',
     sub: 'Sitteklipperdataene: 24 husholdninger, 12 eiere og 12 ikke-eiere. Avstandene regnes på standardiserte variabler (z-score), men aksene viser vanlige enheter. Klikk eller dra for å flytte den nye husholdningen.',
@@ -96,13 +96,13 @@ topic({
 <ul>
 <li>Liten k: fleksibel modell som følger støy. Lav bias, høy varians.</li>
 <li>Stor k: glatt modell som overser lokale mønstre. Høy bias, lav varians. k = n gir alltid den største klassen, som er den naive benchmarken.</li>
-<li>Velg k med lavest feil på valideringsdata eller med kryssvalidering. Bruk et oddetall ved to klasser, så unngår du uavgjort.</li>
+<li>Velg k med lavest feil på valideringssettet eller med kryssvalidering. Bruk et oddetall ved to klasser, så unngår du uavgjort.</li>
 </ul>
 <div class="pros">
 <div><h3>Styrker</h3><ul><li>Enkel idé, ingen antakelser om formen på sammenhengen</li><li>Fanger kompliserte, lokale mønstre når det er nok data</li><li>Samme metode for klassifikasjon og prediksjon</li></ul></div>
 <div><h3>Svakheter</h3><ul><li>Treg prediksjon: avstanden til alle treningspunkter må regnes ut</li><li>Dimensjonenes forbannelse: med mange variabler blir alle punkter «langt unna»</li><li>Krever skalering, og gir ingen tolkbare koeffisienter</li></ul></div>
 </div>
-<div class="pit"><b>Eksamensfelle: glemt standardisering</b>Uten skalering bestemmer variabelen med størst tall avstanden. I sitteklipperdataene ville inntekt (33–110) dominert helt over tomtestørrelse (14–24). Se figuren på <a href="#dataforberedelse">dataforberedelse</a>.</div>
+<div class="pit"><b>Eksamensfelle: glemt standardisering</b>Uten skalering bestemmer variabelen med størst tall avstanden. I sitteklipperdataene ville inntekt (33–110) dominert helt over tomtestørrelse (14–24). Se figuren på <a href="#dataforberedelse">preprosessering</a>.</div>
 <div class="pit"><b>Eksamensfelle: regn for hånd</b>Typisk oppgave: gitt standardiserte verdier, regn avstanden til noen punkter, finn de k nærmeste og stem. Husk kvadratroten, og husk at rangeringen ikke endres om du dropper den.</div>
 <h2>Python</h2>
 <pre><code>from sklearn.neighbors import KNeighborsClassifier
