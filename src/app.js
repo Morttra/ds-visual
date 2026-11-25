@@ -51,6 +51,9 @@ function renderHome(main) {
         H('p', {}, 'Ikke modeller, men stegene som avgjør om en modell er god. Dette går igjen på hver eksamen.'),
         H('div', { class: 'chips' }, chip('dataforberedelse', 'Preprosessering og skalering'), chip('bias-varians', 'Partisjonering og bias–varians'),
           chip('evaluering-prediksjon', 'Evaluering av prediksjon'), chip('evaluering-klassifikasjon', 'Evaluering av klassifikasjon'))),
+      H('section', { class: 'band' }, H('h2', {}, 'Les Python-koden'),
+        H('p', {}, 'Syntaksen og funksjonene som går igjen i faget, med ekte output. På eksamen skal du lese og tolke kode, ikke skrive den.'),
+        H('div', { class: 'chips' }, PY_SECTIONS.map(([id, t]) => H('a', { class: 'chip', href: '#python-' + id }, t)))),
       H('section', { class: 'band' }, H('h2', {}, 'Datasettene i eksemplene'),
         H('p', {}, 'Hva hvert datasett inneholder, hva en rad er, og hva vi prøver å forutsi.'),
         H('div', { class: 'chips' }, Object.entries(DATASETS).map(([id, D]) => H('a', { class: 'chip', href: '#datasett-' + id }, D.name))))),
@@ -78,6 +81,7 @@ function renderTopic(main, t) {
     if (f.tryit) fig.append(H('div', { class: 'try' }, H('strong', {}, 'Prøv dette'), H('ul', {}, f.tryit.map(x => H('li', { html: x })))));
   }
   main.append(H('article', { class: 'prose', html: t.body }));
+  const pl = pyLinks(t.id); if (pl) main.append(pl);
   const i = ORDER.indexOf(t.id), prev = TOPICS[ORDER[i - 1]], next = TOPICS[ORDER[i + 1]];
   main.append(H('nav', { class: 'pager', 'aria-label': 'Forrige og neste tema' },
     prev ? H('a', { href: '#' + prev.id }, H('small', {}, '← Forrige i forelesningsrekkefølge'), prev.title) : H('a', { href: '#' }, H('small', {}, '←'), 'Metodetreet'),
@@ -92,6 +96,7 @@ function route() {
   if (t) { renderTopic(main, t); muteComments(main); linkTerms(main, t.id); LAST_PAGE = t.id; }
   else if (id === 'datasett' || id.startsWith('datasett-')) renderDatasets(main, id.slice(9));
   else if (id === 'ordliste' || id.startsWith('ordliste-')) renderGlossary(main, id.slice(9));
+  else if (id === 'python' || id.startsWith('python-')) { renderPython(main, id.slice(7)); muteComments(main); linkTerms(main, 'python'); }
   else renderHome(main);
   window.scrollTo(0, 0);
 }

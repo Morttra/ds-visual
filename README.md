@@ -9,6 +9,7 @@ Siden skal kunne leses uten forelesningene og uten datasettene:
 - Øverst på hver temaside forklarer et «Om dataene»-kort hva datasettet er, hva en rad er, hva vi prøver å forutsi og hva variablene betyr, med eksempelrader.
 - [Datasettene](https://morttra.github.io/ds-visual/#datasett) samler alle de sju datasettene på én side.
 - Fagordene følger forelesningene, for eksempel desisjonstre, utstikker, dekning, subset selection og conformal prediction. Der læreboka eller andre kilder bruker et annet ord, står det i ordlisten.
+- [Les Python-koden](https://morttra.github.io/ds-visual/#python) forklarer syntaksen og funksjonene som går igjen i faget (pandas, scikit-learn, mlba, Keras, SHAP), med egne eksempler på lærebokas datasett og ekte output. Temasidene lenker dit nederst.
 - [Ordlisten](https://morttra.github.io/ds-visual/#ordliste) forklarer over 90 forkortelser og begreper, med formel der det passer. Første gang en forkortelse som AIC eller RMSE står på en temaside, lenkes den til ordlisten, og det fulle navnet vises når du holder musepekeren over.
 
 Uoffisiell studiehjelp, ikke laget av faglærer. Sjekk alltid mot forelesningene og læreboka.
@@ -39,10 +40,11 @@ Enkeltsider kan deles direkte med lenkene under.
 | k-means klyngeanalyse | [`#k-means`](https://morttra.github.io/ds-visual/#k-means) | F10 |
 | Store språkmodeller og temperatur | [`#sprakmodeller`](https://morttra.github.io/ds-visual/#sprakmodeller) | F11 |
 | Prompting, RAG, finjustering og etikk | [`#rag`](https://morttra.github.io/ds-visual/#rag) | F11 |
+| Les Python-koden | [`#python`](https://morttra.github.io/ds-visual/#python) | – |
 | Datasettene | [`#datasett`](https://morttra.github.io/ds-visual/#datasett) | – |
 | Ordliste | [`#ordliste`](https://morttra.github.io/ds-visual/#ordliste) | – |
 
-Ett enkelt datasett eller begrep kan også lenkes direkte, for eksempel [`#datasett-toyota`](https://morttra.github.io/ds-visual/#datasett-toyota) eller [`#ordliste-aic`](https://morttra.github.io/ds-visual/#ordliste-aic).
+Ett enkelt datasett eller begrep kan også lenkes direkte, for eksempel [`#datasett-toyota`](https://morttra.github.io/ds-visual/#datasett-toyota) eller [`#ordliste-aic`](https://morttra.github.io/ds-visual/#ordliste-aic). Delene av Python-siden har egne lenker, for eksempel [`#python-pandas`](https://morttra.github.io/ds-visual/#python-pandas) eller [`#python-mlba`](https://morttra.github.io/ds-visual/#python-mlba).
 
 ## Oppdatere siden
 
@@ -75,6 +77,7 @@ Trykk **Fork** på GitHub. Gå så til **Settings → Pages** i din kopi, velg *
 | `src/app.js` | Metodetreet på forsiden, sidemalen og navigasjonen. |
 | `src/datasets.js` | Beskrivelsene av datasettene: «Om dataene»-kortene og siden `#datasett`. |
 | `src/ordliste.js` | Ordlisten, siden `#ordliste` og de automatiske lenkene fra temasidene. |
+| `src/python.js` | Siden `#python` om å lese Python-koden, og lenkene fra temasidene dit (`PY_LINKS`). |
 | `src/data.js` | Forhåndsberegnede data og resultater fra lærebokas datasett. |
 | `src/topics/*.js` | Ett eller flere temaer per fil, med figurer og tekst. |
 | `tools/build.py` | Setter sammen `src/` til `index.html`. |

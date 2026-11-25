@@ -199,6 +199,33 @@ pre{background:var(--surface);border:1px solid var(--line);border-radius:10px;pa
 .pager small{display:block;color:var(--muted)}
 .foot{border-top:1px solid var(--line);color:var(--muted);font-size:.82rem;padding:18px 0 36px;margin-top:20px}
 
+/* Les Python-koden */
+.ovtoc{flex-direction:row;flex-wrap:wrap;margin:16px 0 0}
+.ovtoc .chip{flex:0 1 auto}
+.ovprose{margin-top:10px}
+.ovsec{border-top:1px solid var(--line);margin-top:34px;scroll-margin-top:10px}
+.ovsec>h2{margin-top:22px}
+.ovsec h3{scroll-margin-top:10px;margin-top:28px}
+.ovmeta{font-size:.86rem;color:var(--muted);margin:-2px 0 12px}
+.prose pre.out{background:var(--soft);border-style:dashed;position:relative;padding-top:24px}
+.prose pre.out::before{content:'Output';position:absolute;top:6px;left:14px;font-family:var(--font-body);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.prose pre.out[data-note]::before{content:'Output · ' attr(data-note)}
+.prose pre.out samp{font-family:var(--font-mono)}
+.ovprose .tblwrap{width:min(1040px,calc(100vw - 56px))}
+.ovtbl{margin:8px 0 4px;width:100%}
+.ovtbl td{vertical-align:top}
+.ovtbl td:first-child{width:34%}
+.ovtbl td:first-child code{overflow-wrap:anywhere}
+.ovimg{margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:max-content;max-width:min(1040px,calc(100vw - 56px))}
+.ovimg img{display:block;max-width:100%;height:auto}
+.ovimg figcaption{font-size:.84rem;color:#4a5568;margin-top:6px;max-width:72ch;width:min-content;min-width:100%}
+.ovlinks{margin-top:26px}
+.ovlinks b{color:var(--ink)}
+.qa{background:var(--surface);border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:0 14px}
+.qa summary{cursor:pointer;padding:9px 0;line-height:1.5}
+.qa summary::marker{color:var(--accent)}
+.qa>div{border-top:1px dashed var(--line);padding:8px 0 10px}
+
 @media (max-width:860px){
   .prose pre{width:auto}
   .cols,.cols.even{grid-template-columns:minmax(0,1fr)}
