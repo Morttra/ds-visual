@@ -221,3 +221,10 @@ pre{background:var(--surface);border:1px solid var(--line);border-radius:10px;pa
   .top nav{display:none}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+/* Fargeprøver i forklaringsrader */
+.legend-row>span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;flex:none}
+.sw-c1{background:var(--c1);opacity:.75}.sw-c2{background:var(--c2);opacity:.75}.sw-mut{background:var(--muted);opacity:.38}
+.sw-ink{height:3px;border-radius:2px;background:var(--ink)}
+.sw-dash{height:0;border-radius:0;border-top:2px dashed var(--muted)}
+.sw-ring{border-radius:50%;border:2px solid var(--c0);background:var(--surface);width:9px;height:9px}

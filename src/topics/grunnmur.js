@@ -155,6 +155,27 @@ iqr = q3 - q1                                           # kvartilbredden
 utstikkere = df[(df['KM'] &lt; q1 - 1.5*iqr) | (df['KM'] &gt; q3 + 1.5*iqr)]   # rader utenfor grensene</code></pre>`
 });
 
+/* Bias–varians-siden: figur 1 og 2 deler data og polynomgrad, så de alltid viser samme modell.
+   Treningspunktene ligger jevnt langs x (samme x hver gang, ny støy); valideringspunktene har tilfeldig x. */
+const BV = { deg: 3, seed: 168, subs: [] };
+const BV_SIG = 0.33, BV_XT = range(20, i => (i + 0.5) / 20);
+const bvF = x => 0.9 * Math.sin(2 * Math.PI * x) + 0.4 * x;
+function bvSample(s) { const r = RNG(s); return { tr: BV_XT.map(x => [x, bvF(x) + BV_SIG * r.n()]), va: range(20, () => { const x = r(); return [x, bvF(x) + BV_SIG * r.n()]; }) }; }
+const bvFit = (tr, d) => polyfit(tr.map(p => 2 * p[0] - 1), tr.map(p => p[1]), d);
+const bvVal = (b, x) => polyval(b, 2 * x - 1);
+function bvEmit(src) { for (const fn of BV.subs) if (fn !== src) fn(); }
+/* Eksakt snittkurve og varians over alle mulige treningssett (samme x, ny støy):
+   snittkurven er tilpasningen til den sanne kurven, og varians(x) = σ² · g(x)ᵀ (XᵀX)⁻¹ g(x) */
+function bvDecomp(d, xs) {
+  const V = BV_XT.map(x => range(d + 1, j => Math.pow(2 * x - 1, j)));
+  const A = range(d + 1, i => range(d + 1, j => V.reduce((t, r) => t + r[i] * r[j], 0) + (i === j ? 1e-9 : 0)));
+  const mc = bvFit(BV_XT.map(x => [x, bvF(x)]), d);
+  return xs.map(x => {
+    const g = range(d + 1, j => Math.pow(2 * x - 1, j)), z = solveLin(A.map(r => r.slice()), g.slice());
+    return { m: bvVal(mc, x), v: BV_SIG * BV_SIG * g.reduce((t, gi, i) => t + gi * z[i], 0) };
+  });
+}
+
 topic({
   id: 'bias-varians', dataNote: 'Figurene på denne siden bruker <b>simulerte data</b>. Vi har laget dataene selv fra en kjent kurve pluss tilfeldig støy, så vi vet hva den sanne sammenhengen er.', short: 'Bias–varians', lecture: 'F4', tags: ['Grunnmur', 'Partisjonering', 'Kryssvalidering'],
   title: 'Partisjonering og bias–varians',
@@ -162,18 +183,18 @@ topic({
   lead: 'En modell skal fungere på nye data, ikke bare på dataene den er trent på. Derfor holder vi data utenfor treningen og finner kompleksiteten som gir lavest feil på disse dataene.',
   figs: [{
     title: 'Fra undertilpasset til overtilpasset',
-    sub: 'Simulerte data: et polynom tilpasses de 20 treningspunktene (fylte). Valideringspunktene (hule) er med bare for å måle feil. Den stiplede kurven er sannheten vi ikke kjenner.',
+    sub: 'Simulerte data: et polynom tilpasses 20 treningspunkter (fylte) som ligger jevnt fordelt langs x. Valideringspunktene (hule) er med bare for å måle feil. Den stiplede kurven er sannheten vi ikke kjenner.',
     build(el) {
-      const f = x => 0.9 * Math.sin(2 * Math.PI * x) + 0.4 * x;
-      const sample = s => { const r = RNG(s); const mk = () => range(20, () => { const x = r(); return [x, f(x) + 0.33 * r.n()]; }); return { tr: mk(), va: mk() }; };
-      let seed = 3, deg = 3, many = false, D = sample(seed);
-      const fit = (tr, d) => polyfit(tr.map(p => 2 * p[0] - 1), tr.map(p => p[1]), d);
-      const pv = (b, x) => polyval(b, 2 * x - 1);
+      const f = bvF, sample = bvSample, fit = bvFit, pv = bvVal;
+      BV.subs = []; BV.deg = 3; BV.seed = 168;
+      let seed = BV.seed, deg = BV.deg, many = false, D = sample(seed);
+      const sync = () => { if (deg !== BV.deg) { deg = BV.deg; sl.set(deg, false); } draw(); };
+      BV.subs.push(sync);
       const rmse = (b, pts) => Math.sqrt(mean(pts.map(p => (p[1] - pv(b, p[0])) ** 2)));
       const ctl = Controls(el);
-      Slider(ctl, { label: 'Polynomgrad', min: 0, max: 12, value: deg, oninput: v => { deg = v; draw(); } });
+      const sl = Slider(ctl, { label: 'Polynomgrad', min: 0, max: 12, value: deg, oninput: v => { deg = v; BV.deg = v; draw(); bvEmit(sync); } });
       Seg(ctl, { label: 'Vis', options: [[false, 'Ett utvalg'], [true, '8 utvalg']], value: many, onchange: v => { many = v; draw(); } });
-      Btn(ctl, 'Trekk nye data', () => { seed++; D = sample(seed); draw(); });
+      Btn(ctl, 'Trekk nye data', () => { seed++; BV.seed = seed; D = sample(seed); draw(); bvEmit(sync); });
       const cols = H('div', { class: 'cols' }); el.append(cols);
       const a = H('div'), b = H('div'); cols.append(a, b);
       const p1 = new Plot(a, { w: 560, h: 380, x: [0, 1], y: [-2, 2.2], xlab: 'x', ylab: 'y', label: 'Data og tilpasset polynom' });
@@ -210,8 +231,68 @@ topic({
       draw();
     },
     tryit: ['Grad 0 og 1 er for enkle: begge feilene er høye. Det er høy bias.',
-      'Gå til grad 10–12. Treningsfeilen blir svært lav, mens valideringsfeilen øker. Modellen har lært støyen.',
-      'Velg «8 utvalg». Ved høy grad spriker kurvene fra ulike treningssett. Det er varians. Den tykke kurven er snittet av dem.']
+      'Gå til grad 10–12. Treningsfeilen fortsetter å falle, mens valideringsfeilen øker. Modellen har lært støyen.',
+      'Velg «8 utvalg». Ved høy grad spriker kurvene fra ulike treningssett. Det er varians. Den tykke kurven er snittet av dem. Figuren under måler hvor stor biasen og variansen er.']
+  }, {
+    title: 'Hvor mye bias og hvor mye varians?',
+    sub: 'Samme modell og samme data som over, med samme polynomgrad. Vi tenker oss at treningssettet trekkes på nytt mange ganger: samme x-verdier, ny støy. Venstre: snittet av alle de tilpassede kurvene, og båndet der de fleste av dem havner (± ett standardavvik). Høyre: forventet feil på nye data, delt opp. Klikk på en søyle for å velge grad.',
+    build(el) {
+      const SIG2 = BV_SIG * BV_SIG;
+      let deg = BV.deg;
+      const ctl = Controls(el);
+      const sl = Slider(ctl, { label: 'Polynomgrad', min: 0, max: 12, value: deg, oninput: v => { deg = v; BV.deg = v; draw(); bvEmit(sync); } });
+      const sync = () => { if (deg !== BV.deg) { deg = BV.deg; sl.set(deg, false); } draw(); };
+      BV.subs.push(sync);
+      const xs = range(201, i => i / 200);
+      const DEC = range(13, d => bvDecomp(d, xs));
+      const T = DEC.map(D => { const b2 = mean(D.map((o, i) => (o.m - bvF(xs[i])) ** 2)), v = mean(D.map(o => o.v)); return { b2, v, tot: b2 + v + SIG2 }; });
+      const best = T.reduce((bi, t, d) => t.tot < T[bi].tot ? d : bi, 0);
+      const cols = H('div', { class: 'cols' }); el.append(cols);
+      const a = H('div'), b = H('div'); cols.append(a, b);
+      const p1 = new Plot(a, { w: 560, h: 380, x: [0, 1], y: [-2, 2.2], xlab: 'x', ylab: 'y', label: 'Snittkurve, bias og varians-bånd for valgt polynomgrad' });
+      const gA = p1.clipLayer(), gL = p1.clipLayer();
+      const sw = (cls, t) => H('span', {}, H('span', { class: 'sw ' + cls }), t);
+      a.append(H('div', { class: 'legend-row' }, sw('sw-ink', 'Snitt av alle kurvene'), sw('sw-dash', 'Sannheten'), sw('sw-c2', 'Bias: avstanden mellom dem'), sw('sw-c1', 'Varians: bredden på båndet')));
+      const p2 = new Plot(b, { w: 400, h: 300, x: [-0.6, 12.6], y: [0, 1], xlab: 'Polynomgrad', ylab: 'Forventet MSE på nye data', label: 'Forventet feil per polynomgrad, delt i støy, bias² og varians', xticks: [0, 2, 4, 6, 8, 10, 12] });
+      const gB = p2.layer(), gM = p2.layer();
+      b.append(H('div', { class: 'legend-row' }, sw('sw-c1', 'Varians'), sw('sw-c2', 'Bias²'), sw('sw-mut', 'Støy (σ²)'), sw('sw-ring', 'Valideringsfeil i utvalget over')));
+      const tiles = Tiles(b, [['b2', 'Bias²'], ['v', 'Varians'], ['s', 'Støy (σ²)'], ['rm', 'Forventet RMSE (√sum)']]);
+      b.append(H('p', { class: 'note', html: 'Søylen er summen bias² + varians + støy: forventet MSE på nye data. Roten av den kan sammenlignes med «RMSE validering» i figuren over. Støyen er lik for alle grader og kan ingen modell fjerne.' }));
+      clickMove(p2, p => { const d = Math.max(0, Math.min(12, Math.round(p.x))); if (d !== deg) { deg = d; BV.deg = d; sl.set(d, false); draw(); bvEmit(sync); } });
+      const X = p1.x, Y = p1.y, X2 = p2.x, Y2 = p2.y, bw = (X2(1) - X2(0)) * 0.7;
+      function draw() {
+        clear(gA); clear(gL); clear(gB); clear(gM);
+        const D = DEC[deg];
+        const up = D.map((o, i) => [X(xs[i]), Y(o.m + Math.sqrt(o.v))]), lo = D.map((o, i) => [X(xs[i]), Y(o.m - Math.sqrt(o.v))]);
+        S('path', { d: pathOf(up.concat(lo.reverse())) + 'Z', class: 'f-c1', 'fill-opacity': 0.22 }, gA);
+        const mid = D.map((o, i) => [X(xs[i]), Y(o.m)]), tru = xs.map(x => [X(x), Y(bvF(x))]);
+        S('path', { d: pathOf(mid.concat(tru.slice().reverse())) + 'Z', class: 'f-c2', 'fill-opacity': 0.4 }, gA);
+        S('path', { d: pathOf(tru), fill: 'none', class: 's-mut', 'stroke-dasharray': '5 5', 'stroke-width': 1.5 }, gL);
+        S('path', { d: pathOf(mid), fill: 'none', class: 's-ink', 'stroke-width': 2.5 }, gL);
+        T.forEach((t, d) => {
+          const on = d === deg, op = on ? 1 : 0.42, x0 = X2(d) - bw / 2;
+          let y = 0;
+          for (const [val, cls, o2] of [[SIG2, 'f-mut', 0.38], [t.b2, 'f-c2', 1], [t.v, 'f-c1', 1]]) {
+            const y0 = Y2(y), y1 = Y2(Math.min(1, y + val)); y += val;
+            if (y0 - y1 > 2) S('rect', { x: x0, y: y1 + 1, width: bw, height: y0 - y1 - 2, class: cls, 'fill-opacity': o2 * op, rx: 1.5 }, gB);
+          }
+        });
+        S('rect', { x: X2(deg) - bw / 2 - 3, y: Y2(Math.min(1, T[deg].tot)) - 3, width: bw + 6, height: Y2(0) - Y2(Math.min(1, T[deg].tot)) + 3, fill: 'none', class: 's-ink', 'stroke-width': 1.5, rx: 3 }, gM);
+        const DS = bvSample(BV.seed);
+        const EV = range(13, d => { const bb = bvFit(DS.tr, d); return mean(DS.va.map(q => (q[1] - bvVal(bb, q[0])) ** 2)); });
+        EV.forEach((e, d) => {
+          S('circle', { cx: X2(d), cy: Y2(Math.min(e, 1)), r: 4, class: 's-c0', fill: 'var(--surface)', 'stroke-width': 2 }, gM);
+          if (e > 1) S('text', { x: X2(d), y: Y2(1) - 7, 'text-anchor': 'middle', class: 'lbl', text: '↑', style: 'font-size:11px' }, gM); });
+        S('text', { x: X2(best), y: Math.min(Y2(T[best].tot), Y2(Math.min(EV[best], 1))) - 10, 'text-anchor': 'middle', class: 'lbl', text: 'lavest', style: 'font-size:11px' }, gM);
+        const t = T[deg];
+        tiles.set('b2', fx(t.b2, 3)); tiles.set('v', fx(t.v, 3)); tiles.set('s', fx(SIG2, 3)); tiles.set('rm', fx(Math.sqrt(t.tot), 3), deg === best ? 'good' : '');
+      }
+      draw();
+    },
+    tryit: ['Grad 0–2: den tykke snittkurven ligger langt fra sannheten (lilla felt), mens båndet er smalt. Nesten hele feilen er bias² og støy.',
+      'Grad 3: bias² faller nesten til null, og variansen er fortsatt liten. Summen er lavest her. I figuren over er valideringsfeilen oftest lavest ved grad 3, men med bare 20 valideringspunkter havner bunnpunktet ofte på grad 4–6.',
+      'Grad 10–12: snittkurven følger sannheten nesten perfekt, så bias² er omtrent 0. Men båndet blåser opp ved kantene, og variansen tar over.',
+      'Trykk «Trekk nye data» i figuren over. De hule punktene her viser valideringsfeilen i det nye utvalget. De spretter rundt toppen av søylene: ett valideringssett gir bare et anslag på forventet feil.']
   }, {
     title: 'Valideringssett, k-fold og tidsrekker',
     sub: 'Hver rad er én runde. 20 datapunkter er fordelt på trening og validering. Til slutt snitter vi feilen over rundene.',
@@ -259,7 +340,7 @@ topic({
 <li><b>Bias:</b> modellen er for enkel til å fange mønsteret (rett linje gjennom en kurve). Feilen er høy både på trening og validering. Det kalles undertilpasning.</li>
 <li><b>Varians:</b> modellen er så fleksibel at den følger støyen i akkurat dette treningssettet. Et annet treningssett ville gitt en helt annen modell. Treningsfeilen er lav og valideringsfeilen høy. Det kalles overtilpasning.</li>
 </ul>
-<div class="formula">Forventet feil på nye data = bias² + varians + irreduserbar støy</div>
+<div class="formula">Forventet MSE på nye data = bias² + varians + irreduserbar støy (σ²)</div>
 <p>Kompleksiteten styres av hyperparametere: polynomgrad, k i k-NN, maks dybde i trær, λ i ridge og lasso, antall nevroner og epochs. Vi velger verdien med lavest valideringsfeil.</p>
 <h2>Partisjonering</h2>
 <ul>
